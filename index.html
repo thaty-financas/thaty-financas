@@ -1,9 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Thaty Finanças</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+
+<meta name="theme-color" content="#071426">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="Thaty Finanças">
+
+<link rel="apple-touch-icon" href="/icon-192.png">
 
 <style>
 *{box-sizing:border-box}
@@ -53,10 +71,6 @@ button:active{transform:scale(.98)}
 button:disabled{cursor:not-allowed;opacity:.6;transform:none}
 
 .hidden{display:none!important}
-
-/* =====================================================
-   LOGIN
-===================================================== */
 
 #loginScreen{
   min-height:100vh;
@@ -156,10 +170,6 @@ input:focus,select:focus{
 .error{color:var(--red)}
 .success{color:var(--green)}
 
-/* =====================================================
-   APP
-===================================================== */
-
 #appScreen{
   min-height:100vh;
   display:flex;
@@ -234,10 +244,6 @@ main{
   margin-left:245px;
   padding:42px 42px 70px;
 }
-
-/* =====================================================
-   PÁGINAS
-===================================================== */
 
 .page h2{
   margin:0 0 25px;
@@ -324,10 +330,6 @@ main{
 .red{color:var(--red)!important;font-weight:850}
 .orange{color:var(--orange)!important;font-weight:850}
 
-/* =====================================================
-   HOME
-===================================================== */
-
 #home>h2{
   font-size:32px;
 }
@@ -384,10 +386,6 @@ main{
   background:rgba(255,255,255,.025);
 }
 
-/* =====================================================
-   TABELAS
-===================================================== */
-
 .tableWrap{overflow-x:auto}
 
 table{
@@ -423,10 +421,6 @@ td button{
   color:#b8c6d6;
 }
 
-/* =====================================================
-   BADGES
-===================================================== */
-
 .badge{
   display:inline-flex;
   align-items:center;
@@ -452,10 +446,6 @@ td button{
   background:rgba(255,100,120,.11);
   color:var(--red);
 }
-
-/* =====================================================
-   DÍVIDAS
-===================================================== */
 
 .debtCards{
   display:grid;
@@ -554,10 +544,6 @@ td button{
   box-shadow:0 6px 18px rgba(244,123,32,.18);
 }
 
-/* =====================================================
-   OBJETIVOS
-===================================================== */
-
 .goal{
   display:grid;
   grid-template-columns:58px 1fr auto;
@@ -591,10 +577,6 @@ td button{
   border-radius:20px;
   box-shadow:0 0 12px rgba(244,123,32,.25);
 }
-
-/* =====================================================
-   RELATÓRIOS
-===================================================== */
 
 .reportSummary{
   display:grid;
@@ -654,10 +636,6 @@ td button{
   font-weight:950;
   font-size:15px;
 }
-
-/* =====================================================
-   RESPONSIVO
-===================================================== */
 
 @media(max-width:1100px){
 
@@ -847,7 +825,6 @@ Criar conta
 </div>
 </section>
 
-
 <section id="appScreen" class="hidden">
 
 <header>
@@ -879,9 +856,7 @@ Sair
 
 </header>
 
-
 <main>
-
 
 <section id="home" class="page">
 
@@ -911,7 +886,6 @@ Sair
 
 </div>
 
-
 <div class="card" style="margin-top:18px">
 
 <h3>Resumo financeiro</h3>
@@ -921,7 +895,6 @@ Sair
 </div>
 
 </section>
-
 
 <section id="transactions" class="page hidden">
 
@@ -934,7 +907,6 @@ Sair
 </button>
 
 </div>
-
 
 <div id="transactionForm" class="card hidden">
 
@@ -984,7 +956,6 @@ Cancelar
 
 </div>
 
-
 <div class="card">
 
 <div id="transactionList"></div>
@@ -992,7 +963,6 @@ Cancelar
 </div>
 
 </section>
-
 
 <section id="bills" class="page hidden">
 
@@ -1005,7 +975,6 @@ Cancelar
 </button>
 
 </div>
-
 
 <div id="billForm" class="card hidden">
 
@@ -1052,7 +1021,6 @@ Cancelar
 
 </div>
 
-
 <div class="card">
 
 <div id="billList"></div>
@@ -1060,7 +1028,6 @@ Cancelar
 </div>
 
 </section>
-
 
 <section id="debts" class="page hidden">
 
@@ -1090,7 +1057,6 @@ Cancelar
 
 </div>
 
-
 <div class="card">
 
 <h3>Minhas dívidas</h3>
@@ -1100,7 +1066,6 @@ Cancelar
 </div>
 
 </section>
-
 
 <section id="goals" class="page hidden">
 
@@ -1113,7 +1078,6 @@ Cancelar
 </button>
 
 </div>
-
 
 <div class="grid">
 
@@ -1128,7 +1092,6 @@ Cancelar
 </div>
 
 </div>
-
 
 <div id="goalForm" class="card hidden">
 
@@ -1170,7 +1133,6 @@ Cancelar
 
 </div>
 
-
 <div class="card">
 
 <div id="goalList"></div>
@@ -1178,7 +1140,6 @@ Cancelar
 </div>
 
 </section>
-
 
 <section id="reports" class="page hidden">
 
@@ -1203,7 +1164,6 @@ Cancelar
 
 </div>
 
-
 <div class="card">
 
 <h3>Detalhamento</h3>
@@ -1213,7 +1173,6 @@ Cancelar
 </div>
 
 </section>
-
 
 <section id="settings" class="page hidden">
 
@@ -1237,10 +1196,8 @@ O saldo é o valor atual da sua conta e fica salvo na nuvem.
 
 </section>
 
-
 </main>
 </section>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3011,6 +2968,32 @@ showLogin();
 initialize();
 
 })();
+
+</script>
+
+<!-- ATIVAÇÃO DO PWA -->
+
+<script>
+
+if("serviceWorker" in navigator){
+
+window.addEventListener("load",()=>{
+
+navigator.serviceWorker
+.register("/sw.js")
+.then(()=>{
+console.log("Thaty Finanças PWA ativo!");
+})
+.catch(error=>{
+console.error(
+"Erro ao ativar PWA:",
+error
+);
+});
+
+});
+
+}
 
 </script>
 
