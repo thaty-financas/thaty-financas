@@ -1191,7 +1191,7 @@ td button{
      ESCONDE NAVEGAÇÃO NORMAL
      ========================= */
 
-  nav{
+  header>nav{
     display:none;
   }
 
@@ -1854,7 +1854,9 @@ td button{
       class="page"
     >
 
-      <h2>Olá! 👋</h2>
+      <h2 id="homeGreeting">
+        Olá, Thaty! 👋
+      </h2>
 
 
       <div class="grid">
@@ -2709,6 +2711,46 @@ function showAuthMessage(
 
 
 /* =========================================================
+   NOME DO USUÁRIO
+   ========================================================= */
+
+function getUserName(){
+
+  if(
+    currentUser &&
+    currentUser.user_metadata &&
+    currentUser.user_metadata.name
+  ){
+
+    return String(
+      currentUser.user_metadata.name
+    ).trim();
+
+  }
+
+
+  return "Thaty";
+
+}
+
+
+function renderUserGreeting(){
+
+  const name =
+    getUserName();
+
+
+  if($("homeGreeting")){
+
+    $("homeGreeting").textContent =
+      "Olá, "+name+"! 👋";
+
+  }
+
+}
+
+
+/* =========================================================
    AUTENTICAÇÃO
    ========================================================= */
 
@@ -3323,6 +3365,9 @@ function getBillStatus(
    ========================================================= */
 
 function renderHome(){
+
+  renderUserGreeting();
+
 
   const income =
     database.transactions
