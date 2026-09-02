@@ -1,381 +1,306 @@
-```html
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080d19">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thaty Finanças</title>
 
 <style>
-:root{
-  --bg:#080d19;
-  --card:#111a2b;
-  --orange:#e68a2e;
-  --text:#f5f7fb;
-  --muted:#9ba7ba;
-  --green:#42c98b;
-  --red:#ef6b73;
-  --blue:#78a9ff;
-  --border:#25314a
-}
-
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:linear-gradient(135deg,#070b15,#0e1728);
-  color:var(--text);
-  font-family:Arial,sans-serif
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f7f7f7;
+  color:#222;
 }
 
-.app{
-  max-width:1100px;
-  margin:auto;
-  min-height:100vh
+button,input,select{
+  font:inherit;
 }
 
-.top{
-  padding:22px;
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
+  min-height:100vh;
   display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:linear-gradient(135deg,#fff,#fff4eb);
+}
+
+.loginBox{
+  width:100%;
+  max-width:420px;
+  background:white;
+  padding:32px;
+  border-radius:22px;
+  box-shadow:0 10px 40px rgba(0,0,0,.10);
+}
+
+.logo{
+  color:#f47b20;
+  font-size:30px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.subtitle{
+  color:#777;
+  margin-bottom:25px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:14px 0 6px;
+}
+
+input,select{
+  width:100%;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:12px;
+  background:white;
+}
+
+.primary{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:13px;
+  margin-top:18px;
+  background:#f47b20;
+  color:white;
+  font-weight:bold;
+}
+
+.secondary{
+  border:0;
+  border-radius:10px;
+  padding:11px 14px;
+  background:#eee;
+}
+
+#authMessage{
+  min-height:22px;
+  margin-top:12px;
+  font-size:14px;
+}
+
+.error{
+  color:#d93025;
+}
+
+.success{
+  color:#188038;
+}
+
+/* APP */
+
+header{
+  background:white;
+  border-bottom:1px solid #eee;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.headerTop{
+  max-width:1150px;
+  margin:auto;
+  padding:15px 18px;
+  display:flex;
+  align-items:center;
   justify-content:space-between;
-  align-items:center
 }
 
 .brand{
-  font-size:22px;
-  font-weight:800
-}
-
-.brand span{
-  color:var(--orange)
-}
-
-.sub,small{
-  color:var(--muted)
-}
-
-.nav{
-  display:flex;
-  gap:8px;
-  padding:8px 22px 16px;
-  overflow:auto;
-  position:sticky;
-  top:0;
-  background:#080d19ee;
-  z-index:5
-}
-
-.nav button,.btn{
-  border:1px solid var(--border);
-  background:var(--card);
-  color:var(--muted);
-  padding:11px 15px;
-  border-radius:13px;
-  cursor:pointer
-}
-
-.nav button.active,.btn{
-  background:var(--orange);
-  color:#17100a;
+  color:#f47b20;
   font-weight:800;
-  border-color:var(--orange)
+  font-size:22px;
+}
+
+nav{
+  max-width:1150px;
+  margin:auto;
+  padding:0 18px 12px;
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+}
+
+nav button{
+  border:0;
+  padding:9px 13px;
+  border-radius:9px;
+  background:#eee;
+  white-space:nowrap;
+}
+
+nav button.active{
+  background:#f47b20;
+  color:white;
 }
 
 main{
-  padding:0 22px 80px
+  max-width:1150px;
+  margin:auto;
+  padding:22px 18px;
 }
 
-.view{
-  display:none
+.page{
+  display:block;
 }
 
-.view.active{
-  display:block
-}
-
-.hero,.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:20px
-}
-
-.hero{
-  background:linear-gradient(135deg,#172238,#101827);
-  margin-bottom:15px
-}
-
-.balance{
-  font-size:38px;
-  font-weight:850;
-  margin:8px 0 18px
+.card{
+  background:white;
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
 }
 
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px
+  gap:14px;
 }
 
-.metric{
-  font-size:21px;
+.value{
+  font-size:25px;
   font-weight:800;
-  margin-top:6px
+  margin-top:7px;
 }
 
-.green{color:var(--green)}
-.red{color:var(--red)}
-.orange{color:var(--orange)}
-.blue{color:var(--blue)}
+.muted{
+  color:#777;
+  font-size:13px;
+}
 
-.section{
-  margin-top:18px
+.formGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
 }
 
 .row{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:10px
-}
-
-.list{
-  display:flex;
-  flex-direction:column;
-  gap:8px
-}
-
-.item{
-  background:var(--card);
-  border:1px solid var(--border);
-  padding:14px;
-  border-radius:15px;
-  display:flex;
-  justify-content:space-between;
-  gap:12px
-}
-
-.name{
-  font-weight:700
-}
-
-.amount{
-  font-weight:800;
-  white-space:nowrap
-}
-
-.progress{
-  height:10px;
-  background:#0a101c;
-  border-radius:20px;
-  overflow:hidden
-}
-
-.progress>div{
-  height:100%;
-  background:var(--orange)
-}
-
-.toolbar{
-  display:flex;
-  gap:8px;
-  margin:12px 0;
-  flex-wrap:wrap
-}
-
-.toolbar input,
-.toolbar select,
-.form input,
-.form select{
-  background:#0b1220;
-  color:white;
-  border:1px solid var(--border);
-  padding:12px;
-  border-radius:12px
-}
-
-.form{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px
-}
-
-.form label{
-  font-size:12px;
-  color:var(--muted)
-}
-
-.form input,
-.form select{
-  width:100%;
-  margin-top:5px
-}
-
-.full{
-  grid-column:1/-1
+  gap:10px;
 }
 
 .actions{
   display:flex;
   gap:8px;
-  flex-wrap:wrap
+  flex-wrap:wrap;
+  margin-top:12px;
 }
 
-.modal{
-  position:fixed;
-  inset:0;
-  background:#000b;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  z-index:10
-}
-
-.modal.open{
-  display:flex
-}
-
-.modalbox{
-  width:100%;
-  max-width:550px;
-  background:#10192a;
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:20px
-}
-
-.close{
-  float:right;
-  background:none;
+.actions button{
   border:0;
-  color:#aaa;
-  font-size:25px;
-  cursor:pointer
+  border-radius:9px;
+  padding:9px 12px;
+  background:#eee;
 }
 
-.empty{
-  text-align:center;
-  padding:25px;
-  color:var(--muted)
-}
-
-.login{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px
-}
-
-.loginbox{
+table{
   width:100%;
-  max-width:430px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:28px
+  border-collapse:collapse;
 }
 
-.loginbox h1{
-  margin:15px 0 5px
+th,td{
+  padding:11px 8px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  font-size:14px;
 }
 
-.loginbox .form{
-  grid-template-columns:1fr
+.green{
+  color:#188038;
+  font-weight:bold;
 }
 
-.loginbox input{
-  width:100%;
-  background:#0b1220;
-  color:white;
-  border:1px solid var(--border);
-  padding:13px;
-  border-radius:12px;
-  margin-top:6px
-}
-
-.error{
-  color:var(--red);
-  margin:10px 0
-}
-
-.success{
-  color:var(--green);
-  margin:10px 0
-}
-
-.userpill{
-  font-size:12px;
-  color:var(--muted);
-  margin-right:8px
+.red{
+  color:#d93025;
+  font-weight:bold;
 }
 
 .badge{
   display:inline-block;
   padding:5px 9px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:800
+  border-radius:20px;
+  font-size:12px;
 }
 
-.badge.ok{
-  background:#183e31;
-  color:var(--green)
+.badge.paid{
+  background:#def7e5;
+  color:#176b37;
+}
+
+.badge.due{
+  background:#fff0d8;
+  color:#a85c00;
 }
 
 .badge.late{
-  background:#492329;
-  color:var(--red)
+  background:#ffe0e0;
+  color:#b00020;
 }
 
-.badge.next{
-  background:#40341c;
-  color:var(--orange)
+.goal{
+  display:grid;
+  grid-template-columns:55px 1fr auto;
+  align-items:center;
+  gap:14px;
 }
 
-footer{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  text-align:center;
-  padding:10px;
-  background:#080d19ee;
-  border-top:1px solid var(--border);
-  color:var(--muted);
-  font-size:12px
+.goalIcon{
+  font-size:35px;
 }
 
-@media(max-width:700px){
+.progress{
+  height:10px;
+  background:#eee;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:8px;
+}
 
-  main{
-    padding:0 14px 75px
-  }
+.progressBar{
+  height:100%;
+  background:#f47b20;
+}
 
-  .top{
-    padding:18px 14px
-  }
-
-  .nav{
-    padding-left:14px
-  }
-
+@media(max-width:800px){
   .grid{
-    grid-template-columns:1fr 1fr
+    grid-template-columns:repeat(2,1fr);
   }
 
-  .form{
-    grid-template-columns:1fr
+  .formGrid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:520px){
+  .grid,
+  .formGrid{
+    grid-template-columns:1fr;
   }
 
-  .full{
-    grid-column:auto
-  }
-
-  .balance{
-    font-size:32px
+  .goal{
+    grid-template-columns:45px 1fr;
   }
 }
 </style>
@@ -383,180 +308,566 @@ footer{
 
 <body>
 
-<div id="loginScreen" class="login">
+<!-- ========================= LOGIN ========================= -->
 
-  <div class="loginbox">
+<section id="loginScreen">
+
+  <div class="loginBox">
+
+    <div class="logo">
+      Thaty FINANÇAS
+    </div>
+
+    <div class="subtitle">
+      Seu controle financeiro na nuvem.
+    </div>
+
+    <label>E-mail</label>
+    <input
+      id="email"
+      type="email"
+      autocomplete="email"
+      placeholder="seu@email.com"
+    >
+
+    <label>Senha</label>
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="Sua senha"
+    >
+
+    <button
+      id="loginButton"
+      class="primary"
+      type="button"
+    >
+      Entrar
+    </button>
+
+    <button
+      id="toggleAuthButton"
+      class="secondary"
+      type="button"
+      style="width:100%;margin-top:10px"
+    >
+      Criar conta
+    </button>
+
+    <div id="authMessage"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= APP ========================= -->
+
+<section id="appScreen" class="hidden">
+
+<header>
+
+  <div class="headerTop">
 
     <div class="brand">
-      Thaty <span>FINANÇAS</span>
+      Thaty FINANÇAS
     </div>
 
-    <h1 id="loginTitle">Entrar</h1>
+    <button
+      id="logoutButton"
+      class="secondary"
+    >
+      Sair
+    </button>
 
-    <div class="sub">
-      Seu controle financeiro na nuvem. ☁️
+  </div>
+
+  <nav id="navigation">
+
+    <button
+      class="active"
+      data-page="home"
+    >
+      Início
+    </button>
+
+    <button data-page="transactions">
+      Movimentações
+    </button>
+
+    <button data-page="bills">
+      Contas
+    </button>
+
+    <button data-page="debts">
+      Dívidas Totais
+    </button>
+
+    <button data-page="goals">
+      Poupança & Objetivos
+    </button>
+
+    <button data-page="reports">
+      Relatórios
+    </button>
+
+    <button data-page="settings">
+      Configurações
+    </button>
+
+  </nav>
+
+</header>
+
+
+<main>
+
+<!-- ========================= INÍCIO ========================= -->
+
+<section id="home" class="page">
+
+  <h2>Olá! 👋</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="muted">
+        Saldo atual
+      </div>
+
+      <div
+        id="dashboardBalance"
+        class="value"
+      >
+        R$ 0,00
+      </div>
     </div>
 
-    <div id="authMsg"></div>
 
-    <div class="form" style="margin-top:18px">
+    <div class="card">
 
-      <label>
-        E-mail
-        <input
-          id="authEmail"
-          type="email"
-          autocomplete="email"
-        >
-      </label>
+      <div class="muted">
+        Entradas
+      </div>
 
-      <label>
-        Senha
-        <input
-          id="authPassword"
-          type="password"
-          autocomplete="current-password"
-        >
-      </label>
+      <div
+        id="dashboardIncome"
+        class="value"
+      >
+        R$ 0,00
+      </div>
 
-      <div class="full actions">
+    </div>
 
-        <button
-          class="btn"
-          id="authBtn"
-          onclick="authAction()"
-        >
-          Entrar
-        </button>
 
-        <button
-          class="btn"
-          style="background:var(--card);color:var(--muted)"
-          onclick="toggleAuthMode()"
-        >
-          Criar conta
-        </button>
+    <div class="card">
 
+      <div class="muted">
+        Saídas
+      </div>
+
+      <div
+        id="dashboardExpense"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Dívidas
+      </div>
+
+      <div
+        id="dashboardDebt"
+        class="value"
+      >
+        R$ 0,00
       </div>
 
     </div>
 
   </div>
 
-</div>
 
+  <div class="card">
 
-<div id="app" class="app" style="display:none">
+    <h3>Resumo financeiro</h3>
 
-<header class="top">
-
-  <div>
-
-    <div class="brand">
-      Thaty <span>FINANÇAS</span>
-    </div>
-
-    <div class="sub">
-      Organizar hoje é conquistar amanhã. 💙
-    </div>
+    <div id="homeSummary"></div>
 
   </div>
 
-  <div class="actions">
+</section>
 
-    <span
-      id="userEmail"
-      class="userpill"
-    ></span>
+
+<!-- ========================= MOVIMENTAÇÕES ========================= -->
+
+<section
+  id="transactions"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Movimentações
+    </h2>
 
     <button
-      class="btn"
-      onclick="config()"
+      id="addTransactionButton"
+      class="primary"
+      style="width:auto;margin:0"
     >
-      ⚙️
+      + Adicionar
     </button>
 
   </div>
 
-</header>
 
-
-<nav class="nav">
-
-  <button
-    class="active"
-    onclick="view('home',this)"
+  <div
+    id="transactionForm"
+    class="card hidden"
   >
-    Início
-  </button>
 
-  <button
-    onclick="view('mov',this)"
-  >
-    Movimentações
-  </button>
+    <div class="formGrid">
 
-  <button
-    onclick="view('bills',this)"
-  >
-    Contas
-  </button>
+      <div>
 
-  <button
-    onclick="view('debts',this)"
-  >
-    Dívidas totais
-  </button>
+        <label>Tipo</label>
 
-  <button
-    onclick="view('savings',this)"
-  >
-    Poupança
-  </button>
+        <select id="transactionType">
 
-  <button
-    onclick="view('reports',this)"
-  >
-    Relatórios
-  </button>
+          <option value="income">
+            Entrada
+          </option>
 
-</nav>
+          <option value="expense">
+            Saída
+          </option>
+
+        </select>
+
+      </div>
 
 
-<main>
+      <div>
 
-<section id="home" class="view active">
+        <label>Descrição</label>
 
-  <div class="hero">
+        <input
+          id="transactionDescription"
+          type="text"
+        >
 
-    <small id="monthLabel"></small>
+      </div>
 
-    <h1>
-      Bom dia, Thaty! 👋
-    </h1>
 
-    <div
-      class="balance"
-      id="balance"
-    ></div>
+      <div>
+
+        <label>Valor</label>
+
+        <input
+          id="transactionAmount"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Data</label>
+
+        <input
+          id="transactionDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Categoria</label>
+
+        <input
+          id="transactionCategory"
+          type="text"
+        >
+
+      </div>
+
+    </div>
+
 
     <div class="actions">
 
       <button
-        class="btn"
-        onclick="txModal()"
+        id="saveTransactionButton"
+        class="primary"
+        style="width:auto;margin:0"
       >
-        ＋ Nova movimentação
+        Salvar
       </button>
 
-      <button
-        class="btn"
-        onclick="billModal()"
-      >
-        ＋ Nova conta
+      <button id="cancelTransactionButton">
+        Cancelar
       </button>
 
     </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="transactionList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= CONTAS ========================= -->
+
+<section
+  id="bills"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Contas
+    </h2>
+
+    <button
+      id="addBillButton"
+      class="primary"
+      style="width:auto;margin:0"
+    >
+      + Adicionar
+    </button>
+
+  </div>
+
+
+  <div
+    id="billForm"
+    class="card hidden"
+  >
+
+    <div class="formGrid">
+
+      <div>
+
+        <label>Nome da conta</label>
+
+        <input
+          id="billName"
+          type="text"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Valor da parcela</label>
+
+        <input
+          id="billAmount"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Dívida total</label>
+
+        <input
+          id="billTotalDebt"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Parcelas / informação</label>
+
+        <input
+          id="billInfo"
+          type="text"
+          placeholder="Ex.: 02/36"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Vencimento</label>
+
+        <input
+          value="Dia 10"
+          disabled
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        id="saveBillButton"
+        class="primary"
+        style="width:auto;margin:0"
+      >
+        Salvar
+      </button>
+
+      <button id="cancelBillButton">
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="billList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= DÍVIDAS ========================= -->
+
+<section
+  id="debts"
+  class="page hidden"
+>
+
+  <h2>
+    Dívidas Totais
+  </h2>
+
+
+  <div class="grid">
+
+    <div class="card">
+
+      <div class="muted">
+        Total das dívidas
+      </div>
+
+      <div
+        id="debtTotal"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Parcelas em aberto
+      </div>
+
+      <div
+        id="debtOpen"
+        class="value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Pagas
+      </div>
+
+      <div
+        id="debtPaid"
+        class="value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Quantidade
+      </div>
+
+      <div
+        id="debtCount"
+        class="value"
+      >
+        0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="debtList"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= OBJETIVOS ========================= -->
+
+<section
+  id="goals"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Poupança & Objetivos
+    </h2>
+
+    <button
+      id="addGoalButton"
+      class="primary"
+      style="width:auto;margin:0"
+    >
+      + Objetivo
+    </button>
 
   </div>
 
@@ -564,331 +875,181 @@ footer{
   <div class="grid">
 
     <div class="card">
-      <small>Recebido</small>
+
+      <div class="muted">
+        Total guardado
+      </div>
+
       <div
-        class="metric green"
-        id="income"
-      ></div>
+        id="goalSavedTotal"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
     </div>
 
-    <div class="card">
-      <small>Gasto</small>
-      <div
-        class="metric red"
-        id="expense"
-      ></div>
-    </div>
 
     <div class="card">
-      <small>Contas pagas</small>
-      <div
-        class="metric blue"
-        id="paid"
-      ></div>
-    </div>
 
-    <div class="card">
-      <small>Falta pagar</small>
+      <div class="muted">
+        Meta total
+      </div>
+
       <div
-        class="metric orange"
-        id="due"
-      ></div>
+        id="goalTargetTotal"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
     </div>
 
   </div>
 
 
-  <div class="card section">
+  <div
+    id="goalForm"
+    class="card hidden"
+  >
 
-    <div class="row">
-      <b>Progresso das contas</b>
-      <span id="progtext"></span>
+    <div class="formGrid">
+
+      <div>
+
+        <label>Nome do objetivo</label>
+
+        <input
+          id="goalName"
+          type="text"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Ícone</label>
+
+        <input
+          id="goalIcon"
+          value="🎯"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Meta</label>
+
+        <input
+          id="goalTarget"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Já guardado</label>
+
+        <input
+          id="goalSaved"
+          type="number"
+          step="0.01"
+          value="0"
+        >
+
+      </div>
+
     </div>
 
-    <div
-      class="progress"
-      style="margin-top:10px"
-    >
-      <div id="prog"></div>
+
+    <div class="actions">
+
+      <button
+        id="saveGoalButton"
+        class="primary"
+        style="width:auto;margin:0"
+      >
+        Salvar
+      </button>
+
+      <button id="cancelGoalButton">
+        Cancelar
+      </button>
+
     </div>
 
   </div>
 
 
-  <div class="section">
+  <div class="card">
 
-    <h2>Próximos vencimentos</h2>
-
-    <div
-      id="upcoming"
-      class="list"
-    ></div>
+    <div id="goalList"></div>
 
   </div>
 
 </section>
 
 
-<section id="mov" class="view">
+<!-- ========================= RELATÓRIOS ========================= -->
 
-  <div class="row">
+<section
+  id="reports"
+  class="page hidden"
+>
 
-    <div>
-      <h1>Movimentações</h1>
-      <div class="sub">
-        Entradas e saídas
-      </div>
-    </div>
+  <h2>
+    Relatórios
+  </h2>
 
-    <button
-      class="btn"
-      onclick="txModal()"
-    >
-      ＋ Adicionar
-    </button>
+  <div
+    id="reportContent"
+    class="card"
+  ></div>
 
-  </div>
+</section>
 
-  <div class="toolbar">
 
-    <select
-      id="filter"
-      onchange="render()"
-    >
-      <option value="all">Todas</option>
-      <option value="income">Entradas</option>
-      <option value="expense">Saídas</option>
-    </select>
+<!-- ========================= CONFIGURAÇÕES ========================= -->
+
+<section
+  id="settings"
+  class="page hidden"
+>
+
+  <h2>
+    Configurações
+  </h2>
+
+
+  <div class="card">
+
+    <label>
+      Saldo da conta atual
+    </label>
 
     <input
-      id="search"
-      placeholder="Buscar..."
-      oninput="render()"
+      id="balanceInput"
+      type="number"
+      step="0.01"
     >
-
-  </div>
-
-  <div id="transactions"></div>
-
-</section>
-
-
-<section id="bills" class="view">
-
-  <div class="row">
-
-    <div>
-      <h1>Contas</h1>
-      <div class="sub">
-        Todas vencem no dia 10
-      </div>
-    </div>
 
     <button
-      class="btn"
-      onclick="billModal()"
+      id="saveBalanceButton"
+      class="primary"
+      style="width:auto"
     >
-      ＋ Nova conta
+      Salvar saldo
     </button>
 
-  </div>
-
-  <div
-    id="billsList"
-    class="list"
-  ></div>
-
-</section>
-
-
-<section id="debts" class="view">
-
-  <h1>💳 Dívidas totais</h1>
-
-  <div class="sub">
-    Veja a parcela e o total que ainda falta pagar.
-  </div>
-
-  <div
-    class="grid"
-    style="margin-top:12px"
-  >
-
-    <div class="card">
-      <small>Total das dívidas</small>
-      <div
-        class="metric red"
-        id="debtTotal"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Parcelas em aberto</small>
-      <div
-        class="metric orange"
-        id="debtDue"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Já pago</small>
-      <div
-        class="metric green"
-        id="debtPaid"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Quantidade</small>
-      <div
-        class="metric blue"
-        id="debtCount"
-      ></div>
-    </div>
-
-  </div>
-
-  <div class="card section">
-    <div
-      class="list"
-      id="debtsList"
-    ></div>
-  </div>
-
-</section>
-
-
-<section id="savings" class="view">
-
-  <div class="row">
-
-    <div>
-      <h1>🐷 Poupança & Objetivos</h1>
-      <div class="sub">
-        Crie metas e acompanhe seu progresso.
-      </div>
-    </div>
-
-    <button
-      class="btn"
-      onclick="goalModal()"
-    >
-      ＋ Novo objetivo
-    </button>
-
-  </div>
-
-  <div
-    class="grid"
-    style="margin-top:12px"
-  >
-
-    <div class="card">
-      <small>Total guardado</small>
-      <div
-        class="metric green"
-        id="savedTotal"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Total das metas</small>
-      <div
-        class="metric orange"
-        id="goalTotal"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Falta guardar</small>
-      <div
-        class="metric red"
-        id="goalRemaining"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Objetivos</small>
-      <div
-        class="metric blue"
-        id="goalCount"
-      ></div>
-    </div>
-
-  </div>
-
-  <div
-    id="goalsList"
-    class="list section"
-  ></div>
-
-</section>
-
-
-<section id="reports" class="view">
-
-  <div class="row">
-
-    <div>
-      <h1>Relatórios</h1>
-      <div class="sub">
-        Resumo do mês
-      </div>
-    </div>
-
-    <button
-      class="btn"
-      onclick="window.print()"
-    >
-      🖨️ PDF
-    </button>
-
-  </div>
-
-  <div
-    class="grid"
-    style="margin-top:12px"
-  >
-
-    <div class="card">
-      <small>Total recebido</small>
-      <div
-        class="metric green"
-        id="ri"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Total gasto</small>
-      <div
-        class="metric red"
-        id="re"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Saldo do mês</small>
-      <div
-        class="metric"
-        id="rn"
-      ></div>
-    </div>
-
-    <div class="card">
-      <small>Saldo real</small>
-      <div
-        class="metric blue"
-        id="rb"
-      ></div>
-    </div>
-
-  </div>
-
-  <div class="card section">
-
-    <h2>Gastos por categoria</h2>
-
-    <div id="cats"></div>
+    <p class="muted">
+      O saldo é o valor atual da sua conta e fica salvo na nuvem.
+    </p>
 
   </div>
 
@@ -896,438 +1057,2067 @@ footer{
 
 </main>
 
-
-<footer>
-  Thaty Finanças • ☁️ Dados sincronizados
-</footer>
-
-</div>
+</section>
 
 
-<div
-  id="modal"
-  class="modal"
->
+<!-- ========================= SUPABASE ========================= -->
 
-  <div class="modalbox">
-
-    <button
-      class="close"
-      onclick="closeM()"
-    >
-      ×
-    </button>
-
-    <div id="modalbody"></div>
-
-  </div>
-
-</div>
-
-
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
+(function(){
+
+"use strict";
+
+
+/* =========================================================
+   CONFIGURAÇÃO SUPABASE
+========================================================= */
+
 const SUPABASE_URL =
-  'https://rwwfidxpdybyuojijhaz.supabase.co';
+"https://rwwfidxpdybyuojijhaz.supabase.co";
 
 const SUPABASE_KEY =
-  'sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv';
+"sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv";
+
 
 const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 
-let user = null;
+/* =========================================================
+   ESTADO
+========================================================= */
 
-let db = {
-  balance:0,
-  transactions:[],
-  bills:[],
-  goals:[]
+let currentUser = null;
+
+let database = {
+
+  transactions: [],
+
+  bills: [],
+
+  goals: [],
+
+  balance: 0
+
 };
 
-let authMode = 'login';
+
+let creatingAccount = false;
 
 
-const $ = id =>
-  document.getElementById(id);
+/* =========================================================
+   FUNÇÕES AUXILIARES
+========================================================= */
+
+function $(id){
+
+  return document.getElementById(id);
+
+}
 
 
-const money = n =>
-  (+n || 0).toLocaleString(
-    'pt-BR',
+function money(value){
+
+  return Number(value || 0).toLocaleString(
+    "pt-BR",
     {
-      style:'currency',
-      currency:'BRL'
+      style:"currency",
+      currency:"BRL"
+    }
+  );
+
+}
+
+
+function numberValue(value){
+
+  if(typeof value === "number"){
+    return value;
+  }
+
+  let text = String(value || "");
+
+  text = text
+    .replace(/[^\d,.-]/g,"")
+    .replace(/\./g,"")
+    .replace(",", ".");
+
+  return Number(text) || 0;
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function showAuthMessage(message,type){
+
+  const element = $("authMessage");
+
+  element.textContent = message || "";
+
+  element.className =
+    type === "success"
+      ? "success"
+      : "error";
+
+}
+
+
+async function authAction(){
+
+  const email =
+    $("email").value.trim();
+
+  const password =
+    $("password").value;
+
+
+  if(!email || !password){
+
+    showAuthMessage(
+      "Preencha seu e-mail e sua senha."
+    );
+
+    return;
+
+  }
+
+
+  $("loginButton").disabled = true;
+
+
+  $("loginButton").textContent =
+    creatingAccount
+      ? "Criando..."
+      : "Entrando...";
+
+
+  showAuthMessage("");
+
+
+  try{
+
+    let result;
+
+
+    if(creatingAccount){
+
+      result =
+        await supabaseClient.auth.signUp({
+          email:email,
+          password:password
+        });
+
+    }else{
+
+      result =
+        await supabaseClient.auth.signInWithPassword({
+          email:email,
+          password:password
+        });
+
+    }
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+
+    if(
+      creatingAccount &&
+      !result.data.session
+    ){
+
+      showAuthMessage(
+        "Conta criada! Se o Supabase pedir confirmação de e-mail, confirme o e-mail antes de entrar.",
+        "success"
+      );
+
+      return;
+
+    }
+
+
+    currentUser =
+      result.data.user;
+
+
+    await loadCloudData(true);
+
+
+    showApplication();
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    let message =
+      error.message || "Não foi possível entrar.";
+
+
+    if(
+      message === "Invalid login credentials"
+    ){
+
+      message =
+        "E-mail ou senha incorretos.";
+
+    }
+
+
+    showAuthMessage(message);
+
+  }finally{
+
+    $("loginButton").disabled = false;
+
+    $("loginButton").textContent =
+      creatingAccount
+        ? "Criar conta"
+        : "Entrar";
+
+  }
+
+}
+
+
+function toggleAuthMode(){
+
+  creatingAccount =
+    !creatingAccount;
+
+
+  $("loginButton").textContent =
+    creatingAccount
+      ? "Criar conta"
+      : "Entrar";
+
+
+  $("toggleAuthButton").textContent =
+    creatingAccount
+      ? "Já tenho uma conta"
+      : "Criar conta";
+
+
+  showAuthMessage("");
+
+}
+
+
+function showApplication(){
+
+  $("loginScreen").classList.add("hidden");
+
+  $("appScreen").classList.remove("hidden");
+
+  renderEverything();
+
+}
+
+
+function showLogin(){
+
+  $("appScreen").classList.add("hidden");
+
+  $("loginScreen").classList.remove("hidden");
+
+}
+
+
+/* =========================================================
+   IMPORTAÇÃO DOS DADOS ANTIGOS
+========================================================= */
+
+function extractInstallmentAmount(bill){
+
+  const info =
+    String(bill.info || "");
+
+
+  /*
+    Exemplo:
+
+    02/36 - 160,79
+
+    O 02/36 é a quantidade da parcela.
+    160,79 é o valor da parcela.
+  */
+
+  const match =
+    info.match(
+      /(?:-|\u2013|\u2014)\s*([0-9.]+,[0-9]{2})\s*$/
+    );
+
+
+  if(match){
+
+    return numberValue(match[1]);
+
+  }
+
+
+  return numberValue(
+    bill.amount
+  );
+
+}
+
+
+async function importOldLocalData(oldData){
+
+  const userId =
+    currentUser.id;
+
+
+  /*
+    MOVIMENTAÇÕES
+  */
+
+  const oldTransactions =
+    Array.isArray(oldData.transactions)
+      ? oldData.transactions
+      : [];
+
+
+  if(oldTransactions.length){
+
+    const rows =
+      oldTransactions.map(item => {
+
+        return {
+
+          user_id:userId,
+
+          type:
+            item.type === "income"
+              ? "income"
+              : "expense",
+
+          description:
+            item.description ||
+            item.name ||
+            "Movimentação",
+
+          amount:
+            numberValue(item.amount),
+
+          date:
+            item.date ||
+            new Date().toISOString().slice(0,10),
+
+          category:
+            item.category ||
+            null,
+
+          notes:
+            item.notes ||
+            null
+
+        };
+
+      });
+
+
+    const result =
+      await supabaseClient
+        .from("transactions")
+        .insert(rows);
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+  }
+
+
+  /*
+    CONTAS / DÍVIDAS
+  */
+
+  const oldBills =
+    Array.isArray(oldData.bills)
+      ? oldData.bills
+      : [];
+
+
+  if(oldBills.length){
+
+    const rows =
+      oldBills.map(bill => {
+
+        const installment =
+          extractInstallmentAmount(bill);
+
+
+        let totalDebt;
+
+
+        if(
+          bill.totalDebt !== undefined &&
+          bill.totalDebt !== null
+        ){
+
+          totalDebt =
+            numberValue(
+              bill.totalDebt
+            );
+
+        }else{
+
+          totalDebt =
+            numberValue(
+              bill.amount
+            );
+
+        }
+
+
+        return {
+
+          user_id:userId,
+
+          name:
+            bill.name ||
+            "Conta",
+
+          amount:
+            installment,
+
+          total_debt:
+            totalDebt,
+
+          info:
+            bill.info ||
+            "Vencimento: dia 10",
+
+          /*
+            TODAS AS CONTAS VENCEM DIA 10
+          */
+
+          due_day:10,
+
+          installment_label:
+            bill.installmentLabel ||
+            null,
+
+          paid:
+            Boolean(bill.paid)
+
+        };
+
+      });
+
+
+    const result =
+      await supabaseClient
+        .from("bills")
+        .insert(rows);
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+  }
+
+
+  /*
+    OBJETIVOS
+  */
+
+  const oldGoals =
+    Array.isArray(oldData.goals)
+      ? oldData.goals
+      : [];
+
+
+  if(oldGoals.length){
+
+    const rows =
+      oldGoals.map(goal => {
+
+        return {
+
+          user_id:userId,
+
+          name:
+            goal.name ||
+            "Objetivo",
+
+          icon:
+            goal.icon ||
+            "🎯",
+
+          target:
+            numberValue(
+              goal.target
+            ),
+
+          saved:
+            numberValue(
+              goal.saved
+            )
+
+        };
+
+      });
+
+
+    const result =
+      await supabaseClient
+        .from("goals")
+        .insert(rows);
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+  }
+
+
+  /*
+    SALDO
+  */
+
+  const balance =
+    numberValue(
+      oldData.balance
+    );
+
+
+  const result =
+    await supabaseClient
+      .from("account_settings")
+      .upsert(
+        {
+          user_id:userId,
+
+          balance:balance,
+
+          updated_at:
+            new Date().toISOString()
+        },
+        {
+          onConflict:"user_id"
+        }
+      );
+
+
+  if(result.error){
+
+    throw result.error;
+
+  }
+
+
+  /*
+    Marca no dispositivo que a importação
+    daquele usuário já foi feita.
+  */
+
+  localStorage.setItem(
+    "thaty_financas_importado_" + userId,
+    "1"
+  );
+
+}
+
+
+/* =========================================================
+   CARREGAR DADOS DA NUVEM
+========================================================= */
+
+async function loadCloudData(allowImport){
+
+  if(!currentUser){
+
+    return;
+
+  }
+
+
+  const userId =
+    currentUser.id;
+
+
+  const results =
+    await Promise.all([
+
+      supabaseClient
+        .from("transactions")
+        .select("*")
+        .eq("user_id",userId)
+        .order("date",{ascending:false}),
+
+      supabaseClient
+        .from("bills")
+        .select("*")
+        .eq("user_id",userId)
+        .order("created_at",{ascending:false}),
+
+      supabaseClient
+        .from("goals")
+        .select("*")
+        .eq("user_id",userId)
+        .order("created_at",{ascending:false}),
+
+      supabaseClient
+        .from("account_settings")
+        .select("*")
+        .eq("user_id",userId)
+        .maybeSingle()
+
+    ]);
+
+
+  const transactionResult =
+    results[0];
+
+  const billResult =
+    results[1];
+
+  const goalResult =
+    results[2];
+
+  const settingsResult =
+    results[3];
+
+
+  if(transactionResult.error){
+
+    throw transactionResult.error;
+
+  }
+
+
+  if(billResult.error){
+
+    throw billResult.error;
+
+  }
+
+
+  if(goalResult.error){
+
+    throw goalResult.error;
+
+  }
+
+
+  if(settingsResult.error){
+
+    throw settingsResult.error;
+
+  }
+
+
+  database.transactions =
+    transactionResult.data || [];
+
+
+  database.bills =
+    billResult.data || [];
+
+
+  database.goals =
+    goalResult.data || [];
+
+
+  database.balance =
+    Number(
+      settingsResult.data?.balance || 0
+    );
+
+
+  /*
+    IMPORTAÇÃO AUTOMÁTICA
+
+    Só tenta se a conta na nuvem estiver
+    completamente vazia.
+  */
+
+  if(
+    allowImport &&
+    database.transactions.length === 0 &&
+    database.bills.length === 0 &&
+    database.goals.length === 0
+  ){
+
+    const oldRaw =
+      localStorage.getItem("thatyV1");
+
+
+    if(oldRaw){
+
+      try{
+
+        const oldData =
+          JSON.parse(oldRaw);
+
+
+        const alreadyImported =
+          localStorage.getItem(
+            "thaty_financas_importado_" +
+            userId
+          );
+
+
+        if(!alreadyImported){
+
+          const confirmImport =
+            confirm(
+              "Encontrei dados salvos neste dispositivo.\n\nDeseja importar seus dados antigos para sua conta na nuvem?"
+            );
+
+
+          if(confirmImport){
+
+            await importOldLocalData(
+              oldData
+            );
+
+          }
+
+        }
+
+      }catch(error){
+
+        console.error(
+          "Erro ao importar dados antigos:",
+          error
+        );
+
+      }
+
+
+      /*
+        IMPORTANTE:
+
+        Não chama loadCloudData()
+        novamente de forma recursiva.
+
+        Apenas carrega os dados diretamente
+        depois da importação.
+      */
+
+      const fresh =
+        await Promise.all([
+
+          supabaseClient
+            .from("transactions")
+            .select("*")
+            .eq("user_id",userId)
+            .order("date",{ascending:false}),
+
+          supabaseClient
+            .from("bills")
+            .select("*")
+            .eq("user_id",userId)
+            .order("created_at",{ascending:false}),
+
+          supabaseClient
+            .from("goals")
+            .select("*")
+            .eq("user_id",userId)
+            .order("created_at",{ascending:false}),
+
+          supabaseClient
+            .from("account_settings")
+            .select("*")
+            .eq("user_id",userId)
+            .maybeSingle()
+
+        ]);
+
+
+      database.transactions =
+        fresh[0].data || [];
+
+      database.bills =
+        fresh[1].data || [];
+
+      database.goals =
+        fresh[2].data || [];
+
+      database.balance =
+        Number(
+          fresh[3].data?.balance || 0
+        );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   CONTAS
+========================================================= */
+
+function getBillStatus(bill){
+
+  if(bill.paid){
+
+    return {
+      text:"Paga",
+      className:"paid"
+    };
+
+  }
+
+
+  /*
+    REGRA:
+
+    Todas vencem dia 10.
+
+    Depois do dia 10:
+    ATRASADA.
+  */
+
+  const now =
+    new Date();
+
+
+  const due =
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      10,
+      23,
+      59,
+      59
+    );
+
+
+  if(now > due){
+
+    return {
+      text:"Atrasada",
+      className:"late"
+    };
+
+  }
+
+
+  return {
+    text:"Vencimento dia 10",
+    className:"due"
+  };
+
+}
+
+
+/* =========================================================
+   RENDER INÍCIO
+========================================================= */
+
+function renderHome(){
+
+  const income =
+    database.transactions
+      .filter(item => item.type === "income")
+      .reduce(
+        (sum,item) =>
+          sum + Number(item.amount || 0),
+        0
+      );
+
+
+  const expense =
+    database.transactions
+      .filter(item => item.type === "expense")
+      .reduce(
+        (sum,item) =>
+          sum + Number(item.amount || 0),
+        0
+      );
+
+
+  const debts =
+    database.bills
+      .filter(item => !item.paid)
+      .reduce(
+        (sum,item) =>
+          sum +
+          Number(
+            item.total_debt ||
+            item.amount ||
+            0
+          ),
+        0
+      );
+
+
+  $("dashboardBalance").textContent =
+    money(database.balance);
+
+
+  $("dashboardIncome").textContent =
+    money(income);
+
+
+  $("dashboardExpense").textContent =
+    money(expense);
+
+
+  $("dashboardDebt").textContent =
+    money(debts);
+
+
+  const openBills =
+    database.bills
+      .filter(item => !item.paid)
+      .length;
+
+
+  $("homeSummary").innerHTML = `
+
+    <p>
+      Você tem
+      <strong>${openBills}</strong>
+      conta(s) em aberto.
+    </p>
+
+    <p>
+      Todas as contas têm vencimento no
+      <strong>dia 10</strong>.
+    </p>
+
+    <p>
+      Depois do dia 10, uma conta não paga aparece como
+      <strong class="red">Atrasada</strong>.
+    </p>
+
+  `;
+
+}
+
+
+/* =========================================================
+   RENDER MOVIMENTAÇÕES
+========================================================= */
+
+function renderTransactions(){
+
+  if(
+    database.transactions.length === 0
+  ){
+
+    $("transactionList").innerHTML =
+      '<p class="muted">Nenhuma movimentação cadastrada.</p>';
+
+    return;
+
+  }
+
+
+  let html = `
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Tipo</th>
+          <th>Valor</th>
+          <th></th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+  `;
+
+
+  database.transactions.forEach(item => {
+
+    html += `
+
+      <tr>
+
+        <td>
+          ${escapeHtml(item.date || "")}
+        </td>
+
+        <td>
+          ${escapeHtml(item.description)}
+        </td>
+
+        <td>
+          ${
+            item.type === "income"
+              ? "Entrada"
+              : "Saída"
+          }
+        </td>
+
+        <td class="${
+          item.type === "income"
+            ? "green"
+            : "red"
+        }">
+
+          ${
+            item.type === "income"
+              ? "+"
+              : "-"
+          }
+
+          ${money(item.amount)}
+
+        </td>
+
+        <td>
+
+          <button
+            onclick="deleteTransaction('${item.id}')"
+          >
+            Excluir
+          </button>
+
+        </td>
+
+      </tr>
+
+    `;
+
+  });
+
+
+  html += `
+      </tbody>
+    </table>
+  `;
+
+
+  $("transactionList").innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   RENDER CONTAS
+========================================================= */
+
+function renderBills(){
+
+  if(database.bills.length === 0){
+
+    $("billList").innerHTML =
+      '<p class="muted">Nenhuma conta cadastrada.</p>';
+
+    return;
+
+  }
+
+
+  let html = "";
+
+
+  database.bills.forEach(bill => {
+
+    const status =
+      getBillStatus(bill);
+
+
+    html += `
+
+      <div
+        class="card"
+        style="box-shadow:none;border:1px solid #eee"
+      >
+
+        <div class="row">
+
+          <div>
+
+            <strong>
+              ${escapeHtml(bill.name)}
+            </strong>
+
+            <div class="muted">
+
+              ${escapeHtml(
+                bill.info || ""
+              )}
+
+              · Vencimento dia 10
+
+            </div>
+
+          </div>
+
+
+          <span
+            class="badge ${status.className}"
+          >
+            ${status.text}
+          </span>
+
+        </div>
+
+
+        <p>
+
+          Parcela:
+          <strong>
+            ${money(bill.amount)}
+          </strong>
+
+          <br>
+
+          Dívida total:
+          <strong>
+            ${money(bill.total_debt)}
+          </strong>
+
+        </p>
+
+
+        <div class="actions">
+
+          ${
+            !bill.paid
+              ? `
+                <button
+                  onclick="markBillPaid('${bill.id}')"
+                >
+                  Marcar como paga
+                </button>
+              `
+              : ""
+          }
+
+
+          <button
+            onclick="deleteBill('${bill.id}')"
+          >
+            Excluir
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+
+  $("billList").innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   RENDER DÍVIDAS
+========================================================= */
+
+function renderDebts(){
+
+  const open =
+    database.bills.filter(
+      item => !item.paid
+    );
+
+
+  const paid =
+    database.bills.filter(
+      item => item.paid
+    );
+
+
+  const total =
+    open.reduce(
+      (sum,item) =>
+        sum +
+        Number(
+          item.total_debt ||
+          item.amount ||
+          0
+        ),
+      0
+    );
+
+
+  $("debtTotal").textContent =
+    money(total);
+
+
+  $("debtOpen").textContent =
+    open.length;
+
+
+  $("debtPaid").textContent =
+    paid.length;
+
+
+  $("debtCount").textContent =
+    database.bills.length;
+
+
+  if(database.bills.length === 0){
+
+    $("debtList").innerHTML =
+      '<p class="muted">Nenhuma dívida cadastrada.</p>';
+
+    return;
+
+  }
+
+
+  $("debtList").innerHTML =
+    database.bills.map(item => {
+
+      return `
+
+        <p>
+
+          <strong>
+            ${escapeHtml(item.name)}
+          </strong>
+
+          —
+
+          Parcela:
+          ${money(item.amount)}
+
+          ·
+
+          Restante:
+          ${
+            item.paid
+              ? money(0)
+              : money(item.total_debt)
+          }
+
+        </p>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   RENDER OBJETIVOS
+========================================================= */
+
+function renderGoals(){
+
+  const saved =
+    database.goals.reduce(
+      (sum,item) =>
+        sum + Number(item.saved || 0),
+      0
+    );
+
+
+  const target =
+    database.goals.reduce(
+      (sum,item) =>
+        sum + Number(item.target || 0),
+      0
+    );
+
+
+  $("goalSavedTotal").textContent =
+    money(saved);
+
+
+  $("goalTargetTotal").textContent =
+    money(target);
+
+
+  if(database.goals.length === 0){
+
+    $("goalList").innerHTML =
+      '<p class="muted">Nenhum objetivo criado.</p>';
+
+    return;
+
+  }
+
+
+  let html = "";
+
+
+  database.goals.forEach(goal => {
+
+    const percentage =
+      goal.target
+        ? Math.min(
+            100,
+            Number(goal.saved || 0) /
+            Number(goal.target) *
+            100
+          )
+        : 0;
+
+
+    html += `
+
+      <div class="card"
+        style="box-shadow:none;border:1px solid #eee"
+      >
+
+        <div class="goal">
+
+          <div class="goalIcon">
+
+            ${escapeHtml(
+              goal.icon || "🎯"
+            )}
+
+          </div>
+
+
+          <div>
+
+            <strong>
+              ${escapeHtml(goal.name)}
+            </strong>
+
+            <div class="muted">
+
+              ${money(goal.saved)}
+              de
+              ${money(goal.target)}
+
+              ·
+
+              ${percentage.toFixed(0)}%
+
+            </div>
+
+
+            <div class="progress">
+
+              <div
+                class="progressBar"
+                style="width:${percentage}%"
+              ></div>
+
+            </div>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              onclick="addMoneyToGoal('${goal.id}')"
+            >
+              Guardar
+            </button>
+
+            <button
+              onclick="deleteGoal('${goal.id}')"
+            >
+              Excluir
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+
+  $("goalList").innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   RELATÓRIOS
+========================================================= */
+
+function renderReports(){
+
+  const income =
+    database.transactions
+      .filter(item => item.type === "income")
+      .reduce(
+        (sum,item) =>
+          sum + Number(item.amount || 0),
+        0
+      );
+
+
+  const expense =
+    database.transactions
+      .filter(item => item.type === "expense")
+      .reduce(
+        (sum,item) =>
+          sum + Number(item.amount || 0),
+        0
+      );
+
+
+  const result =
+    income - expense;
+
+
+  $("reportContent").innerHTML = `
+
+    <p>
+      Entradas registradas:
+      <strong>
+        ${money(income)}
+      </strong>
+    </p>
+
+    <p>
+      Saídas registradas:
+      <strong>
+        ${money(expense)}
+      </strong>
+    </p>
+
+    <p>
+      Resultado:
+      <strong>
+        ${money(result)}
+      </strong>
+    </p>
+
+    <p>
+      Saldo atual:
+      <strong>
+        ${money(database.balance)}
+      </strong>
+    </p>
+
+  `;
+
+}
+
+
+/* =========================================================
+   CONFIGURAÇÕES
+========================================================= */
+
+function renderSettings(){
+
+  $("balanceInput").value =
+    database.balance;
+
+}
+
+
+/* =========================================================
+   RENDER GERAL
+========================================================= */
+
+function renderEverything(){
+
+  renderHome();
+
+  renderTransactions();
+
+  renderBills();
+
+  renderDebts();
+
+  renderGoals();
+
+  renderReports();
+
+  renderSettings();
+
+}
+
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+document
+  .querySelectorAll("#navigation button")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      function(){
+
+        document
+          .querySelectorAll(".page")
+          .forEach(page => {
+
+            page.classList.add(
+              "hidden"
+            );
+
+          });
+
+
+        const page =
+          $(this.dataset.page);
+
+
+        if(page){
+
+          page.classList.remove(
+            "hidden"
+          );
+
+        }
+
+
+        document
+          .querySelectorAll(
+            "#navigation button"
+          )
+          .forEach(item => {
+
+            item.classList.remove(
+              "active"
+            );
+
+          });
+
+
+        this.classList.add("active");
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   FORM MOVIMENTAÇÃO
+========================================================= */
+
+$("addTransactionButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("transactionForm")
+        .classList.remove("hidden");
+
     }
   );
 
 
-const esc = s =>
-  String(s ?? '').replace(
-    /[&<>"']/g,
-    m => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#039;'
-    }[m])
+$("cancelTransactionButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("transactionForm")
+        .classList.add("hidden");
+
+    }
   );
 
 
-const dateBR = date => {
+$("saveTransactionButton")
+  .addEventListener(
+    "click",
+    async function(){
 
-  if(!date) return '';
+      try{
 
-  const p =
-    String(date).split('-');
-
-  if(p.length === 3)
-    return p.reverse().join('/');
-
-  return date;
-};
-
-
-function billStatus(b){
-
-  if(b.paid)
-    return ['Paga','ok'];
-
-  return new Date().getDate() > 10
-    ? ['Atrasada','late']
-    : ['A vencer','next'];
-}
+        const description =
+          $("transactionDescription")
+            .value
+            .trim();
 
 
-/* LOGIN */
-
-window.toggleAuthMode = () => {
-
-  authMode =
-    authMode === 'login'
-      ? 'signup'
-      : 'login';
-
-  $('loginTitle').textContent =
-    authMode === 'login'
-      ? 'Entrar'
-      : 'Criar conta';
-
-  $('authBtn').textContent =
-    authMode === 'login'
-      ? 'Entrar'
-      : 'Criar conta';
-
-  $('authMsg').innerHTML = '';
-};
+        const amount =
+          numberValue(
+            $("transactionAmount")
+              .value
+          );
 
 
-window.authAction = async () => {
+        if(!description){
 
-  const email =
-    $('authEmail').value.trim();
+          alert(
+            "Digite uma descrição."
+          );
 
-  const password =
-    $('authPassword').value;
+          return;
 
-  if(!email || password.length < 6){
+        }
 
-    $('authMsg').innerHTML =
-      '<div class="error">Informe um e-mail e uma senha com pelo menos 6 caracteres.</div>';
 
-    return;
-  }
+        if(amount <= 0){
 
-  $('authBtn').disabled = true;
+          alert(
+            "Digite um valor válido."
+          );
 
-  let result;
+          return;
 
-  if(authMode === 'login'){
+        }
 
-    result =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
 
-  }else{
+        const result =
+          await supabaseClient
+            .from("transactions")
+            .insert({
 
-    result =
-      await supabaseClient.auth.signUp({
-        email,
-        password
-      });
+              user_id:
+                currentUser.id,
 
-  }
+              type:
+                $("transactionType")
+                  .value,
 
-  $('authBtn').disabled = false;
+              description:
+                description,
 
-  if(result.error){
+              amount:
+                amount,
 
-    $('authMsg').innerHTML =
-      '<div class="error">' +
-      esc(result.error.message) +
-      '</div>';
+              date:
+                $("transactionDate").value ||
+                new Date()
+                  .toISOString()
+                  .slice(0,10),
 
-    return;
-  }
+              category:
+                $("transactionCategory")
+                  .value ||
+                null
+
+            });
+
+
+        if(result.error){
+
+          throw result.error;
+
+        }
+
+
+        $("transactionForm")
+          .classList.add("hidden");
+
+
+        await loadCloudData(false);
+
+        renderEverything();
+
+
+      }catch(error){
+
+        alert(error.message);
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   FORM CONTAS
+========================================================= */
+
+$("addBillButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("billForm")
+        .classList.remove("hidden");
+
+    }
+  );
+
+
+$("cancelBillButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("billForm")
+        .classList.add("hidden");
+
+    }
+  );
+
+
+$("saveBillButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      try{
+
+        const name =
+          $("billName")
+            .value
+            .trim();
+
+
+        const amount =
+          numberValue(
+            $("billAmount").value
+          );
+
+
+        let totalDebt =
+          numberValue(
+            $("billTotalDebt").value
+          );
+
+
+        if(!name){
+
+          alert(
+            "Digite o nome da conta."
+          );
+
+          return;
+
+        }
+
+
+        if(amount <= 0){
+
+          alert(
+            "Digite o valor da parcela."
+          );
+
+          return;
+
+        }
+
+
+        if(totalDebt <= 0){
+
+          totalDebt =
+            amount;
+
+        }
+
+
+        const result =
+          await supabaseClient
+            .from("bills")
+            .insert({
+
+              user_id:
+                currentUser.id,
+
+              name:
+                name,
+
+              amount:
+                amount,
+
+              total_debt:
+                totalDebt,
+
+              info:
+                $("billInfo").value ||
+                "Vencimento: dia 10",
+
+              due_day:10,
+
+              paid:false
+
+            });
+
+
+        if(result.error){
+
+          throw result.error;
+
+        }
+
+
+        $("billForm")
+          .classList.add("hidden");
+
+
+        await loadCloudData(false);
+
+        renderEverything();
+
+
+      }catch(error){
+
+        alert(error.message);
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   FORM OBJETIVOS
+========================================================= */
+
+$("addGoalButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("goalForm")
+        .classList.remove("hidden");
+
+    }
+  );
+
+
+$("cancelGoalButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      $("goalForm")
+        .classList.add("hidden");
+
+    }
+  );
+
+
+$("saveGoalButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      try{
+
+        const name =
+          $("goalName")
+            .value
+            .trim();
+
+
+        const target =
+          numberValue(
+            $("goalTarget").value
+          );
+
+
+        const saved =
+          numberValue(
+            $("goalSaved").value
+          );
+
+
+        if(!name){
+
+          alert(
+            "Digite o nome do objetivo."
+          );
+
+          return;
+
+        }
+
+
+        if(target <= 0){
+
+          alert(
+            "Digite uma meta válida."
+          );
+
+          return;
+
+        }
+
+
+        const result =
+          await supabaseClient
+            .from("goals")
+            .insert({
+
+              user_id:
+                currentUser.id,
+
+              name:
+                name,
+
+              icon:
+                $("goalIcon").value ||
+                "🎯",
+
+              target:
+                target,
+
+              saved:
+                saved
+
+            });
+
+
+        if(result.error){
+
+          throw result.error;
+
+        }
+
+
+        $("goalForm")
+          .classList.add("hidden");
+
+
+        await loadCloudData(false);
+
+        renderEverything();
+
+
+      }catch(error){
+
+        alert(error.message);
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   SALDO
+========================================================= */
+
+$("saveBalanceButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      try{
+
+        const balance =
+          numberValue(
+            $("balanceInput").value
+          );
+
+
+        const result =
+          await supabaseClient
+            .from("account_settings")
+            .upsert(
+              {
+
+                user_id:
+                  currentUser.id,
+
+                balance:
+                  balance,
+
+                updated_at:
+                  new Date().toISOString()
+
+              },
+              {
+                onConflict:"user_id"
+              }
+            );
+
+
+        if(result.error){
+
+          throw result.error;
+
+        }
+
+
+        await loadCloudData(false);
+
+        renderEverything();
+
+
+        alert(
+          "Saldo salvo com sucesso! 🧡"
+        );
+
+
+      }catch(error){
+
+        alert(error.message);
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   AÇÕES GLOBAIS
+========================================================= */
+
+window.deleteTransaction =
+async function(id){
 
   if(
-    authMode === 'signup' &&
-    !result.data.session
+    !confirm(
+      "Excluir esta movimentação?"
+    )
   ){
 
-    $('authMsg').innerHTML =
-      '<div class="success">Cadastro criado! Entre usando seu e-mail e senha.</div>';
-
     return;
-  }
-
-  if(result.data.session){
-
-    user = result.data.user;
-
-    await loadCloud();
 
   }
 
-};
-
-
-/* NUVEM */
-
-async function loadCloud(){
-
-  if(!user) return;
-
-  const uid = user.id;
-
-  const [
-    tx,
-    bills,
-    goals,
-    settings
-  ] = await Promise.all([
-
-    supabaseClient
-      .from('transactions')
-      .select('*')
-      .eq('user_id',uid)
-      .order('date',{ascending:false}),
-
-    supabaseClient
-      .from('bills')
-      .select('*')
-      .eq('user_id',uid)
-      .order('created_at'),
-
-    supabaseClient
-      .from('goals')
-      .select('*')
-      .eq('user_id',uid)
-      .order('created_at'),
-
-    supabaseClient
-      .from('account_settings')
-      .select('*')
-      .eq('user_id',uid)
-      .maybeSingle()
-
-  ]);
-
-  if(
-    tx.error ||
-    bills.error ||
-    goals.error ||
-    settings.error
-  ){
-
-    console.error(
-      tx.error,
-      bills.error,
-      goals.error,
-      settings.error
-    );
-
-    alert(
-      'Não foi possível carregar os dados.'
-    );
-
-    return;
-  }
-
-
-  db = {
-
-    balance:
-      settings.data?.balance ?? 0,
-
-    transactions:
-      (tx.data || []).map(x => ({
-        id:x.id,
-        date:dateBR(x.date),
-        type:x.type,
-        desc:x.description,
-        cat:x.category || 'Outros',
-        amount:+x.amount
-      })),
-
-    bills:
-      (bills.data || []).map(x => ({
-        id:x.id,
-        name:x.name,
-        amount:+x.amount,
-        totalDebt:+x.total_debt || +x.amount,
-        installmentLabel:x.installment_label || '',
-        paid:!!x.paid
-      })),
-
-    goals:
-      (goals.data || []).map(x => ({
-        id:x.id,
-        name:x.name,
-        icon:x.icon || '🎯',
-        target:+x.target,
-        saved:+x.saved
-      }))
-
-  };
-
-  showApp();
-}
-
-
-/* INTERFACE */
-
-function showLogin(){
-
-  $('loginScreen').style.display =
-    'flex';
-
-  $('app').style.display =
-    'none';
-}
-
-
-function showApp(){
-
-  $('loginScreen').style.display =
-    'none';
-
-  $('app').style.display =
-    'block';
-
-  $('userEmail').textContent =
-    user?.email || '';
-
-  render();
-}
-
-
-/* MOVIMENTAÇÃO */
-
-window.txModal = () => {
-
-  openM(`
-
-    <h2>Nova movimentação</h2>
-
-    <div class="form">
-
-      <label>
-        Tipo
-        <select id="tType">
-          <option value="income">Entrada</option>
-          <option value="expense">Saída</option>
-        </select>
-      </label>
-
-      <label>
-        Valor
-        <input
-          id="tAmount"
-          type="number"
-          step=".01"
-        >
-      </label>
-
-      <label>
-        Descrição
-        <input id="tDesc">
-      </label>
-
-      <label>
-        Categoria
-        <input
-          id="tCat"
-          placeholder="Ex.: Casa"
-        >
-      </label>
-
-      <div class="full">
-
-        <button
-          class="btn"
-          onclick="addTx()"
-        >
-          Salvar
-        </button>
-
-      </div>
-
-    </div>
-
-  `);
-};
-
-
-window.addTx = async () => {
-
-  const amount =
-    +$('tAmount').value;
-
-  const desc =
-    $('tDesc').value.trim();
-
-  if(!amount || !desc){
-
-    alert(
-      'Preencha valor e descrição.'
-    );
-
-    return;
-  }
 
   const result =
     await supabaseClient
-      .from('transactions')
-      .insert({
-
-        user_id:user.id,
-
-        type:$('tType').value,
-
-        description:desc,
-
-        amount,
-
-        date:
-          new Date()
-            .toISOString()
-            .slice(0,10),
-
-        category:
-          $('tCat').value || 'Outros'
-
-      });
+      .from("transactions")
+      .delete()
+      .eq("id",id)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if(result.error){
@@ -1335,111 +3125,40 @@ window.addTx = async () => {
     alert(result.error.message);
 
     return;
+
   }
 
-  closeM();
 
-  await loadCloud();
+  await loadCloudData(false);
+
+  renderEverything();
+
 };
 
 
-/* CONTAS */
+window.deleteBill =
+async function(id){
 
-window.billModal = () => {
-
-  openM(`
-
-    <h2>Nova conta</h2>
-
-    <div class="form">
-
-      <label>
-        Nome
-        <input id="bName">
-      </label>
-
-      <label>
-        Valor da parcela
-        <input
-          id="bAmount"
-          type="number"
-          step=".01"
-        >
-      </label>
-
-      <label>
-        Parcela
-        <input
-          id="bInst"
-          placeholder="Ex.: 02/30"
-        >
-      </label>
-
-      <div class="full">
-
-        <small>
-          📅 Todas as contas vencem no dia 10.
-        </small>
-
-      </div>
-
-      <div class="full">
-
-        <button
-          class="btn"
-          onclick="addBill()"
-        >
-          Salvar
-        </button>
-
-      </div>
-
-    </div>
-
-  `);
-};
-
-
-window.addBill = async () => {
-
-  const amount =
-    +$('bAmount').value;
-
-  const name =
-    $('bName').value.trim();
-
-  if(!amount || !name){
-
-    alert(
-      'Preencha nome e valor.'
-    );
+  if(
+    !confirm(
+      "Excluir esta conta?"
+    )
+  ){
 
     return;
+
   }
+
 
   const result =
     await supabaseClient
-      .from('bills')
-      .insert({
-
-        user_id:user.id,
-
-        name,
-
-        amount,
-
-        total_debt:amount,
-
-        info:'Vencimento: dia 10',
-
-        due_day:10,
-
-        installment_label:
-          $('bInst').value || '',
-
-        paid:false
-
-      });
+      .from("bills")
+      .delete()
+      .eq("id",id)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if(result.error){
@@ -1447,31 +3166,31 @@ window.addBill = async () => {
     alert(result.error.message);
 
     return;
+
   }
 
-  closeM();
 
-  await loadCloud();
+  await loadCloudData(false);
+
+  renderEverything();
+
 };
 
 
-window.toggle = async id => {
-
-  const bill =
-    db.bills.find(
-      x => String(x.id) === String(id)
-    );
-
-  if(!bill) return;
+window.markBillPaid =
+async function(id){
 
   const result =
     await supabaseClient
-      .from('bills')
+      .from("bills")
       .update({
-        paid:!bill.paid
+        paid:true
       })
-      .eq('id',id)
-      .eq('user_id',user.id);
+      .eq("id",id)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if(result.error){
@@ -1479,126 +3198,40 @@ window.toggle = async id => {
     alert(result.error.message);
 
     return;
+
   }
 
-  await loadCloud();
+
+  await loadCloudData(false);
+
+  renderEverything();
+
 };
 
 
-/* OBJETIVOS */
+window.deleteGoal =
+async function(id){
 
-window.goalModal = () => {
-
-  openM(`
-
-    <h2>Novo objetivo</h2>
-
-    <div class="form">
-
-      <label>
-        Nome
-        <input
-          id="gName"
-          placeholder="Ex.: Reserva de emergência"
-        >
-      </label>
-
-      <label>
-        Ícone
-        <input
-          id="gIcon"
-          value="🎯"
-          maxlength="2"
-        >
-      </label>
-
-      <label>
-        Valor da meta
-        <input
-          id="gTarget"
-          type="number"
-          step=".01"
-        >
-      </label>
-
-      <label>
-        Quanto já guardei
-        <input
-          id="gSaved"
-          type="number"
-          step=".01"
-          value="0"
-        >
-      </label>
-
-      <div class="full">
-
-        <button
-          class="btn"
-          onclick="addGoal()"
-        >
-          Criar objetivo
-        </button>
-
-      </div>
-
-    </div>
-
-  `);
-};
-
-
-window.addGoal = async () => {
-
-  const name =
-    $('gName').value.trim();
-
-  const target =
-    +$('gTarget').value;
-
-  const saved =
-    Math.max(
-      0,
-      +$('gSaved').value || 0
-    );
-
-
-  if(!name || target <= 0){
-
-    alert(
-      'Informe nome e meta.'
-    );
+  if(
+    !confirm(
+      "Excluir este objetivo?"
+    )
+  ){
 
     return;
-  }
 
-  if(saved > target){
-
-    alert(
-      'O valor guardado não pode ser maior que a meta.'
-    );
-
-    return;
   }
 
 
   const result =
     await supabaseClient
-      .from('goals')
-      .insert({
-
-        user_id:user.id,
-
-        name,
-
-        icon:
-          $('gIcon').value || '🎯',
-
-        target,
-
-        saved
-
-      });
+      .from("goals")
+      .delete()
+      .eq("id",id)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if(result.error){
@@ -1606,113 +3239,77 @@ window.addGoal = async () => {
     alert(result.error.message);
 
     return;
+
   }
 
-  closeM();
 
-  await loadCloud();
+  await loadCloudData(false);
+
+  renderEverything();
+
 };
 
 
-window.depositGoal = async id => {
+window.addMoneyToGoal =
+async function(id){
 
   const goal =
-    db.goals.find(
-      x => String(x.id) === String(id)
+    database.goals.find(
+      item => item.id === id
     );
 
-  if(!goal) return;
 
-  openM(`
+  if(!goal){
 
-    <h2>Guardar dinheiro</h2>
+    return;
 
-    <p class="sub">
-
-      ${esc(goal.icon)}
-      ${esc(goal.name)}
-
-      <br>
-
-      Já guardado:
-      <b>${money(goal.saved)}</b>
-
-      <br>
-
-      Falta:
-      <b>
-        ${money(
-          Math.max(
-            0,
-            goal.target-goal.saved
-          )
-        )}
-      </b>
-
-    </p>
-
-    <label>
-
-      Valor para guardar
-
-      <input
-        id="gDeposit"
-        style="width:100%;margin-top:5px"
-        type="number"
-        min="0.01"
-        step=".01"
-      >
-
-    </label>
-
-    <br>
-
-    <button
-      class="btn"
-      onclick="saveDeposit('${id}')"
-    >
-      Guardar
-    </button>
-
-  `);
-};
+  }
 
 
-window.saveDeposit = async id => {
-
-  const goal =
-    db.goals.find(
-      x => String(x.id) === String(id)
+  const answer =
+    prompt(
+      "Quanto deseja guardar?",
+      "0"
     );
 
-  const value =
-    +$('gDeposit').value;
+
+  if(answer === null){
+
+    return;
+
+  }
 
 
-  if(!goal || value <= 0){
+  const amount =
+    numberValue(answer);
+
+
+  if(amount <= 0){
 
     alert(
-      'Informe um valor maior que zero.'
+      "Digite um valor válido."
     );
 
     return;
+
   }
 
 
   const result =
     await supabaseClient
-      .from('goals')
+      .from("goals")
       .update({
 
         saved:
-          Math.min(
-            goal.target,
-            goal.saved + value
-          )
+          Number(goal.saved || 0) +
+          amount
 
       })
-      .eq('id',id)
-      .eq('user_id',user.id);
+      .eq("id",id)
+      .eq(
+        "user_id",
+        currentUser.id
+      );
 
 
   if(result.error){
@@ -1720,835 +3317,113 @@ window.saveDeposit = async id => {
     alert(result.error.message);
 
     return;
+
   }
 
-  closeM();
 
-  await loadCloud();
-};
+  await loadCloudData(false);
 
-
-/* CONFIG */
-
-window.config = () => {
-
-  openM(`
-
-    <h2>Configurações</h2>
-
-    <p class="sub">
-      Saldo da conta atual:
-      <b>${money(db.balance)}</b>
-    </p>
-
-    <label>
-
-      Alterar saldo
-
-      <input
-        id="sbal"
-        style="width:100%;margin-top:5px"
-        type="number"
-        step=".01"
-        value="${db.balance}"
-      >
-
-    </label>
-
-    <br>
-
-    <div class="actions">
-
-      <button
-        class="btn"
-        onclick="saveBalance()"
-      >
-        Salvar saldo
-      </button>
-
-      <button
-        class="btn"
-        style="background:var(--card);color:var(--muted)"
-        onclick="exportData()"
-      >
-        💾 Backup
-      </button>
-
-      <button
-        class="btn"
-        style="background:var(--card);color:var(--red)"
-        onclick="logout()"
-      >
-        Sair
-      </button>
-
-    </div>
-
-  `);
-};
-
-
-window.saveBalance = async () => {
-
-  const balance =
-    +$('sbal').value || 0;
-
-  const result =
-    await supabaseClient
-      .from('account_settings')
-      .upsert({
-
-        user_id:user.id,
-
-        balance,
-
-        updated_at:
-          new Date().toISOString()
-
-      });
-
-
-  if(result.error){
-
-    alert(result.error.message);
-
-    return;
-  }
-
-  db.balance = balance;
-
-  closeM();
-
-  render();
-};
-
-
-window.logout = async () => {
-
-  await supabaseClient.auth.signOut();
+  renderEverything();
 
 };
 
 
-/* BACKUP */
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-window.exportData = () => {
+$("logoutButton")
+  .addEventListener(
+    "click",
+    async function(){
 
-  const link =
-    document.createElement('a');
-
-  link.href =
-    URL.createObjectURL(
-      new Blob(
-        [JSON.stringify(db,null,2)],
-        {
-          type:'application/json'
-        }
-      )
-    );
-
-  link.download =
-    'thaty-financas-backup.json';
-
-  link.click();
-};
+      await supabaseClient
+        .auth
+        .signOut();
 
 
-/* MODAL */
+      currentUser = null;
 
-window.openM = html => {
+      database = {
 
-  $('modalbody').innerHTML =
-    html;
+        transactions:[],
+        bills:[],
+        goals:[],
+        balance:0
 
-  $('modal')
-    .classList
-    .add('open');
-};
-
-
-window.closeM = () => {
-
-  $('modal')
-    .classList
-    .remove('open');
-};
+      };
 
 
-/* NAVEGAÇÃO */
+      showLogin();
 
-window.view = (id,el) => {
-
-  document
-    .querySelectorAll('.view')
-    .forEach(
-      x => x.classList.remove('active')
-    );
-
-  $(id)
-    .classList
-    .add('active');
-
-  document
-    .querySelectorAll('.nav button')
-    .forEach(
-      x => x.classList.remove('active')
-    );
-
-  el.classList.add('active');
-
-  render();
-};
+    }
+  );
 
 
-/* CÁLCULOS */
+/* =========================================================
+   EVENTOS DE LOGIN
+========================================================= */
 
-function calc(){
-
-  const inc =
-    db.transactions
-      .filter(x => x.type === 'income')
-      .reduce(
-        (a,x) => a + x.amount,
-        0
-      );
-
-  const exp =
-    db.transactions
-      .filter(x => x.type === 'expense')
-      .reduce(
-        (a,x) => a + x.amount,
-        0
-      );
-
-  const paid =
-    db.bills
-      .filter(x => x.paid)
-      .reduce(
-        (a,x) => a + x.amount,
-        0
-      );
-
-  const due =
-    db.bills
-      .filter(x => !x.paid)
-      .reduce(
-        (a,x) => a + x.amount,
-        0
-      );
-
-  return {
-    inc,
-    exp,
-    paid,
-    due,
-    net:inc-exp
-  };
-}
+$("loginButton")
+  .addEventListener(
+    "click",
+    authAction
+  );
 
 
-/* RENDER */
+$("toggleAuthButton")
+  .addEventListener(
+    "click",
+    toggleAuthMode
+  );
 
-function render(){
 
-  const c = calc();
+/*
+  Permite apertar ENTER
+  no campo de senha.
+*/
 
-  $('monthLabel').textContent =
-    new Date().toLocaleDateString(
-      'pt-BR',
-      {
-        month:'long',
-        year:'numeric'
+$("password")
+  .addEventListener(
+    "keydown",
+    function(event){
+
+      if(event.key === "Enter"){
+
+        authAction();
+
       }
-    );
 
-  $('balance').textContent =
-    money(db.balance);
+    }
+  );
 
-  $('income').textContent =
-    money(c.inc);
 
-  $('expense').textContent =
-    money(c.exp);
+/* =========================================================
+   VERIFICAR SESSÃO EXISTENTE
+========================================================= */
 
-  $('paid').textContent =
-    money(c.paid);
-
-  $('due').textContent =
-    money(c.due);
-
-  $('ri').textContent =
-    money(c.inc);
-
-  $('re').textContent =
-    money(c.exp);
-
-  $('rn').textContent =
-    money(c.net);
-
-  $('rb').textContent =
-    money(db.balance);
-
-  $('rn').className =
-    'metric ' +
-    (c.net >= 0 ? 'green' : 'red');
-
-
-  const paidCount =
-    db.bills.filter(
-      x => x.paid
-    ).length;
-
-  const billCount =
-    db.bills.length;
-
-  $('progtext').textContent =
-    `${paidCount}/${billCount}`;
-
-  $('prog').style.width =
-    (
-      billCount
-        ? paidCount / billCount * 100
-        : 0
-    ) + '%';
-
-
-  $('upcoming').innerHTML =
-    db.bills
-      .filter(x => !x.paid)
-      .slice(0,5)
-      .map(b => {
-
-        const [status,cls] =
-          billStatus(b);
-
-        return `
-
-          <div class="item">
-
-            <div>
-
-              <div class="name">
-                ${esc(b.name)}
-              </div>
-
-              <small>
-                Vencimento: dia 10
-
-                ${
-                  b.installmentLabel
-                    ? ' • Parcela ' +
-                      esc(b.installmentLabel)
-                    : ''
-                }
-
-              </small>
-
-            </div>
-
-            <div style="text-align:right">
-
-              <div class="amount orange">
-                ${money(b.amount)}
-              </div>
-
-              <span class="badge ${cls}">
-                ${status}
-              </span>
-
-            </div>
-
-          </div>
-
-        `;
-
-      })
-      .join('')
-
-      ||
-      '<div class="empty">Nenhum vencimento.</div>';
-
-
-  const filter =
-    $('filter')?.value || 'all';
-
-  const search =
-    (
-      $('search')?.value || ''
-    ).toLowerCase();
-
-
-  const tx =
-    db.transactions.filter(x =>
-
-      (
-        filter === 'all' ||
-        x.type === filter
-      )
-
-      &&
-
-      (
-        x.desc + x.cat
-      )
-      .toLowerCase()
-      .includes(search)
-
-    );
-
-
-  $('transactions').innerHTML =
-
-    '<div class="list">' +
-
-    tx.map(x => `
-
-      <div class="item">
-
-        <div>
-
-          <div class="name">
-            ${esc(x.desc)}
-          </div>
-
-          <small>
-            ${esc(x.cat)}
-            •
-            ${esc(x.date)}
-          </small>
-
-        </div>
-
-        <div
-          class="amount ${
-            x.type === 'income'
-              ? 'green'
-              : 'red'
-          }"
-        >
-
-          ${x.type === 'income' ? '+' : '-'}
-          ${money(x.amount)}
-
-        </div>
-
-      </div>
-
-    `).join('') +
-
-    '</div>';
-
-
-  $('billsList').innerHTML =
-
-    db.bills.map(b => {
-
-      const [status,cls] =
-        billStatus(b);
-
-      return `
-
-        <div class="item">
-
-          <div>
-
-            <div class="name">
-              ${esc(b.name)}
-            </div>
-
-            <small>
-
-              Vencimento: dia 10
-
-              ${
-                b.installmentLabel
-                  ? ' • Parcela ' +
-                    esc(b.installmentLabel)
-                  : ''
-              }
-
-            </small>
-
-          </div>
-
-          <div style="text-align:right">
-
-            <div
-              class="amount ${
-                b.paid
-                  ? 'green'
-                  : cls === 'late'
-                    ? 'red'
-                    : 'orange'
-              }"
-            >
-              ${money(b.amount)}
-            </div>
-
-            <span class="badge ${cls}">
-              ${status}
-            </span>
-
-            <br>
-
-            <button
-              class="btn"
-              style="padding:7px;margin-top:6px"
-              onclick="toggle('${b.id}')"
-            >
-              ${
-                b.paid
-                  ? 'Desmarcar'
-                  : 'Marcar paga'
-              }
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join('')
-
-    ||
-
-    '<div class="empty">Nenhuma conta cadastrada.</div>';
-
-
-  const totalDebt =
-    db.bills.reduce(
-      (a,b) =>
-        a + (
-          b.totalDebt ??
-          b.amount
-        ),
-      0
-    );
-
-
-  const paidDebt =
-    db.bills.reduce(
-      (a,b) =>
-        a + (
-          b.paid
-            ? (
-                b.totalDebt ??
-                b.amount
-              )
-            : 0
-        ),
-      0
-    );
-
-
-  $('debtTotal').textContent =
-    money(
-      Math.max(
-        0,
-        totalDebt - paidDebt
-      )
-    );
-
-  $('debtDue').textContent =
-    money(c.due);
-
-  $('debtPaid').textContent =
-    money(paidDebt);
-
-  $('debtCount').textContent =
-    db.bills.length;
-
-
-  $('debtsList').innerHTML =
-
-    db.bills.map(b => {
-
-      const total =
-        b.totalDebt ??
-        b.amount;
-
-      const remaining =
-        Math.max(
-          0,
-          total - (
-            b.paid
-              ? total
-              : 0
-          )
-        );
-
-      const [status,cls] =
-        billStatus(b);
-
-      return `
-
-        <div class="item">
-
-          <div>
-
-            <div class="name">
-              ${esc(b.name)}
-            </div>
-
-            <small>
-
-              Vencimento: dia 10
-
-              ${
-                b.installmentLabel
-                  ? ' • Parcela ' +
-                    esc(b.installmentLabel)
-                  : ''
-              }
-
-              <br>
-
-              <span class="badge ${cls}">
-                ${status}
-              </span>
-
-            </small>
-
-          </div>
-
-          <div style="text-align:right">
-
-            <div class="amount orange">
-              Parcela: ${money(b.amount)}
-            </div>
-
-            <small>
-              Total restante:
-              <b>${money(remaining)}</b>
-            </small>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join('')
-
-    ||
-
-    '<div class="empty">Nenhuma dívida cadastrada.</div>';
-
-
-  const saved =
-    db.goals.reduce(
-      (a,g) =>
-        a + (+g.saved || 0),
-      0
-    );
-
-  const goalTotal =
-    db.goals.reduce(
-      (a,g) =>
-        a + (+g.target || 0),
-      0
-    );
-
-
-  $('savedTotal').textContent =
-    money(saved);
-
-  $('goalTotal').textContent =
-    money(goalTotal);
-
-  $('goalRemaining').textContent =
-    money(
-      Math.max(
-        0,
-        goalTotal - saved
-      )
-    );
-
-  $('goalCount').textContent =
-    db.goals.length;
-
-
-  $('goalsList').innerHTML =
-
-    db.goals.map(g => {
-
-      const pct =
-        g.target
-          ? Math.min(
-              100,
-              g.saved / g.target * 100
-            )
-          : 0;
-
-      const phrase =
-        pct >= 100
-          ? '🎉 META CONQUISTADA! Você conseguiu!'
-          : pct >= 75
-            ? '🔥 Você está muito perto!'
-            : pct >= 40
-              ? '✨ Olha o quanto você já conseguiu!'
-              : '💪 Cada valor guardado é um passo mais perto!';
-
-
-      return `
-
-        <div class="card">
-
-          <div class="row">
-
-            <div>
-
-              <div class="name">
-                ${esc(g.icon)}
-                ${esc(g.name)}
-              </div>
-
-              <small>
-                Meta: ${money(g.target)}
-              </small>
-
-            </div>
-
-            <div class="amount green">
-              ${money(g.saved)}
-            </div>
-
-          </div>
-
-          <div
-            class="progress"
-            style="margin-top:12px"
-          >
-            <div
-              style="width:${pct}%"
-            ></div>
-          </div>
-
-          <div
-            class="row"
-            style="margin-top:8px"
-          >
-
-            <small>
-
-              ${pct.toFixed(0)}%
-
-              •
-
-              Falta
-
-              ${money(
-                Math.max(
-                  0,
-                  g.target - g.saved
-                )
-              )}
-
-            </small>
-
-            <button
-              class="btn"
-              style="padding:7px 10px"
-              onclick="depositGoal('${g.id}')"
-            >
-              ＋ Guardar dinheiro
-            </button>
-
-          </div>
-
-          <p
-            class="sub"
-            style="margin-bottom:0"
-          >
-            ${phrase}
-          </p>
-
-        </div>
-
-      `;
-
-    }).join('')
-
-    ||
-
-    '<div class="card empty">Você ainda não criou nenhum objetivo. 🧡</div>';
-
-
-  const cats = {};
-
-  db.transactions
-    .filter(
-      x => x.type === 'expense'
-    )
-    .forEach(x => {
-
-      cats[x.cat] =
-        (cats[x.cat] || 0) +
-        x.amount;
-
-    });
-
-
-  const total = c.exp;
-
-
-  $('cats').innerHTML =
-
-    Object.entries(cats)
-      .map(([name,value]) => `
-
-        <p class="row">
-
-          <span>
-            ${esc(name)}
-          </span>
-
-          <b>
-
-            ${money(value)}
-
-            (
-
-            ${
-              total
-                ? (
-                    value / total * 100
-                  ).toFixed(1)
-                : '0.0'
-            }%
-
-            )
-
-          </b>
-
-        </p>
-
-      `)
-      .join('')
-
-    ||
-
-    '<div class="empty">Sem gastos registrados.</div>';
-
-}
-
-
-/* INICIALIZAÇÃO */
-
-(async function(){
+async function initialize(){
 
   try{
 
-    const sessionResult =
-      await supabaseClient.auth.getSession();
+    const result =
+      await supabaseClient
+        .auth
+        .getSession();
 
-    if(sessionResult.data.session){
 
-      user =
-        sessionResult.data.session.user;
+    if(
+      result.data &&
+      result.data.session
+    ){
 
-      await loadCloud();
+      currentUser =
+        result.data.session.user;
+
+
+      await loadCloudData(true);
+
+      showApplication();
 
     }else{
 
@@ -2558,33 +3433,24 @@ function render(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Erro ao iniciar:",
+      error
+    );
 
     showLogin();
 
   }
 
+}
 
-  supabaseClient.auth.onAuthStateChange(
-    async (_event,session) => {
 
-      if(session){
+/* =========================================================
+   INICIAR
+========================================================= */
 
-        user =
-          session.user;
+initialize();
 
-        await loadCloud();
-
-      }else{
-
-        user = null;
-
-        showLogin();
-
-      }
-
-    }
-  );
 
 })();
 
@@ -2592,4 +3458,3 @@ function render(){
 
 </body>
 </html>
-```
