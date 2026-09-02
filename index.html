@@ -357,6 +357,23 @@ nav button.active{
 
 
 /* =========================
+   MOBILE MENU ELEMENTS
+   ========================= */
+
+.mobileMenuButton{
+  display:none;
+}
+
+.mobileMenuOverlay{
+  display:none;
+}
+
+.mobileMenuPanel{
+  display:none;
+}
+
+
+/* =========================
    MAIN
    ========================= */
 
@@ -1059,7 +1076,7 @@ td button{
 
 /* =========================================================
    MOBILE
-   MENU NO TOPO
+   MENU HAMBÚRGUER
    ========================================================= */
 
 @media(max-width:700px){
@@ -1068,32 +1085,30 @@ td button{
     display:block;
   }
 
-  /*
-    IMPORTANTE:
-    No celular o menu fica no TOPO.
-    Antes estava bottom:0.
-  */
+
+  /* =========================
+     CABEÇALHO MOBILE
+     ========================= */
 
   header{
     position:fixed;
 
     top:0;
     bottom:auto;
-
     left:0;
     right:0;
 
     width:100%;
 
-    min-height:104px;
+    height:auto;
+    min-height:70px;
 
     padding:
       calc(8px + env(safe-area-inset-top))
-      8px
+      15px
       8px;
 
     border-right:0;
-
     border-top:0;
 
     border-bottom:
@@ -1105,12 +1120,14 @@ td button{
     backdrop-filter:blur(18px);
 
     box-shadow:
-      0 8px 25px rgba(0,0,0,.25);
+      0 8px 25px rgba(0,0,0,.28);
+
+    z-index:100;
   }
 
 
   /* =========================
-     LOGO + SAIR
+     LOGO + HAMBÚRGUER
      ========================= */
 
   .headerTop{
@@ -1120,16 +1137,13 @@ td button{
 
     justify-content:space-between;
 
-    padding:
-      2px
-      8px
-      8px;
+    padding:2px 0;
 
-    gap:10px;
+    gap:12px;
   }
 
   .brand{
-    font-size:20px;
+    font-size:21px;
 
     font-weight:950;
 
@@ -1138,75 +1152,263 @@ td button{
     white-space:nowrap;
   }
 
-  header .secondary{
-    width:auto;
 
-    margin:0;
+  .mobileMenuButton{
+    display:flex;
 
-    padding:8px 13px;
+    align-items:center;
+    justify-content:center;
 
-    font-size:11px;
-
-    border-radius:11px;
+    width:44px;
+    height:44px;
 
     flex-shrink:0;
+
+    border:1px solid rgba(255,255,255,.09);
+
+    border-radius:13px;
+
+    background:
+      rgba(255,255,255,.055);
+
+    color:#fff;
+
+    font-size:23px;
+
+    line-height:1;
+  }
+
+  .mobileMenuButton:hover{
+    background:
+      rgba(244,123,32,.14);
+
+    border-color:
+      rgba(244,123,32,.35);
   }
 
 
   /* =========================
-     ABAS NO TOPO
+     ESCONDE NAVEGAÇÃO NORMAL
      ========================= */
 
   nav{
-    display:flex;
-
-    flex-direction:row;
-
-    gap:5px;
-
-    width:100%;
-
-    overflow-x:auto;
-
-    overflow-y:hidden;
-
-    padding:
-      0
-      3px
-      2px;
-
-    scrollbar-width:none;
-
-    -webkit-overflow-scrolling:touch;
-  }
-
-  nav::-webkit-scrollbar{
     display:none;
   }
 
-  nav button{
-    flex:0 0 auto;
 
-    width:auto;
+  /* =========================
+     BOTÃO SAIR
+     ========================= */
 
-    min-height:38px;
-
-    padding:9px 12px;
-
-    border-radius:11px;
-
-    text-align:center;
-
-    font-size:10px;
-
-    font-weight:800;
-
-    white-space:nowrap;
+  header .secondary{
+    display:none;
   }
 
-  nav button.active{
+
+  /* =========================
+     MENU LATERAL
+     ========================= */
+
+  .mobileMenuOverlay{
+    display:block;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:200;
+
+    background:rgba(0,0,0,.62);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.25s ease;
+  }
+
+  .mobileMenuOverlay.open{
+    opacity:1;
+
+    pointer-events:auto;
+  }
+
+
+  .mobileMenuPanel{
+    display:flex;
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    bottom:0;
+
+    width:min(310px,82vw);
+
+    z-index:201;
+
+    flex-direction:column;
+
+    padding:
+      calc(18px + env(safe-area-inset-top))
+      15px
+      calc(18px + env(safe-area-inset-bottom));
+
+    background:
+      linear-gradient(
+        180deg,
+        #091b30,
+        #061322
+      );
+
+    border-right:
+      1px solid rgba(255,255,255,.08);
+
     box-shadow:
-      0 5px 16px rgba(244,123,32,.18);
+      15px 0 45px rgba(0,0,0,.45);
+
+    transform:translateX(-105%);
+
+    transition:.28s ease;
+
+    overflow-y:auto;
+  }
+
+  .mobileMenuPanel.open{
+    transform:translateX(0);
+  }
+
+
+  .mobileMenuHeader{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:
+      5px
+      5px
+      22px;
+
+    border-bottom:
+      1px solid rgba(255,255,255,.07);
+
+    margin-bottom:14px;
+  }
+
+  .mobileMenuBrand{
+    font-size:22px;
+
+    font-weight:950;
+
+    letter-spacing:-.8px;
+  }
+
+  .mobileMenuClose{
+    width:40px;
+    height:40px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:12px;
+
+    background:
+      rgba(255,255,255,.055);
+
+    color:#fff;
+
+    font-size:22px;
+  }
+
+
+  .mobileMenuPanel nav{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+    width:100%;
+  }
+
+  .mobileMenuPanel nav button{
+    width:100%;
+
+    min-height:48px;
+
+    padding:12px 14px;
+
+    border:1px solid transparent;
+
+    border-radius:13px;
+
+    background:transparent;
+
+    color:#9aacbf;
+
+    text-align:left;
+
+    font-size:13px;
+
+    font-weight:800;
+  }
+
+  .mobileMenuPanel nav button:hover{
+    background:
+      rgba(255,255,255,.05);
+
+    color:#fff;
+  }
+
+  .mobileMenuPanel nav button.active{
+    background:
+      linear-gradient(
+        135deg,
+        rgba(244,123,32,.95),
+        rgba(255,141,60,.9)
+      );
+
+    color:#fff;
+
+    box-shadow:
+      0 7px 20px rgba(244,123,32,.18);
+  }
+
+
+  .mobileLogout{
+    width:100%;
+
+    min-height:48px;
+
+    margin-top:auto;
+
+    padding:12px 14px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:13px;
+
+    background:
+      rgba(255,255,255,.045);
+
+    color:#c5d1df;
+
+    font-weight:800;
+  }
+
+  .mobileLogout:hover{
+    background:
+      rgba(255,255,255,.08);
+
+    color:#fff;
   }
 
 
@@ -1219,13 +1421,8 @@ td button{
 
     margin:0;
 
-    /*
-      Espaço reservado para
-      o cabeçalho fixo.
-    */
-
     padding:
-      128px
+      92px
       15px
       35px;
   }
@@ -1392,25 +1589,11 @@ td button{
 @media(max-width:400px){
 
   .brand{
-    font-size:18px;
-  }
-
-  header .secondary{
-    padding:7px 10px;
-
-    font-size:10px;
-  }
-
-  nav button{
-    min-height:36px;
-
-    padding:8px 10px;
-
-    font-size:9px;
+    font-size:19px;
   }
 
   main{
-    padding-top:125px;
+    padding-top:90px;
   }
 
   .debtCards{
@@ -1512,6 +1695,16 @@ td button{
       </div>
 
       <button
+        id="mobileMenuButton"
+        class="mobileMenuButton"
+        type="button"
+        aria-label="Abrir menu"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+
+      <button
         id="logoutButton"
         class="secondary"
       >
@@ -1557,6 +1750,96 @@ td button{
     </nav>
 
   </header>
+
+
+  <!-- =======================================================
+       MENU MOBILE
+       ======================================================= -->
+
+  <div
+    id="mobileMenuOverlay"
+    class="mobileMenuOverlay"
+  ></div>
+
+
+  <aside
+    id="mobileMenuPanel"
+    class="mobileMenuPanel"
+    aria-hidden="true"
+  >
+
+    <div class="mobileMenuHeader">
+
+      <div class="mobileMenuBrand">
+
+        <span class="thaty">
+          Thaty
+        </span>
+
+        <span class="financas">
+          Finanças
+        </span>
+
+      </div>
+
+
+      <button
+        id="mobileMenuClose"
+        class="mobileMenuClose"
+        type="button"
+        aria-label="Fechar menu"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <nav id="mobileNavigation">
+
+      <button
+        class="active"
+        data-page="home"
+      >
+        ⌂ Início
+      </button>
+
+      <button data-page="transactions">
+        ↕ Movimentações
+      </button>
+
+      <button data-page="bills">
+        ▣ Contas
+      </button>
+
+      <button data-page="debts">
+        ◈ Dívidas
+      </button>
+
+      <button data-page="goals">
+        🎯 Objetivos
+      </button>
+
+      <button data-page="reports">
+        ▥ Relatórios
+      </button>
+
+      <button data-page="settings">
+        ⚙ Configurações
+      </button>
+
+    </nav>
+
+
+    <button
+      id="mobileLogoutButton"
+      class="mobileLogout"
+      type="button"
+    >
+      🚪 Sair
+    </button>
+
+  </aside>
 
 
   <main>
@@ -3879,6 +4162,56 @@ function renderEverything(){
    NAVEGAÇÃO
    ========================================================= */
 
+function navigateToPage(page){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      p=>
+        p.classList.add(
+          "hidden"
+        )
+    );
+
+
+  const target =
+    $(page);
+
+
+  if(target){
+
+    target.classList.remove("hidden");
+
+  }
+
+
+  document
+    .querySelectorAll(
+      "#navigation button, #mobileNavigation button"
+    )
+    .forEach(
+      b=>{
+
+        b.classList.toggle(
+          "active",
+          b.dataset.page===page
+        );
+
+      }
+    );
+
+
+  closeMobileMenu();
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
 document
   .querySelectorAll(
     "#navigation button"
@@ -3889,45 +4222,121 @@ document
       "click",
       function(){
 
-        document
-          .querySelectorAll(".page")
-          .forEach(
-            p=>
-              p.classList.add(
-                "hidden"
-              )
-          );
-
-
-        $(this.dataset.page)
-          .classList
-          .remove("hidden");
-
-
-        document
-          .querySelectorAll(
-            "#navigation button"
-          )
-          .forEach(
-            b=>
-              b.classList.remove(
-                "active"
-              )
-          );
-
-
-        this.classList.add("active");
-
-
-        window.scrollTo({
-          top:0,
-          behavior:"smooth"
-        });
+        navigateToPage(
+          this.dataset.page
+        );
 
       }
     );
 
   });
+
+
+document
+  .querySelectorAll(
+    "#mobileNavigation button"
+  )
+  .forEach(btn=>{
+
+    btn.addEventListener(
+      "click",
+      function(){
+
+        navigateToPage(
+          this.dataset.page
+        );
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   MENU MOBILE
+   ========================================================= */
+
+function openMobileMenu(){
+
+  $("mobileMenuPanel")
+    .classList
+    .add("open");
+
+  $("mobileMenuOverlay")
+    .classList
+    .add("open");
+
+  $("mobileMenuPanel")
+    .setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+  $("mobileMenuButton")
+    .setAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+}
+
+
+function closeMobileMenu(){
+
+  const panel =
+    $("mobileMenuPanel");
+
+  const overlay =
+    $("mobileMenuOverlay");
+
+
+  if(!panel || !overlay){
+    return;
+  }
+
+
+  panel.classList.remove("open");
+
+  overlay.classList.remove("open");
+
+  panel.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+
+  if($("mobileMenuButton")){
+
+    $("mobileMenuButton")
+      .setAttribute(
+        "aria-expanded",
+        "false"
+      );
+
+  }
+
+}
+
+
+$("mobileMenuButton")
+  .addEventListener(
+    "click",
+    openMobileMenu
+  );
+
+
+$("mobileMenuClose")
+  .addEventListener(
+    "click",
+    closeMobileMenu
+  );
+
+
+$("mobileMenuOverlay")
+  .addEventListener(
+    "click",
+    closeMobileMenu
+  );
 
 
 /* =========================================================
@@ -4666,30 +5075,39 @@ window.addMoneyToGoal =
    LOGOUT
    ========================================================= */
 
-$("logoutButton").onclick =
-  async()=>{
+async function logout(){
 
-    await supabaseClient
-      .auth
-      .signOut();
+  closeMobileMenu();
 
-
-    currentUser = null;
+  await supabaseClient
+    .auth
+    .signOut();
 
 
-    database = {
-
-      transactions:[],
-      bills:[],
-      goals:[],
-      balance:0
-
-    };
+  currentUser = null;
 
 
-    showLogin();
+  database = {
+
+    transactions:[],
+    bills:[],
+    goals:[],
+    balance:0
 
   };
+
+
+  showLogin();
+
+}
+
+
+$("logoutButton").onclick =
+  logout;
+
+
+$("mobileLogoutButton").onclick =
+  logout;
 
 
 /* =========================================================
