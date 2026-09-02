@@ -527,6 +527,10 @@ main{
    HOME
    ========================= */
 
+#home{
+  position:relative;
+}
+
 #home>h2{
   font-size:32px;
 }
@@ -624,6 +628,59 @@ main{
   border-radius:11px;
 
   background:rgba(255,255,255,.025);
+}
+
+
+/* =========================
+   OLHINHO / PRIVACIDADE
+   ========================= */
+
+.valuePrivacyButton{
+  position:absolute;
+
+  top:0;
+  right:0;
+
+  width:42px;
+  height:42px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid rgba(255,255,255,.09);
+
+  border-radius:13px;
+
+  background:rgba(255,255,255,.055);
+
+  color:#fff;
+
+  font-size:19px;
+
+  line-height:1;
+
+  z-index:5;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,.15);
+}
+
+.valuePrivacyButton:hover{
+  background:rgba(244,123,32,.14);
+
+  border-color:
+    rgba(244,123,32,.35);
+}
+
+.valuePrivacyButton:focus{
+  outline:none;
+
+  border-color:var(--orange);
+
+  box-shadow:
+    0 0 0 3px rgba(244,123,32,.14);
 }
 
 
@@ -1440,6 +1497,18 @@ td button{
 
   #home>h2{
     font-size:27px;
+
+    padding-right:55px;
+  }
+
+  .valuePrivacyButton{
+    width:40px;
+    height:40px;
+
+    top:-2px;
+    right:0;
+
+    border-radius:12px;
   }
 
 
@@ -1857,6 +1926,18 @@ td button{
       <h2 id="homeGreeting">
         Olá, Thaty! 👋
       </h2>
+
+      <!-- OLHINHO -->
+      <button
+        id="privacyToggle"
+        class="valuePrivacyButton"
+        type="button"
+        aria-label="Ocultar valores"
+        aria-pressed="false"
+        title="Ocultar valores"
+      >
+        👁️
+      </button>
 
 
       <div class="grid">
@@ -2631,6 +2712,16 @@ let currentUser = null;
 let creatingAccount = false;
 
 
+/* =========================================================
+   PRIVACIDADE DOS VALORES
+   ========================================================= */
+
+let valuesHidden =
+  localStorage.getItem(
+    "thaty_financas_valores_ocultos"
+  ) === "1";
+
+
 let database = {
 
   transactions:[],
@@ -2706,6 +2797,85 @@ function showAuthMessage(
     type==="success"
       ? "success"
       : "error";
+
+}
+
+
+/* =========================================================
+   PRIVACIDADE DOS VALORES
+   ========================================================= */
+
+function applyPrivacyMode(){
+
+  const ids = [
+    "dashboardBalance",
+    "dashboardIncome",
+    "dashboardExpense",
+    "dashboardDebt"
+  ];
+
+
+  ids.forEach(id=>{
+
+    const element = $(id);
+
+    if(!element){
+      return;
+    }
+
+
+    if(valuesHidden){
+
+      element.textContent =
+        "R$ ••••••";
+
+    }else{
+
+      element.textContent =
+        element.dataset.realValue ||
+        "R$ 0,00";
+
+    }
+
+  });
+
+
+  const button =
+    $("privacyToggle");
+
+
+  if(button){
+
+    button.textContent =
+      valuesHidden
+        ? "🙈"
+        : "👁️";
+
+
+    button.setAttribute(
+      "aria-label",
+      valuesHidden
+        ? "Mostrar valores"
+        : "Ocultar valores"
+    );
+
+
+    button.setAttribute(
+      "title",
+      valuesHidden
+        ? "Mostrar valores"
+        : "Ocultar valores"
+    );
+
+
+    button.setAttribute(
+      "aria-pressed",
+      valuesHidden
+        ? "true"
+        : "false"
+    );
+
+  }
 
 }
 
@@ -3410,24 +3580,35 @@ function renderHome(){
       );
 
 
+  /* =======================================================
+     GUARDA OS VALORES REAIS PARA O OLHINHO
+     ======================================================= */
+
   $("dashboardBalance")
-    .textContent =
+    .dataset
+    .realValue =
       money(database.balance);
 
 
   $("dashboardIncome")
-    .textContent =
+    .dataset
+    .realValue =
       money(income);
 
 
   $("dashboardExpense")
-    .textContent =
+    .dataset
+    .realValue =
       money(expense);
 
 
   $("dashboardDebt")
-    .textContent =
+    .dataset
+    .realValue =
       money(debts);
+
+
+  applyPrivacyMode();
 
 
   const open =
@@ -4381,6 +4562,33 @@ $("mobileMenuOverlay")
   .addEventListener(
     "click",
     closeMobileMenu
+  );
+
+
+/* =========================================================
+   OLHINHO
+   ========================================================= */
+
+$("privacyToggle")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      valuesHidden =
+        !valuesHidden;
+
+
+      localStorage.setItem(
+        "thaty_financas_valores_ocultos",
+        valuesHidden
+          ? "1"
+          : "0"
+      );
+
+
+      applyPrivacyMode();
+
+    }
   );
 
 
