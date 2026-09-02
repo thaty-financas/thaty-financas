@@ -6,60 +6,57 @@
 <title>Thaty Finanças</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 :root{
-  --bg:#071426;
-  --bg2:#0a1b30;
-  --card:#102944;
-  --card2:#143454;
+  --bg:#050b16;
+  --bg2:#081426;
+  --sidebar:#09182b;
+  --card:#0d2037;
+  --card2:#112b48;
+  --card3:#153655;
   --orange:#f47b20;
-  --orange-light:#ff9848;
-  --white:#ffffff;
-  --text:#f4f7fb;
-  --muted:#9aabc0;
-  --border:rgba(255,255,255,.08);
-  --green:#39d98a;
-  --red:#ff6678;
+  --orange2:#ff9b4a;
+  --white:#fff;
+  --text:#f5f8fc;
+  --muted:#8295ad;
+  --muted2:#aab8c9;
+  --border:rgba(255,255,255,.075);
+  --green:#32d583;
+  --red:#ff6478;
   --yellow:#ffc857;
+  --shadow:0 18px 45px rgba(0,0,0,.25);
 }
+
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
   font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  background:linear-gradient(145deg,var(--bg),#0b2039);
+  background:
+    radial-gradient(circle at 75% -10%,rgba(244,123,32,.10),transparent 30%),
+    radial-gradient(circle at 20% 100%,rgba(15,74,120,.14),transparent 35%),
+    var(--bg);
   color:var(--text);
   min-height:100vh;
 }
 
-button,
-input,
-select{
-  font:inherit;
-}
+button,input,select{font:inherit}
 
 button{
   cursor:pointer;
-  transition:.18s ease;
+  transition:.2s ease;
 }
 
-button:hover{
-  transform:translateY(-1px);
-}
+button:hover{transform:translateY(-1px)}
+button:active{transform:scale(.98)}
+button:disabled{cursor:not-allowed;opacity:.6;transform:none}
 
-button:active{
-  transform:scale(.98);
-}
+.hidden{display:none!important}
 
-.hidden{
-  display:none!important;
-}
-
-/* =========================
+/* =====================================================
    LOGIN
-========================= */
+===================================================== */
 
 #loginScreen{
   min-height:100vh;
@@ -68,68 +65,65 @@ button:active{
   justify-content:center;
   padding:20px;
   background:
-    radial-gradient(circle at 15% 15%,rgba(244,123,32,.18),transparent 30%),
-    radial-gradient(circle at 85% 85%,rgba(244,123,32,.10),transparent 30%),
-    linear-gradient(145deg,#050f1d,#0a1b30,#102944);
+    radial-gradient(circle at 20% 20%,rgba(244,123,32,.18),transparent 28%),
+    radial-gradient(circle at 85% 80%,rgba(18,75,120,.25),transparent 32%),
+    linear-gradient(135deg,#030811,#08172a,#0c2037);
 }
 
 .loginBox{
   width:100%;
   max-width:430px;
-  padding:38px;
-  border-radius:28px;
-  background:#102944;
+  padding:42px;
   border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 30px 80px rgba(0,0,0,.45);
+  border-radius:30px;
+  background:
+    linear-gradient(145deg,rgba(17,43,72,.96),rgba(8,23,40,.98));
+  box-shadow:
+    0 35px 90px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.04);
 }
 
 .logo{
-  font-size:31px;
-  font-weight:900;
-  letter-spacing:-1px;
+  font-size:34px;
+  font-weight:950;
+  letter-spacing:-1.5px;
 }
 
-.logo .thaty{
-  color:var(--orange);
-}
+.logo .thaty,
+.brand .thaty{color:var(--orange)}
 
-.logo .financas{
-  color:#fff;
-}
+.logo .financas,
+.brand .financas{color:#fff}
 
 .subtitle{
-  margin:7px 0 28px;
+  margin:8px 0 30px;
   color:var(--muted);
   font-size:14px;
 }
 
 label{
   display:block;
-  margin:16px 0 7px;
-  color:#cbd6e4;
+  margin:17px 0 7px;
+  color:#c5d1df;
   font-size:12px;
   font-weight:800;
 }
 
-input,
-select{
+input,select{
   width:100%;
-  padding:14px;
+  padding:14px 15px;
   border:1px solid var(--border);
-  border-radius:13px;
+  border-radius:14px;
   outline:none;
-  background:#0a1d32;
+  background:#071729;
   color:#fff;
 }
 
-input::placeholder{
-  color:#71839a;
-}
+input::placeholder{color:#60758e}
 
-input:focus,
-select:focus{
+input:focus,select:focus{
   border-color:var(--orange);
-  box-shadow:0 0 0 3px rgba(244,123,32,.13);
+  box-shadow:0 0 0 3px rgba(244,123,32,.12);
 }
 
 .primary{
@@ -137,20 +131,20 @@ select:focus{
   margin-top:18px;
   padding:14px 18px;
   border:0;
-  border-radius:13px;
-  background:linear-gradient(135deg,var(--orange),var(--orange-light));
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
   color:#fff;
-  font-weight:800;
-  box-shadow:0 8px 22px rgba(244,123,32,.25);
+  font-weight:850;
+  box-shadow:0 10px 28px rgba(244,123,32,.22);
 }
 
 .secondary{
   padding:11px 15px;
   border:1px solid var(--border);
-  border-radius:12px;
-  background:rgba(255,255,255,.07);
+  border-radius:13px;
+  background:rgba(255,255,255,.055);
   color:#fff;
-  font-weight:700;
+  font-weight:750;
 }
 
 #authMessage{
@@ -159,121 +153,123 @@ select:focus{
   font-size:13px;
 }
 
-.error{
-  color:var(--red);
-}
+.error{color:var(--red)}
+.success{color:var(--green)}
 
-.success{
-  color:var(--green);
-}
-
-/* =========================
-   HEADER
-========================= */
+/* =====================================================
+   APP
+===================================================== */
 
 #appScreen{
   min-height:100vh;
+  display:flex;
 }
 
 header{
-  position:sticky;
+  position:fixed;
+  left:0;
   top:0;
-  z-index:20;
-  background:rgba(7,20,38,.96);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  box-shadow:0 8px 30px rgba(0,0,0,.22);
+  bottom:0;
+  width:245px;
+  z-index:30;
+  padding:28px 17px;
+  background:
+    linear-gradient(180deg,#08182b,#061323);
+  border-right:1px solid rgba(255,255,255,.065);
 }
 
 .headerTop{
-  max-width:1180px;
-  margin:auto;
-  padding:18px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  padding:5px 10px 28px;
 }
 
 .brand{
-  font-size:23px;
-  font-weight:900;
-  letter-spacing:-.8px;
-}
-
-.brand .thaty{
-  color:var(--orange);
-}
-
-.brand .financas{
-  color:#fff;
+  font-size:24px;
+  font-weight:950;
+  letter-spacing:-1px;
 }
 
 header .secondary{
-  color:#fff;
-  background:rgba(255,255,255,.07);
+  margin-top:25px;
+  width:100%;
+  color:#b9c8d8;
+  background:rgba(255,255,255,.045);
 }
 
 nav{
-  max-width:1180px;
-  margin:auto;
-  padding:0 20px 15px;
   display:flex;
-  gap:8px;
-  overflow-x:auto;
-  scrollbar-width:none;
-}
-
-nav::-webkit-scrollbar{
-  display:none;
+  flex-direction:column;
+  gap:6px;
 }
 
 nav button{
-  padding:10px 15px;
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:12px;
-  background:rgba(255,255,255,.05);
-  color:#b9c7d8;
-  white-space:nowrap;
+  width:100%;
+  padding:13px 15px;
+  border:1px solid transparent;
+  border-radius:14px;
+  background:transparent;
+  color:#8295ad;
+  text-align:left;
   font-size:13px;
-  font-weight:700;
+  font-weight:750;
+}
+
+nav button:hover{
+  background:rgba(255,255,255,.045);
+  color:#fff;
 }
 
 nav button.active{
-  background:var(--orange);
-  border-color:var(--orange);
+  background:linear-gradient(
+    135deg,
+    rgba(244,123,32,.95),
+    rgba(255,141,60,.9)
+  );
   color:#fff;
-  box-shadow:0 6px 18px rgba(244,123,32,.25);
+  box-shadow:0 8px 24px rgba(244,123,32,.18);
 }
-
-/* =========================
-   MAIN
-========================= */
 
 main{
-  max-width:1180px;
-  margin:auto;
-  padding:30px 20px 60px;
+  width:calc(100% - 245px);
+  max-width:1250px;
+  margin-left:245px;
+  padding:42px 42px 70px;
 }
 
+/* =====================================================
+   PÁGINAS
+===================================================== */
+
 .page h2{
-  margin:0 0 22px;
+  margin:0 0 25px;
   color:#fff;
-  font-size:27px;
-  letter-spacing:-.7px;
+  font-size:29px;
+  letter-spacing:-1px;
+}
+
+.page h2::after{
+  content:"";
+  display:block;
+  width:32px;
+  height:3px;
+  margin-top:9px;
+  border-radius:10px;
+  background:var(--orange);
 }
 
 .card{
   margin-bottom:18px;
-  padding:21px;
-  background:linear-gradient(145deg,#102944,#0d233c);
+  padding:23px;
   border:1px solid var(--border);
-  border-radius:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,.14);
+  border-radius:21px;
+  background:
+    linear-gradient(145deg,rgba(17,43,72,.92),rgba(9,27,47,.94));
+  box-shadow:var(--shadow);
 }
 
 .card h3{
-  margin-top:0;
+  margin:0 0 17px;
   color:#fff;
+  font-size:17px;
 }
 
 .grid{
@@ -282,16 +278,14 @@ main{
   gap:16px;
 }
 
-.grid>.card{
-  margin-bottom:0;
-}
+.grid>.card{margin-bottom:0}
 
 .value{
-  margin-top:9px;
+  margin-top:10px;
   color:#fff;
   font-size:27px;
-  font-weight:900;
-  letter-spacing:-.7px;
+  font-weight:950;
+  letter-spacing:-1px;
 }
 
 .muted{
@@ -299,145 +293,169 @@ main{
   font-size:13px;
 }
 
-.formGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-}
-
 .row{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:12px;
+  gap:14px;
 }
 
 .actions{
   display:flex;
   gap:9px;
   flex-wrap:wrap;
-  margin-top:14px;
+  margin-top:15px;
 }
 
 .actions button{
   padding:10px 14px;
   border:1px solid var(--border);
   border-radius:11px;
-  background:rgba(255,255,255,.07);
+  background:rgba(255,255,255,.055);
   color:#eaf0f7;
-  font-weight:700;
+  font-weight:750;
 }
 
 .actions button:hover{
-  background:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.10);
 }
 
-.green{
-  color:var(--green)!important;
-  font-weight:800;
-}
+.green{color:var(--green)!important;font-weight:850}
+.red{color:var(--red)!important;font-weight:850}
+.orange{color:var(--orange)!important;font-weight:850}
 
-.red{
-  color:var(--red)!important;
-  font-weight:800;
-}
-
-.orange{
-  color:var(--orange)!important;
-  font-weight:800;
-}
-
-/* =========================
+/* =====================================================
    HOME
-========================= */
+===================================================== */
+
+#home>h2{
+  font-size:32px;
+}
+
+#home .grid .card{
+  min-height:140px;
+  position:relative;
+  overflow:hidden;
+}
+
+#home .grid .card::after{
+  content:"";
+  position:absolute;
+  width:90px;
+  height:90px;
+  right:-35px;
+  top:-35px;
+  border-radius:50%;
+  background:rgba(255,255,255,.035);
+}
 
 #home .grid .card:first-child{
-  background:linear-gradient(145deg,#0c223d,#14385b);
-  border-color:rgba(244,123,32,.20);
+  background:
+    radial-gradient(circle at 90% 10%,rgba(244,123,32,.25),transparent 35%),
+    linear-gradient(145deg,#123555,#0a2039);
+  border-color:rgba(244,123,32,.18);
 }
 
-#home .grid .card:first-child .value{
-  color:#fff;
+#home .grid .card:nth-child(2){
+  background:linear-gradient(145deg,#0d3040,#0b2438);
 }
 
-#home .grid .card:nth-child(2) .value{
-  color:var(--green);
+#home .grid .card:nth-child(3){
+  background:linear-gradient(145deg,#291e32,#161b2d);
 }
 
-#home .grid .card:nth-child(3) .value{
-  color:var(--red);
+#home .grid .card:nth-child(4){
+  background:linear-gradient(145deg,#302719,#172238);
 }
 
-#home .grid .card:nth-child(4) .value{
-  color:var(--orange);
+#home .grid .card:nth-child(2) .value{color:var(--green)}
+#home .grid .card:nth-child(3) .value{color:var(--red)}
+#home .grid .card:nth-child(4) .value{color:var(--orange)}
+
+#homeSummary{
+  color:#bdc9d7;
+  line-height:1.8;
 }
 
-/* =========================
+#homeSummary p{
+  margin:9px 0;
+  padding:10px 13px;
+  border-radius:11px;
+  background:rgba(255,255,255,.025);
+}
+
+/* =====================================================
    TABELAS
-========================= */
+===================================================== */
 
-.tableWrap{
-  overflow-x:auto;
-}
+.tableWrap{overflow-x:auto}
 
 table{
   width:100%;
   border-collapse:collapse;
 }
 
-th,
-td{
-  padding:14px 10px;
+th,td{
+  padding:15px 10px;
   border-bottom:1px solid var(--border);
   text-align:left;
-  font-size:14px;
+  font-size:13px;
 }
 
 th{
-  color:#8293a9;
-  font-size:11px;
+  color:#71859e;
+  font-size:10px;
   text-transform:uppercase;
-  letter-spacing:.5px;
+  letter-spacing:.8px;
 }
+
+td{color:#dce5ef}
 
 tbody tr:hover{
   background:rgba(255,255,255,.025);
 }
 
-td{
-  color:#dce5ef;
+td button{
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:rgba(255,255,255,.05);
+  color:#b8c6d6;
 }
 
-/* =========================
+/* =====================================================
    BADGES
-========================= */
+===================================================== */
 
 .badge{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
   padding:6px 10px;
   border-radius:20px;
-  font-size:11px;
-  font-weight:800;
+  font-size:10px;
+  font-weight:850;
+  white-space:nowrap;
 }
 
 .badge.paid{
-  background:rgba(57,217,138,.12);
+  background:rgba(50,213,131,.11);
   color:var(--green);
 }
 
 .badge.due{
-  background:rgba(255,200,87,.12);
+  background:rgba(255,200,87,.11);
   color:var(--yellow);
 }
 
 .badge.late{
-  background:rgba(255,102,120,.12);
+  background:rgba(255,100,120,.11);
   color:var(--red);
 }
 
-/* =========================
+/* =====================================================
    DÍVIDAS
-========================= */
+===================================================== */
 
 .debtCards{
   display:grid;
@@ -447,97 +465,98 @@ td{
 }
 
 .debtStat{
-  padding:20px;
-  min-height:125px;
-  border-radius:19px;
-  background:linear-gradient(145deg,#102944,#143454);
+  min-height:130px;
+  padding:21px;
   border:1px solid var(--border);
-  box-shadow:0 8px 25px rgba(0,0,0,.14);
+  border-radius:20px;
+  background:linear-gradient(145deg,#102b48,#0a1d32);
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+.debtStat::after{
+  content:"";
+  position:absolute;
+  right:-30px;
+  bottom:-40px;
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  background:rgba(255,255,255,.025);
 }
 
 .debtStatLabel{
   color:var(--muted);
-  font-size:12px;
-  font-weight:700;
+  font-size:11px;
+  font-weight:750;
 }
 
 .debtStatValue{
-  margin-top:12px;
+  margin-top:13px;
   font-size:25px;
-  font-weight:900;
+  font-weight:950;
 }
 
-.debtStat.total .debtStatValue{
-  color:var(--red);
-}
-
-.debtStat.open .debtStatValue{
-  color:var(--orange);
-}
-
-.debtStat.paid .debtStatValue{
-  color:var(--green);
-}
-
-.debtStat.count .debtStatValue{
-  color:#fff;
-}
+.debtStat.total .debtStatValue{color:var(--red)}
+.debtStat.open .debtStatValue{color:var(--orange)}
+.debtStat.paid .debtStatValue{color:var(--green)}
+.debtStat.count .debtStatValue{color:#fff}
 
 .debtItem{
-  padding:19px;
+  padding:20px;
   margin-bottom:12px;
   border:1px solid var(--border);
-  border-radius:17px;
-  background:#0d233c;
+  border-radius:18px;
+  background:#0b2036;
 }
 
-.debtItem:last-child{
-  margin-bottom:0;
-}
+.debtItem:last-child{margin-bottom:0}
 
 .debtItemTitle{
   color:#fff;
   font-size:16px;
-  font-weight:800;
+  font-weight:850;
 }
 
 .debtItemInfo{
   margin-top:5px;
   color:var(--muted);
-  font-size:12px;
+  font-size:11px;
 }
 
 .debtItemValues{
   display:flex;
-  gap:30px;
+  gap:35px;
   flex-wrap:wrap;
-  margin-top:15px;
+  margin-top:16px;
 }
 
 .debtValueLabel{
   display:block;
-  color:#778ba2;
-  font-size:11px;
+  color:#71859d;
+  font-size:10px;
+  text-transform:uppercase;
 }
 
 .debtValueNumber{
   display:block;
-  margin-top:4px;
+  margin-top:5px;
   color:#fff;
-  font-weight:800;
+  font-weight:850;
 }
 
 .quitButton{
   padding:10px 15px!important;
   border:0!important;
-  background:linear-gradient(135deg,var(--orange),var(--orange-light))!important;
+  background:linear-gradient(135deg,var(--orange),var(--orange2))!important;
   color:#fff!important;
-  box-shadow:0 5px 15px rgba(244,123,32,.20);
+  box-shadow:0 6px 18px rgba(244,123,32,.18);
 }
 
-/* =========================
+/* =====================================================
    OBJETIVOS
-========================= */
+===================================================== */
 
 .goal{
   display:grid;
@@ -547,12 +566,12 @@ td{
 }
 
 .goalIcon{
-  width:52px;
-  height:52px;
+  width:54px;
+  height:54px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(244,123,32,.12);
+  background:rgba(244,123,32,.10);
   border:1px solid rgba(244,123,32,.12);
   border-radius:16px;
   font-size:27px;
@@ -560,21 +579,22 @@ td{
 
 .progress{
   height:9px;
-  margin-top:9px;
+  margin-top:10px;
   overflow:hidden;
-  background:#07192c;
+  background:#061425;
   border-radius:20px;
 }
 
 .progressBar{
   height:100%;
-  background:linear-gradient(90deg,var(--orange),var(--orange-light));
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
   border-radius:20px;
+  box-shadow:0 0 12px rgba(244,123,32,.25);
 }
 
-/* =========================
+/* =====================================================
    RELATÓRIOS
-========================= */
+===================================================== */
 
 .reportSummary{
   display:grid;
@@ -584,35 +604,28 @@ td{
 }
 
 .reportStat{
-  padding:18px;
-  border-radius:17px;
-  background:#0d233c;
+  min-height:105px;
+  padding:19px;
   border:1px solid var(--border);
+  border-radius:18px;
+  background:#0b2036;
 }
 
 .reportStat span{
   display:block;
   color:var(--muted);
-  font-size:12px;
+  font-size:11px;
 }
 
 .reportStat strong{
   display:block;
-  margin-top:8px;
-  font-size:21px;
+  margin-top:9px;
+  font-size:22px;
 }
 
-.reportIncome strong{
-  color:var(--green);
-}
-
-.reportExpense strong{
-  color:var(--red);
-}
-
-.reportResult strong{
-  color:var(--orange);
-}
+.reportIncome strong{color:var(--green)}
+.reportExpense strong{color:var(--red)}
+.reportResult strong{color:var(--orange)}
 
 .reportItem{
   display:flex;
@@ -623,9 +636,7 @@ td{
   border-bottom:1px solid var(--border);
 }
 
-.reportItem:last-child{
-  border-bottom:0;
-}
+.reportItem:last-child{border-bottom:0}
 
 .reportDescription{
   color:#fff;
@@ -635,64 +646,103 @@ td{
 .reportMeta{
   margin-top:5px;
   color:var(--muted);
-  font-size:12px;
+  font-size:11px;
 }
 
 .reportAmount{
   white-space:nowrap;
-  font-weight:900;
+  font-weight:950;
   font-size:15px;
 }
 
-/* =========================
+/* =====================================================
    RESPONSIVO
-========================= */
+===================================================== */
 
-@media(max-width:950px){
+@media(max-width:1100px){
 
-  .grid{
-    grid-template-columns:repeat(2,1fr);
+  header{width:205px}
+
+  main{
+    width:calc(100% - 205px);
+    margin-left:205px;
+    padding:35px 25px 60px;
   }
 
-  .debtCards{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .formGrid{
-    grid-template-columns:repeat(2,1fr);
-  }
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .debtCards{grid-template-columns:repeat(2,1fr)}
 }
 
-@media(max-width:600px){
+@media(max-width:700px){
 
-  #loginScreen{
-    padding:15px;
+  #appScreen{
+    display:block;
   }
 
-  .loginBox{
-    padding:27px 21px;
-    border-radius:23px;
+  header{
+    position:fixed;
+    top:auto;
+    bottom:0;
+    left:0;
+    right:0;
+    width:100%;
+    height:auto;
+    padding:7px 7px 8px;
+    border-right:0;
+    border-top:1px solid rgba(255,255,255,.07);
+    background:rgba(6,18,32,.97);
+    backdrop-filter:blur(18px);
   }
 
   .headerTop{
-    padding:15px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 8px 6px;
   }
 
   .brand{
-    font-size:19px;
+    font-size:18px;
+  }
+
+  header .secondary{
+    width:auto;
+    margin:0;
+    padding:7px 11px;
+    font-size:11px;
   }
 
   nav{
-    padding-left:16px;
-    padding-right:16px;
+    flex-direction:row;
+    gap:3px;
+    overflow-x:auto;
+    padding:0;
+    scrollbar-width:none;
+  }
+
+  nav::-webkit-scrollbar{display:none}
+
+  nav button{
+    flex:0 0 auto;
+    width:auto;
+    padding:8px 10px;
+    border-radius:10px;
+    text-align:center;
+    font-size:10px;
   }
 
   main{
-    padding:23px 15px 45px;
+    width:100%;
+    margin:0;
+    padding:25px 15px 105px;
   }
 
   .page h2{
-    font-size:23px;
+    font-size:24px;
+  }
+
+  #home>h2{
+    font-size:27px;
   }
 
   .grid,
@@ -715,6 +765,7 @@ td{
   .goalIcon{
     width:45px;
     height:45px;
+    font-size:22px;
   }
 
   .goal .actions{
@@ -725,8 +776,17 @@ td{
     align-items:flex-start;
   }
 
+  .debtItemValues{
+    gap:22px;
+  }
+
   .reportItem{
     align-items:flex-start;
+  }
+
+  .loginBox{
+    padding:30px 22px;
+    border-radius:25px;
   }
 }
 
@@ -736,11 +796,17 @@ td{
     grid-template-columns:1fr;
   }
 
+  nav button{
+    padding:8px 8px;
+    font-size:9px;
+  }
+
   .reportItem{
     display:block;
   }
 
   .reportAmount{
+    display:block;
     margin-top:8px;
   }
 }
@@ -749,107 +815,67 @@ td{
 
 <body>
 
-<!-- LOGIN -->
-
 <section id="loginScreen">
 
-  <div class="loginBox">
+<div class="loginBox">
 
-    <div class="logo">
-      <span class="thaty">Thaty</span>
-      <span class="financas"> Finanças</span>
-    </div>
+<div class="logo">
+<span class="thaty">Thaty</span>
+<span class="financas"> Finanças</span>
+</div>
 
-    <div class="subtitle">
-      Seu controle financeiro na nuvem.
-    </div>
+<div class="subtitle">
+Seu controle financeiro na nuvem.
+</div>
 
-    <label>E-mail</label>
-    <input
-      id="email"
-      type="email"
-      autocomplete="email"
-      placeholder="seu@email.com"
-    >
+<label>E-mail</label>
+<input id="email" type="email" autocomplete="email" placeholder="seu@email.com">
 
-    <label>Senha</label>
-    <input
-      id="password"
-      type="password"
-      autocomplete="current-password"
-      placeholder="Sua senha"
-    >
+<label>Senha</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Sua senha">
 
-    <button id="loginButton" class="primary" type="button">
-      Entrar
-    </button>
+<button id="loginButton" class="primary" type="button">
+Entrar
+</button>
 
-    <button
-      id="toggleAuthButton"
-      class="secondary"
-      type="button"
-      style="width:100%;margin-top:10px"
-    >
-      Criar conta
-    </button>
+<button id="toggleAuthButton" class="secondary" type="button" style="width:100%;margin-top:10px">
+Criar conta
+</button>
 
-    <div id="authMessage"></div>
+<div id="authMessage"></div>
 
-  </div>
-
+</div>
 </section>
 
-
-<!-- APP -->
 
 <section id="appScreen" class="hidden">
 
 <header>
 
-  <div class="headerTop">
+<div class="headerTop">
 
-    <div class="brand">
-      <span class="thaty">Thaty</span>
-      <span class="financas"> Finanças</span>
-    </div>
+<div class="brand">
+<span class="thaty">Thaty</span>
+<span class="financas"> Finanças</span>
+</div>
 
-    <button id="logoutButton" class="secondary">
-      Sair
-    </button>
+<button id="logoutButton" class="secondary">
+Sair
+</button>
 
-  </div>
+</div>
 
-  <nav id="navigation">
+<nav id="navigation">
 
-    <button class="active" data-page="home">
-      Início
-    </button>
+<button class="active" data-page="home">⌂ Início</button>
+<button data-page="transactions">↕ Movimentações</button>
+<button data-page="bills">▣ Contas</button>
+<button data-page="debts">◈ Dívidas</button>
+<button data-page="goals">🎯 Objetivos</button>
+<button data-page="reports">▥ Relatórios</button>
+<button data-page="settings">⚙ Configurações</button>
 
-    <button data-page="transactions">
-      Movimentações
-    </button>
-
-    <button data-page="bills">
-      Contas
-    </button>
-
-    <button data-page="debts">
-      Dívidas Totais
-    </button>
-
-    <button data-page="goals">
-      Poupança & Objetivos
-    </button>
-
-    <button data-page="reports">
-      Relatórios
-    </button>
-
-    <button data-page="settings">
-      Configurações
-    </button>
-
-  </nav>
+</nav>
 
 </header>
 
@@ -857,659 +883,362 @@ td{
 <main>
 
 
-<!-- INÍCIO -->
-
 <section id="home" class="page">
 
-  <h2>Olá! 👋</h2>
+<h2>Olá! 👋</h2>
 
-  <div class="grid">
+<div class="grid">
 
-    <div class="card">
+<div class="card">
+<div class="muted">Saldo atual</div>
+<div id="dashboardBalance" class="value">R$ 0,00</div>
+</div>
 
-      <div class="muted">
-        Saldo atual
-      </div>
+<div class="card">
+<div class="muted">Entradas</div>
+<div id="dashboardIncome" class="value">R$ 0,00</div>
+</div>
 
-      <div id="dashboardBalance" class="value">
-        R$ 0,00
-      </div>
+<div class="card">
+<div class="muted">Saídas</div>
+<div id="dashboardExpense" class="value">R$ 0,00</div>
+</div>
 
-    </div>
+<div class="card">
+<div class="muted">Dívidas</div>
+<div id="dashboardDebt" class="value">R$ 0,00</div>
+</div>
 
-
-    <div class="card">
-
-      <div class="muted">
-        Entradas
-      </div>
-
-      <div id="dashboardIncome" class="value">
-        R$ 0,00
-      </div>
-
-    </div>
+</div>
 
 
-    <div class="card">
+<div class="card" style="margin-top:18px">
 
-      <div class="muted">
-        Saídas
-      </div>
+<h3>Resumo financeiro</h3>
 
-      <div id="dashboardExpense" class="value">
-        R$ 0,00
-      </div>
+<div id="homeSummary"></div>
 
-    </div>
-
-
-    <div class="card">
-
-      <div class="muted">
-        Dívidas
-      </div>
-
-      <div id="dashboardDebt" class="value">
-        R$ 0,00
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Resumo financeiro
-    </h3>
-
-    <div id="homeSummary"></div>
-
-  </div>
+</div>
 
 </section>
 
-
-<!-- MOVIMENTAÇÕES -->
 
 <section id="transactions" class="page hidden">
 
-  <div class="row">
+<div class="row">
 
-    <h2>
-      Movimentações
-    </h2>
+<h2>Movimentações</h2>
 
-    <button
-      id="addTransactionButton"
-      class="primary"
-      style="width:auto;margin:0"
-    >
-      + Adicionar
-    </button>
+<button id="addTransactionButton" class="primary" style="width:auto;margin:0">
++ Adicionar
+</button>
 
-  </div>
+</div>
 
 
-  <div id="transactionForm" class="card hidden">
+<div id="transactionForm" class="card hidden">
 
-    <div class="formGrid">
+<div class="formGrid">
 
-      <div>
+<div>
+<label>Tipo</label>
+<select id="transactionType">
+<option value="income">Entrada</option>
+<option value="expense">Saída</option>
+</select>
+</div>
 
-        <label>Tipo</label>
+<div>
+<label>Descrição</label>
+<input id="transactionDescription" type="text">
+</div>
 
-        <select id="transactionType">
+<div>
+<label>Valor</label>
+<input id="transactionAmount" type="number" step="0.01">
+</div>
 
-          <option value="income">
-            Entrada
-          </option>
+<div>
+<label>Data</label>
+<input id="transactionDate" type="date">
+</div>
 
-          <option value="expense">
-            Saída
-          </option>
+<div>
+<label>Categoria</label>
+<input id="transactionCategory" type="text">
+</div>
 
-        </select>
+</div>
 
-      </div>
+<div class="actions">
 
+<button id="saveTransactionButton" class="primary" style="width:auto;margin:0">
+Salvar
+</button>
 
-      <div>
+<button id="cancelTransactionButton">
+Cancelar
+</button>
 
-        <label>Descrição</label>
+</div>
 
-        <input
-          id="transactionDescription"
-          type="text"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>Valor</label>
-
-        <input
-          id="transactionAmount"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>Data</label>
-
-        <input
-          id="transactionDate"
-          type="date"
-        >
-
-      </div>
+</div>
 
 
-      <div>
+<div class="card">
 
-        <label>Categoria</label>
+<div id="transactionList"></div>
 
-        <input
-          id="transactionCategory"
-          type="text"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveTransactionButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button id="cancelTransactionButton">
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="transactionList"></div>
-
-  </div>
+</div>
 
 </section>
 
-
-<!-- CONTAS -->
 
 <section id="bills" class="page hidden">
 
-  <div class="row">
+<div class="row">
 
-    <h2>
-      Contas
-    </h2>
+<h2>Contas</h2>
 
-    <button
-      id="addBillButton"
-      class="primary"
-      style="width:auto;margin:0"
-    >
-      + Adicionar
-    </button>
+<button id="addBillButton" class="primary" style="width:auto;margin:0">
++ Adicionar
+</button>
 
-  </div>
+</div>
 
 
-  <div id="billForm" class="card hidden">
+<div id="billForm" class="card hidden">
 
-    <div class="formGrid">
+<div class="formGrid">
 
-      <div>
+<div>
+<label>Nome da conta</label>
+<input id="billName" type="text">
+</div>
 
-        <label>
-          Nome da conta
-        </label>
+<div>
+<label>Valor da parcela</label>
+<input id="billAmount" type="number" step="0.01">
+</div>
 
-        <input
-          id="billName"
-          type="text"
-        >
+<div>
+<label>Dívida total</label>
+<input id="billTotalDebt" type="number" step="0.01">
+</div>
 
-      </div>
+<div>
+<label>Parcelas / informação</label>
+<input id="billInfo" type="text" placeholder="Ex.: 02/36">
+</div>
 
+<div>
+<label>Vencimento</label>
+<input value="Dia 10" disabled>
+</div>
 
-      <div>
+</div>
 
-        <label>
-          Valor da parcela
-        </label>
+<div class="actions">
 
-        <input
-          id="billAmount"
-          type="number"
-          step="0.01"
-        >
+<button id="saveBillButton" class="primary" style="width:auto;margin:0">
+Salvar
+</button>
 
-      </div>
+<button id="cancelBillButton">
+Cancelar
+</button>
 
+</div>
 
-      <div>
-
-        <label>
-          Dívida total
-        </label>
-
-        <input
-          id="billTotalDebt"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
+</div>
 
 
-      <div>
+<div class="card">
 
-        <label>
-          Parcelas / informação
-        </label>
+<div id="billList"></div>
 
-        <input
-          id="billInfo"
-          type="text"
-          placeholder="Ex.: 02/36"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Vencimento
-        </label>
-
-        <input
-          value="Dia 10"
-          disabled
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveBillButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button id="cancelBillButton">
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="billList"></div>
-
-  </div>
+</div>
 
 </section>
 
-
-<!-- DÍVIDAS -->
 
 <section id="debts" class="page hidden">
 
-  <h2>
-    Dívidas Totais
-  </h2>
+<h2>Dívidas Totais</h2>
+
+<div class="debtCards">
+
+<div class="debtStat total">
+<div class="debtStatLabel">Total das dívidas</div>
+<div id="debtTotal" class="debtStatValue">R$ 0,00</div>
+</div>
+
+<div class="debtStat open">
+<div class="debtStatLabel">Em aberto</div>
+<div id="debtOpen" class="debtStatValue">0</div>
+</div>
+
+<div class="debtStat paid">
+<div class="debtStatLabel">Já pagas</div>
+<div id="debtPaid" class="debtStatValue">0</div>
+</div>
+
+<div class="debtStat count">
+<div class="debtStatLabel">Quantidade</div>
+<div id="debtCount" class="debtStatValue">0</div>
+</div>
+
+</div>
 
 
-  <div class="debtCards">
+<div class="card">
 
-    <div class="debtStat total">
+<h3>Minhas dívidas</h3>
 
-      <div class="debtStatLabel">
-        Total das dívidas
-      </div>
+<div id="debtList"></div>
 
-      <div id="debtTotal" class="debtStatValue">
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="debtStat open">
-
-      <div class="debtStatLabel">
-        Em aberto
-      </div>
-
-      <div id="debtOpen" class="debtStatValue">
-        0
-      </div>
-
-    </div>
-
-
-    <div class="debtStat paid">
-
-      <div class="debtStatLabel">
-        Já pagas
-      </div>
-
-      <div id="debtPaid" class="debtStatValue">
-        0
-      </div>
-
-    </div>
-
-
-    <div class="debtStat count">
-
-      <div class="debtStatLabel">
-        Quantidade
-      </div>
-
-      <div id="debtCount" class="debtStatValue">
-        0
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Minhas dívidas
-    </h3>
-
-    <div id="debtList"></div>
-
-  </div>
+</div>
 
 </section>
 
-
-<!-- OBJETIVOS -->
 
 <section id="goals" class="page hidden">
 
-  <div class="row">
+<div class="row">
 
-    <h2>
-      Poupança & Objetivos
-    </h2>
+<h2>Poupança & Objetivos</h2>
 
-    <button
-      id="addGoalButton"
-      class="primary"
-      style="width:auto;margin:0"
-    >
-      + Objetivo
-    </button>
+<button id="addGoalButton" class="primary" style="width:auto;margin:0">
++ Objetivo
+</button>
 
-  </div>
+</div>
 
 
-  <div class="grid">
+<div class="grid">
 
-    <div class="card">
+<div class="card">
+<div class="muted">Total guardado</div>
+<div id="goalSavedTotal" class="value">R$ 0,00</div>
+</div>
 
-      <div class="muted">
-        Total guardado
-      </div>
+<div class="card">
+<div class="muted">Meta total</div>
+<div id="goalTargetTotal" class="value">R$ 0,00</div>
+</div>
 
-      <div id="goalSavedTotal" class="value">
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="muted">
-        Meta total
-      </div>
-
-      <div id="goalTargetTotal" class="value">
-        R$ 0,00
-      </div>
-
-    </div>
-
-  </div>
+</div>
 
 
-  <div id="goalForm" class="card hidden">
+<div id="goalForm" class="card hidden">
 
-    <div class="formGrid">
+<div class="formGrid">
 
-      <div>
+<div>
+<label>Nome do objetivo</label>
+<input id="goalName" type="text">
+</div>
 
-        <label>
-          Nome do objetivo
-        </label>
+<div>
+<label>Ícone</label>
+<input id="goalIcon" value="🎯">
+</div>
 
-        <input
-          id="goalName"
-          type="text"
-        >
+<div>
+<label>Meta</label>
+<input id="goalTarget" type="number" step="0.01">
+</div>
 
-      </div>
+<div>
+<label>Já guardado</label>
+<input id="goalSaved" type="number" step="0.01" value="0">
+</div>
 
+</div>
 
-      <div>
+<div class="actions">
 
-        <label>
-          Ícone
-        </label>
+<button id="saveGoalButton" class="primary" style="width:auto;margin:0">
+Salvar
+</button>
 
-        <input
-          id="goalIcon"
-          value="🎯"
-        >
+<button id="cancelGoalButton">
+Cancelar
+</button>
 
-      </div>
+</div>
 
-
-      <div>
-
-        <label>
-          Meta
-        </label>
-
-        <input
-          id="goalTarget"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
+</div>
 
 
-      <div>
+<div class="card">
 
-        <label>
-          Já guardado
-        </label>
+<div id="goalList"></div>
 
-        <input
-          id="goalSaved"
-          type="number"
-          step="0.01"
-          value="0"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveGoalButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button id="cancelGoalButton">
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="goalList"></div>
-
-  </div>
+</div>
 
 </section>
 
-
-<!-- RELATÓRIOS -->
 
 <section id="reports" class="page hidden">
 
-  <h2>
-    Relatórios
-  </h2>
+<h2>Relatórios</h2>
+
+<div class="reportSummary">
+
+<div class="reportStat reportIncome">
+<span>Total de entradas</span>
+<strong id="reportIncomeTotal">R$ 0,00</strong>
+</div>
+
+<div class="reportStat reportExpense">
+<span>Total de saídas</span>
+<strong id="reportExpenseTotal">R$ 0,00</strong>
+</div>
+
+<div class="reportStat reportResult">
+<span>Resultado</span>
+<strong id="reportResultTotal">R$ 0,00</strong>
+</div>
+
+</div>
 
 
-  <div class="reportSummary">
+<div class="card">
 
-    <div class="reportStat reportIncome">
+<h3>Detalhamento</h3>
 
-      <span>
-        Total de entradas
-      </span>
+<div id="reportContent"></div>
 
-      <strong id="reportIncomeTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-
-    <div class="reportStat reportExpense">
-
-      <span>
-        Total de saídas
-      </span>
-
-      <strong id="reportExpenseTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-
-    <div class="reportStat reportResult">
-
-      <span>
-        Resultado
-      </span>
-
-      <strong id="reportResultTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Detalhamento
-    </h3>
-
-    <div id="reportContent"></div>
-
-  </div>
+</div>
 
 </section>
 
 
-<!-- CONFIGURAÇÕES -->
-
 <section id="settings" class="page hidden">
 
-  <h2>
-    Configurações
-  </h2>
+<h2>Configurações</h2>
 
+<div class="card">
 
-  <div class="card">
+<label>Saldo da conta atual</label>
 
-    <label>
-      Saldo da conta atual
-    </label>
+<input id="balanceInput" type="number" step="0.01">
 
-    <input
-      id="balanceInput"
-      type="number"
-      step="0.01"
-    >
+<button id="saveBalanceButton" class="primary" style="width:auto">
+Salvar saldo
+</button>
 
-    <button
-      id="saveBalanceButton"
-      class="primary"
-      style="width:auto"
-    >
-      Salvar saldo
-    </button>
+<p class="muted">
+O saldo é o valor atual da sua conta e fica salvo na nuvem.
+</p>
 
-    <p class="muted">
-      O saldo é o valor atual da sua conta e fica salvo na nuvem.
-    </p>
-
-  </div>
+</div>
 
 </section>
 
 
 </main>
-
 </section>
 
 
@@ -1521,2151 +1250,1763 @@ td{
 
 "use strict";
 
+const SUPABASE_URL="https://rwwfidxpdybyuojijhaz.supabase.co";
 
-const SUPABASE_URL =
-"https://rwwfidxpdybyuojijhaz.supabase.co";
+const SUPABASE_KEY="sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv";
 
-const SUPABASE_KEY =
-"sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv";
-
-const supabaseClient =
+const supabaseClient=
 window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+SUPABASE_URL,
+SUPABASE_KEY
 );
-
 
 let currentUser=null;
 let creatingAccount=false;
 
-
 let database={
-  transactions:[],
-  bills:[],
-  goals:[],
-  balance:0
+transactions:[],
+bills:[],
+goals:[],
+balance:0
 };
 
-
 function $(id){
-  return document.getElementById(id);
+return document.getElementById(id);
 }
-
 
 function money(v){
-
-  return Number(v||0).toLocaleString(
-    "pt-BR",
-    {
-      style:"currency",
-      currency:"BRL"
-    }
-  );
-
+return Number(v||0).toLocaleString(
+"pt-BR",
+{
+style:"currency",
+currency:"BRL"
 }
-
+);
+}
 
 function numberValue(v){
 
-  if(typeof v==="number"){
-    return v;
-  }
-
-  let t=String(v||"")
-    .replace(/[^\d,.-]/g,"")
-    .replace(/\./g,"")
-    .replace(",", ".");
-
-  return Number(t)||0;
-
+if(typeof v==="number"){
+return v;
 }
 
+let t=String(v||"")
+.replace(/[^\d,.-]/g,"")
+.replace(/\./g,"")
+.replace(",", ".");
+
+return Number(t)||0;
+
+}
 
 function escapeHtml(v){
 
-  return String(v??"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+return String(v??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
 }
-
 
 function showAuthMessage(message,type){
 
-  $("authMessage").textContent=message||"";
+$("authMessage").textContent=message||"";
 
-  $("authMessage").className=
-    type==="success"
-      ?"success"
-      :"error";
+$("authMessage").className=
+type==="success"
+?"success"
+:"error";
 
 }
-
 
 async function authAction(){
 
-  const email=$("email").value.trim();
-  const password=$("password").value;
+const email=$("email").value.trim();
+const password=$("password").value;
 
+if(!email||!password){
 
-  if(!email||!password){
+showAuthMessage(
+"Preencha seu e-mail e sua senha."
+);
 
-    showAuthMessage(
-      "Preencha seu e-mail e sua senha."
-    );
+return;
+}
 
-    return;
-  }
+$("loginButton").disabled=true;
 
+$("loginButton").textContent=
+creatingAccount
+?"Criando..."
+:"Entrando...";
 
-  $("loginButton").disabled=true;
+showAuthMessage("");
 
-  $("loginButton").textContent=
-    creatingAccount
-      ?"Criando..."
-      :"Entrando...";
+try{
 
-  showAuthMessage("");
+let result;
 
+if(creatingAccount){
 
-  try{
+result=await supabaseClient.auth.signUp({
+email,
+password
+});
 
-    let result;
+}else{
 
-
-    if(creatingAccount){
-
-      result=await supabaseClient.auth.signUp({
-        email,
-        password
-      });
-
-    }else{
-
-      result=await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-    }
-
-
-    if(result.error){
-      throw result.error;
-    }
-
-
-    if(
-      creatingAccount &&
-      !result.data.session
-    ){
-
-      showAuthMessage(
-        "Conta criada! Confirme o e-mail se o Supabase solicitar.",
-        "success"
-      );
-
-      return;
-    }
-
-
-    currentUser=result.data.user;
-
-    await loadCloudData(true);
-
-    showApplication();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    let msg=
-      error.message||
-      "Não foi possível entrar.";
-
-
-    if(msg==="Invalid login credentials"){
-
-      msg="E-mail ou senha incorretos.";
-
-    }
-
-
-    showAuthMessage(msg);
-
-
-  }finally{
-
-    $("loginButton").disabled=false;
-
-    $("loginButton").textContent=
-      creatingAccount
-        ?"Criar conta"
-        :"Entrar";
-
-  }
+result=await supabaseClient.auth.signInWithPassword({
+email,
+password
+});
 
 }
 
+if(result.error){
+throw result.error;
+}
+
+if(creatingAccount&&!result.data.session){
+
+showAuthMessage(
+"Conta criada! Confirme o e-mail se o Supabase solicitar.",
+"success"
+);
+
+return;
+}
+
+currentUser=result.data.user;
+
+await loadCloudData(true);
+
+showApplication();
+
+}catch(error){
+
+console.error(error);
+
+let msg=
+error.message||
+"Não foi possível entrar.";
+
+if(msg==="Invalid login credentials"){
+msg="E-mail ou senha incorretos.";
+}
+
+showAuthMessage(msg);
+
+}finally{
+
+$("loginButton").disabled=false;
+
+$("loginButton").textContent=
+creatingAccount
+?"Criar conta"
+:"Entrar";
+
+}
+
+}
 
 function toggleAuthMode(){
 
-  creatingAccount=!creatingAccount;
+creatingAccount=!creatingAccount;
 
+$("loginButton").textContent=
+creatingAccount
+?"Criar conta"
+:"Entrar";
 
-  $("loginButton").textContent=
-    creatingAccount
-      ?"Criar conta"
-      :"Entrar";
+$("toggleAuthButton").textContent=
+creatingAccount
+?"Já tenho uma conta"
+:"Criar conta";
 
-
-  $("toggleAuthButton").textContent=
-    creatingAccount
-      ?"Já tenho uma conta"
-      :"Criar conta";
-
-
-  showAuthMessage("");
+showAuthMessage("");
 
 }
-
 
 function showApplication(){
 
-  $("loginScreen")
-    .classList
-    .add("hidden");
+$("loginScreen").classList.add("hidden");
 
-  $("appScreen")
-    .classList
-    .remove("hidden");
+$("appScreen").classList.remove("hidden");
 
-  renderEverything();
+renderEverything();
 
 }
-
 
 function showLogin(){
 
-  $("appScreen")
-    .classList
-    .add("hidden");
+$("appScreen").classList.add("hidden");
 
-  $("loginScreen")
-    .classList
-    .remove("hidden");
+$("loginScreen").classList.remove("hidden");
 
 }
-
 
 function extractInstallmentAmount(bill){
 
-  const info=String(bill.info||"");
+const info=String(bill.info||"");
 
-  const match=
-    info.match(
-      /(?:-|\u2013|\u2014)\s*([0-9.]+,[0-9]{2})\s*$/
-    );
+const match=
+info.match(
+/(?:-|\u2013|\u2014)\s*([0-9.]+,[0-9]{2})\s*$/
+);
 
-  return match
-    ?numberValue(match[1])
-    :numberValue(bill.amount);
+return match
+?numberValue(match[1])
+:numberValue(bill.amount);
 
 }
-
 
 async function loadCloudData(allowImport){
 
-  if(!currentUser){
-    return;
-  }
+if(!currentUser){
+return;
+}
 
+const uid=currentUser.id;
 
-  const uid=currentUser.id;
+const results=await Promise.all([
 
+supabaseClient
+.from("transactions")
+.select("*")
+.eq("user_id",uid)
+.order("date",{ascending:false}),
 
-  const results=await Promise.all([
+supabaseClient
+.from("bills")
+.select("*")
+.eq("user_id",uid)
+.order("created_at",{ascending:false}),
 
-    supabaseClient
-      .from("transactions")
-      .select("*")
-      .eq("user_id",uid)
-      .order("date",{ascending:false}),
+supabaseClient
+.from("goals")
+.select("*")
+.eq("user_id",uid)
+.order("created_at",{ascending:false}),
 
-    supabaseClient
-      .from("bills")
-      .select("*")
-      .eq("user_id",uid)
-      .order("created_at",{ascending:false}),
+supabaseClient
+.from("account_settings")
+.select("*")
+.eq("user_id",uid)
+.maybeSingle()
 
-    supabaseClient
-      .from("goals")
-      .select("*")
-      .eq("user_id",uid)
-      .order("created_at",{ascending:false}),
+]);
 
-    supabaseClient
-      .from("account_settings")
-      .select("*")
-      .eq("user_id",uid)
-      .maybeSingle()
+results.forEach(r=>{
 
-  ]);
+if(r.error){
+throw r.error;
+}
 
+});
 
-  results.forEach(r=>{
+database.transactions=results[0].data||[];
+database.bills=results[1].data||[];
+database.goals=results[2].data||[];
+database.balance=Number(results[3].data?.balance||0);
 
-    if(r.error){
-      throw r.error;
-    }
+if(
+allowImport&&
+!database.transactions.length&&
+!database.bills.length&&
+!database.goals.length
+){
 
-  });
+const oldRaw=
+localStorage.getItem("thatyV1");
 
+const imported=
+localStorage.getItem(
+"thaty_financas_importado_"+uid
+);
 
-  database.transactions=
-    results[0].data||[];
+if(oldRaw&&!imported){
 
-  database.bills=
-    results[1].data||[];
+try{
 
-  database.goals=
-    results[2].data||[];
+const old=JSON.parse(oldRaw);
 
-  database.balance=
-    Number(results[3].data?.balance||0);
+if(confirm(
+"Encontrei dados salvos neste dispositivo.\n\nDeseja importar seus dados antigos para sua conta na nuvem?"
+)){
 
+await importOldData(old);
 
-  if(
-    allowImport &&
-    !database.transactions.length &&
-    !database.bills.length &&
-    !database.goals.length
-  ){
-
-    const oldRaw=
-      localStorage.getItem("thatyV1");
-
-    const imported=
-      localStorage.getItem(
-        "thaty_financas_importado_"+uid
-      );
-
-
-    if(oldRaw&&!imported){
-
-      try{
-
-        const old=JSON.parse(oldRaw);
-
-
-        if(confirm(
-          "Encontrei dados salvos neste dispositivo.\n\nDeseja importar seus dados antigos para sua conta na nuvem?"
-        )){
-
-          await importOldData(old);
-
-          await loadCloudData(false);
-
-        }
-
-      }catch(e){
-
-        console.error(
-          "Erro na importação:",
-          e
-        );
-
-      }
-
-    }
-
-  }
+await loadCloudData(false);
 
 }
 
+}catch(e){
+
+console.error(
+"Erro na importação:",
+e
+);
+
+}
+
+}
+
+}
+
+}
 
 async function importOldData(old){
 
-  const uid=currentUser.id;
+const uid=currentUser.id;
 
+const transactions=
+Array.isArray(old.transactions)
+?old.transactions
+:[];
 
-  const transactions=
-    Array.isArray(old.transactions)
-      ?old.transactions
-      :[];
+if(transactions.length){
 
+const rows=
+transactions.map(x=>({
 
-  if(transactions.length){
+user_id:uid,
 
-    const rows=
-      transactions.map(x=>({
+type:
+x.type==="income"
+?"income"
+:"expense",
 
-        user_id:uid,
+description:
+x.description||
+x.name||
+"Movimentação",
 
-        type:
-          x.type==="income"
-            ?"income"
-            :"expense",
+amount:numberValue(x.amount),
 
-        description:
-          x.description||
-          x.name||
-          "Movimentação",
+date:
+x.date||
+new Date()
+.toISOString()
+.slice(0,10),
 
-        amount:numberValue(x.amount),
+category:
+x.category||
+null,
 
-        date:
-          x.date||
-          new Date()
-            .toISOString()
-            .slice(0,10),
+notes:
+x.notes||
+null
 
-        category:
-          x.category||
-          null,
+}));
 
-        notes:
-          x.notes||
-          null
+const r=
+await supabaseClient
+.from("transactions")
+.insert(rows);
 
-      }));
-
-
-    const r=
-      await supabaseClient
-        .from("transactions")
-        .insert(rows);
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-  }
-
-
-  const bills=
-    Array.isArray(old.bills)
-      ?old.bills
-      :[];
-
-
-  if(bills.length){
-
-    const rows=
-      bills.map(x=>({
-
-        user_id:uid,
-
-        name:
-          x.name||
-          "Conta",
-
-        amount:
-          extractInstallmentAmount(x),
-
-        total_debt:
-          numberValue(
-            x.totalDebt??x.amount
-          ),
-
-        info:
-          x.info||
-          "Vencimento: dia 10",
-
-        due_day:10,
-
-        installment_label:
-          x.installmentLabel||
-          null,
-
-        paid:Boolean(x.paid)
-
-      }));
-
-
-    const r=
-      await supabaseClient
-        .from("bills")
-        .insert(rows);
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-  }
-
-
-  const goals=
-    Array.isArray(old.goals)
-      ?old.goals
-      :[];
-
-
-  if(goals.length){
-
-    const rows=
-      goals.map(x=>({
-
-        user_id:uid,
-
-        name:
-          x.name||
-          "Objetivo",
-
-        icon:
-          x.icon||
-          "🎯",
-
-        target:
-          numberValue(x.target),
-
-        saved:
-          numberValue(x.saved)
-
-      }));
-
-
-    const r=
-      await supabaseClient
-        .from("goals")
-        .insert(rows);
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("account_settings")
-      .upsert({
-
-        user_id:uid,
-
-        balance:
-          numberValue(old.balance),
-
-        updated_at:
-          new Date().toISOString()
-
-      },{
-        onConflict:"user_id"
-      });
-
-
-  if(r.error){
-    throw r.error;
-  }
-
-
-  localStorage.setItem(
-    "thaty_financas_importado_"+uid,
-    "1"
-  );
+if(r.error){
+throw r.error;
+}
 
 }
 
+const bills=
+Array.isArray(old.bills)
+?old.bills
+:[];
+
+if(bills.length){
+
+const rows=
+bills.map(x=>({
+
+user_id:uid,
+
+name:
+x.name||
+"Conta",
+
+amount:
+extractInstallmentAmount(x),
+
+total_debt:
+numberValue(
+x.totalDebt??x.amount
+),
+
+info:
+x.info||
+"Vencimento: dia 10",
+
+due_day:10,
+
+installment_label:
+x.installmentLabel||
+null,
+
+paid:Boolean(x.paid)
+
+}));
+
+const r=
+await supabaseClient
+.from("bills")
+.insert(rows);
+
+if(r.error){
+throw r.error;
+}
+
+}
+
+const goals=
+Array.isArray(old.goals)
+?old.goals
+:[];
+
+if(goals.length){
+
+const rows=
+goals.map(x=>({
+
+user_id:uid,
+
+name:
+x.name||
+"Objetivo",
+
+icon:
+x.icon||
+"🎯",
+
+target:
+numberValue(x.target),
+
+saved:
+numberValue(x.saved)
+
+}));
+
+const r=
+await supabaseClient
+.from("goals")
+.insert(rows);
+
+if(r.error){
+throw r.error;
+}
+
+}
+
+const r=
+await supabaseClient
+.from("account_settings")
+.upsert({
+
+user_id:uid,
+
+balance:
+numberValue(old.balance),
+
+updated_at:
+new Date().toISOString()
+
+},{
+onConflict:"user_id"
+});
+
+if(r.error){
+throw r.error;
+}
+
+localStorage.setItem(
+"thaty_financas_importado_"+uid,
+"1"
+);
+
+}
 
 function getBillStatus(bill){
 
-  if(bill.paid){
+if(bill.paid){
 
-    return{
-      text:"Paga",
-      className:"paid"
-    };
-
-  }
-
-
-  const now=new Date();
-
-  const due=new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    10,
-    23,
-    59,
-    59
-  );
-
-
-  return now>due
-    ?{
-        text:"Atrasada",
-        className:"late"
-      }
-    :{
-        text:"Vencimento dia 10",
-        className:"due"
-      };
+return{
+text:"Paga",
+className:"paid"
+};
 
 }
 
+const now=new Date();
+
+const due=new Date(
+now.getFullYear(),
+now.getMonth(),
+10,
+23,
+59,
+59
+);
+
+return now>due
+?{
+text:"Atrasada",
+className:"late"
+}
+:{
+text:"Vencimento dia 10",
+className:"due"
+};
+
+}
 
 function renderHome(){
 
-  const income=
-    database.transactions
-      .filter(x=>x.type==="income")
-      .reduce(
-        (s,x)=>
-          s+Number(x.amount||0),
-        0
-      );
+const income=
+database.transactions
+.filter(x=>x.type==="income")
+.reduce(
+(s,x)=>s+Number(x.amount||0),
+0
+);
 
+const expense=
+database.transactions
+.filter(x=>x.type==="expense")
+.reduce(
+(s,x)=>s+Number(x.amount||0),
+0
+);
 
-  const expense=
-    database.transactions
-      .filter(x=>x.type==="expense")
-      .reduce(
-        (s,x)=>
-          s+Number(x.amount||0),
-        0
-      );
+const debts=
+database.bills
+.filter(x=>!x.paid)
+.reduce(
+(s,x)=>s+Number(
+x.total_debt||
+x.amount||
+0
+),
+0
+);
 
+$("dashboardBalance").textContent=
+money(database.balance);
 
-  const debts=
-    database.bills
-      .filter(x=>!x.paid)
-      .reduce(
-        (s,x)=>
-          s+
-          Number(
-            x.total_debt||
-            x.amount||
-            0
-          ),
-        0
-      );
+$("dashboardIncome").textContent=
+money(income);
 
+$("dashboardExpense").textContent=
+money(expense);
 
-  $("dashboardBalance")
-    .textContent=
-    money(database.balance);
+$("dashboardDebt").textContent=
+money(debts);
 
+const open=
+database.bills.filter(x=>!x.paid).length;
 
-  $("dashboardIncome")
-    .textContent=
-    money(income);
+$("homeSummary").innerHTML=`
 
+<p>💳 Você tem <strong>${open}</strong> conta(s) em aberto.</p>
 
-  $("dashboardExpense")
-    .textContent=
-    money(expense);
+<p>📅 Todas as contas vencem no <strong>dia 10</strong>.</p>
 
+<p>⚠️ Depois do dia 10, uma conta não paga aparece como <strong class="red">Atrasada</strong>.</p>
 
-  $("dashboardDebt")
-    .textContent=
-    money(debts);
-
-
-  const open=
-    database.bills
-      .filter(x=>!x.paid)
-      .length;
-
-
-  $("homeSummary").innerHTML=`
-
-    <p>
-      Você tem
-      <strong>${open}</strong>
-      conta(s) em aberto.
-    </p>
-
-    <p>
-      Todas as contas vencem no
-      <strong>dia 10</strong>.
-    </p>
-
-    <p>
-      Depois do dia 10, uma conta não paga aparece como
-      <strong class="red">Atrasada</strong>.
-    </p>
-
-  `;
+`;
 
 }
-
 
 function renderTransactions(){
 
-  if(!database.transactions.length){
+if(!database.transactions.length){
 
-    $("transactionList").innerHTML=
-      '<p class="muted">Nenhuma movimentação cadastrada.</p>';
+$("transactionList").innerHTML=
+'<p class="muted">Nenhuma movimentação cadastrada.</p>';
 
-    return;
-
-  }
-
-
-  $("transactionList").innerHTML=`
-
-    <div class="tableWrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>Data</th>
-            <th>Descrição</th>
-            <th>Categoria</th>
-            <th>Tipo</th>
-            <th>Valor</th>
-            <th></th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          ${database.transactions.map(x=>`
-
-            <tr>
-
-              <td>
-                ${escapeHtml(x.date||"")}
-              </td>
-
-              <td>
-                ${escapeHtml(x.description)}
-              </td>
-
-              <td>
-                ${escapeHtml(x.category||"-")}
-              </td>
-
-              <td>
-                ${x.type==="income"
-                  ?"Entrada"
-                  :"Saída"}
-              </td>
-
-              <td
-                class="${x.type==="income"
-                  ?"green"
-                  :"red"}"
-              >
-                ${x.type==="income"
-                  ?"+"
-                  :"-"}
-                ${money(x.amount)}
-              </td>
-
-              <td>
-
-                <button
-                  onclick="deleteTransaction('${x.id}')"
-                >
-                  Excluir
-                </button>
-
-              </td>
-
-            </tr>
-
-          `).join("")}
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  `;
+return;
 
 }
 
+$("transactionList").innerHTML=`
+
+<div class="tableWrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Data</th>
+<th>Descrição</th>
+<th>Categoria</th>
+<th>Tipo</th>
+<th>Valor</th>
+<th></th>
+</tr>
+
+</thead>
+
+<tbody>
+
+${database.transactions.map(x=>`
+
+<tr>
+
+<td>${escapeHtml(x.date||"")}</td>
+
+<td><strong>${escapeHtml(x.description)}</strong></td>
+
+<td>${escapeHtml(x.category||"-")}</td>
+
+<td>${x.type==="income"?"Entrada":"Saída"}</td>
+
+<td class="${x.type==="income"?"green":"red"}">
+
+${x.type==="income"?"+":"-"}
+${money(x.amount)}
+
+</td>
+
+<td>
+
+<button onclick="deleteTransaction('${x.id}')">
+Excluir
+</button>
+
+</td>
+
+</tr>
+
+`).join("")}
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+}
 
 function renderBills(){
 
-  if(!database.bills.length){
+if(!database.bills.length){
 
-    $("billList").innerHTML=
-      '<p class="muted">Nenhuma conta cadastrada.</p>';
+$("billList").innerHTML=
+'<p class="muted">Nenhuma conta cadastrada.</p>';
 
-    return;
-
-  }
-
-
-  $("billList").innerHTML=
-    database.bills.map(b=>{
-
-      const st=getBillStatus(b);
-
-
-      return`
-
-        <div class="card"
-          style="
-            box-shadow:none;
-            background:#0d233c;
-          "
-        >
-
-          <div class="row">
-
-            <div>
-
-              <strong>
-                ${escapeHtml(b.name)}
-              </strong>
-
-              <div class="muted">
-
-                ${escapeHtml(b.info||"")}
-
-                · Vencimento dia 10
-
-              </div>
-
-            </div>
-
-
-            <span class="badge ${st.className}">
-              ${st.text}
-            </span>
-
-          </div>
-
-
-          <p>
-
-            Parcela:
-            <strong>
-              ${money(b.amount)}
-            </strong>
-
-            <br>
-
-            Dívida total:
-            <strong>
-              ${money(b.total_debt)}
-            </strong>
-
-          </p>
-
-
-          <div class="actions">
-
-            ${!b.paid?`
-
-              <button
-                onclick="markBillPaid('${b.id}')"
-              >
-                Marcar como paga
-              </button>
-
-            `:""}
-
-
-            <button
-              onclick="deleteBill('${b.id}')"
-            >
-              Excluir
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
+return;
 
 }
 
+$("billList").innerHTML=
+database.bills.map(b=>{
+
+const st=getBillStatus(b);
+
+return`
+
+<div class="debtItem">
+
+<div class="row">
+
+<div>
+
+<strong class="debtItemTitle">
+${escapeHtml(b.name)}
+</strong>
+
+<div class="debtItemInfo">
+${escapeHtml(b.info||"")} · Vencimento dia 10
+</div>
+
+</div>
+
+<span class="badge ${st.className}">
+${st.text}
+</span>
+
+</div>
+
+<div class="debtItemValues">
+
+<div>
+<span class="debtValueLabel">Parcela</span>
+<span class="debtValueNumber">${money(b.amount)}</span>
+</div>
+
+<div>
+<span class="debtValueLabel">Dívida total</span>
+<span class="debtValueNumber">${money(b.total_debt)}</span>
+</div>
+
+</div>
+
+<div class="actions">
+
+${!b.paid?`
+
+<button onclick="markBillPaid('${b.id}')">
+✓ Marcar como paga
+</button>
+
+`:""}
+
+<button onclick="deleteBill('${b.id}')">
+Excluir
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
 
 function renderDebts(){
 
-  const open=
-    database.bills
-      .filter(x=>!x.paid);
+const open=
+database.bills.filter(x=>!x.paid);
 
+const paid=
+database.bills.filter(x=>x.paid);
 
-  const paid=
-    database.bills
-      .filter(x=>x.paid);
+const total=
+open.reduce(
+(s,x)=>s+Number(
+x.total_debt||
+x.amount||
+0
+),
+0
+);
 
+$("debtTotal").textContent=
+money(total);
 
-  const total=
-    open.reduce(
-      (s,x)=>
-        s+
-        Number(
-          x.total_debt||
-          x.amount||
-          0
-        ),
-      0
-    );
+$("debtOpen").textContent=
+open.length;
 
+$("debtPaid").textContent=
+paid.length;
 
-  $("debtTotal")
-    .textContent=
-    money(total);
+$("debtCount").textContent=
+database.bills.length;
 
+if(!database.bills.length){
 
-  $("debtOpen")
-    .textContent=
-    open.length;
+$("debtList").innerHTML=
+'<p class="muted">Nenhuma dívida cadastrada.</p>';
 
-
-  $("debtPaid")
-    .textContent=
-    paid.length;
-
-
-  $("debtCount")
-    .textContent=
-    database.bills.length;
-
-
-  if(!database.bills.length){
-
-    $("debtList").innerHTML=
-      '<p class="muted">Nenhuma dívida cadastrada.</p>';
-
-    return;
-
-  }
-
-
-  $("debtList").innerHTML=
-    database.bills.map(x=>{
-
-      const status=getBillStatus(x);
-
-
-      return`
-
-        <div class="debtItem">
-
-          <div class="row">
-
-            <div>
-
-              <div class="debtItemTitle">
-
-                ${escapeHtml(x.name)}
-
-              </div>
-
-              <div class="debtItemInfo">
-
-                ${escapeHtml(x.info||"")}
-                · Vencimento dia 10
-
-              </div>
-
-            </div>
-
-
-            <span class="badge ${status.className}">
-              ${status.text}
-            </span>
-
-          </div>
-
-
-          <div class="debtItemValues">
-
-            <div>
-
-              <span class="debtValueLabel">
-                Parcela
-              </span>
-
-              <span class="debtValueNumber">
-                ${money(x.amount)}
-              </span>
-
-            </div>
-
-
-            <div>
-
-              <span class="debtValueLabel">
-                Dívida total
-              </span>
-
-              <span class="debtValueNumber">
-                ${money(x.total_debt)}
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div class="actions">
-
-            ${!x.paid?`
-
-              <button
-                class="quitButton"
-                onclick="quitDebt('${x.id}')"
-              >
-                Quitar dívida
-              </button>
-
-            `:`
-
-              <button disabled>
-                Dívida quitada ✓
-              </button>
-
-            `}
-
-
-            ${!x.paid?`
-
-              <button
-                onclick="markBillPaid('${x.id}')"
-              >
-                Marcar parcela paga
-              </button>
-
-            `:""}
-
-
-            <button
-              onclick="deleteBill('${x.id}')"
-            >
-              Excluir
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
+return;
 
 }
 
+$("debtList").innerHTML=
+database.bills.map(x=>{
+
+const status=getBillStatus(x);
+
+return`
+
+<div class="debtItem">
+
+<div class="row">
+
+<div>
+
+<div class="debtItemTitle">
+${escapeHtml(x.name)}
+</div>
+
+<div class="debtItemInfo">
+${escapeHtml(x.info||"")}
+· Vencimento dia 10
+</div>
+
+</div>
+
+<span class="badge ${status.className}">
+${status.text}
+</span>
+
+</div>
+
+<div class="debtItemValues">
+
+<div>
+<span class="debtValueLabel">Parcela</span>
+<span class="debtValueNumber">
+${money(x.amount)}
+</span>
+</div>
+
+<div>
+<span class="debtValueLabel">Dívida total</span>
+<span class="debtValueNumber">
+${money(x.total_debt)}
+</span>
+</div>
+
+</div>
+
+<div class="actions">
+
+${!x.paid?`
+
+<button
+class="quitButton"
+onclick="quitDebt('${x.id}')"
+>
+💰 Quitar dívida
+</button>
+
+`:`<button disabled>
+✓ Dívida quitada
+</button>`}
+
+${!x.paid?`
+
+<button
+onclick="markBillPaid('${x.id}')"
+>
+Marcar parcela paga
+</button>
+
+`:""}
+
+<button
+onclick="deleteBill('${x.id}')"
+>
+Excluir
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
 
 function renderGoals(){
 
-  const saved=
-    database.goals.reduce(
-      (s,x)=>
-        s+
-        Number(x.saved||0),
-      0
-    );
+const saved=
+database.goals.reduce(
+(s,x)=>s+Number(x.saved||0),
+0
+);
 
+const target=
+database.goals.reduce(
+(s,x)=>s+Number(x.target||0),
+0
+);
 
-  const target=
-    database.goals.reduce(
-      (s,x)=>
-        s+
-        Number(x.target||0),
-      0
-    );
+$("goalSavedTotal").textContent=
+money(saved);
 
+$("goalTargetTotal").textContent=
+money(target);
 
-  $("goalSavedTotal")
-    .textContent=
-    money(saved);
+if(!database.goals.length){
 
+$("goalList").innerHTML=
+'<p class="muted">Nenhum objetivo criado.</p>';
 
-  $("goalTargetTotal")
-    .textContent=
-    money(target);
-
-
-  if(!database.goals.length){
-
-    $("goalList").innerHTML=
-      '<p class="muted">Nenhum objetivo criado.</p>';
-
-    return;
-
-  }
-
-
-  $("goalList").innerHTML=
-    database.goals.map(g=>{
-
-      const pct=
-        g.target
-          ?Math.min(
-            100,
-            Number(g.saved||0)/
-            Number(g.target)*
-            100
-          )
-          :0;
-
-
-      return`
-
-        <div
-          class="card"
-          style="
-            box-shadow:none;
-            background:#0d233c;
-          "
-        >
-
-          <div class="goal">
-
-            <div class="goalIcon">
-              ${escapeHtml(g.icon||"🎯")}
-            </div>
-
-
-            <div>
-
-              <strong>
-                ${escapeHtml(g.name)}
-              </strong>
-
-              <div class="muted">
-
-                ${money(g.saved)}
-                de
-                ${money(g.target)}
-                ·
-                ${pct.toFixed(0)}%
-
-              </div>
-
-
-              <div class="progress">
-
-                <div
-                  class="progressBar"
-                  style="width:${pct}%"
-                ></div>
-
-              </div>
-
-            </div>
-
-
-            <div class="actions">
-
-              <button
-                onclick="addMoneyToGoal('${g.id}')"
-              >
-                Guardar
-              </button>
-
-              <button
-                onclick="deleteGoal('${g.id}')"
-              >
-                Excluir
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
+return;
 
 }
 
+$("goalList").innerHTML=
+database.goals.map(g=>{
+
+const pct=
+g.target
+?Math.min(
+100,
+Number(g.saved||0)/
+Number(g.target)*
+100
+)
+:0;
+
+return`
+
+<div class="debtItem">
+
+<div class="goal">
+
+<div class="goalIcon">
+${escapeHtml(g.icon||"🎯")}
+</div>
+
+<div>
+
+<strong>
+${escapeHtml(g.name)}
+</strong>
+
+<div class="muted">
+${money(g.saved)}
+de
+${money(g.target)}
+·
+${pct.toFixed(0)}%
+</div>
+
+<div class="progress">
+
+<div
+class="progressBar"
+style="width:${pct}%"
+></div>
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<button onclick="addMoneyToGoal('${g.id}')">
++ Guardar
+</button>
+
+<button onclick="deleteGoal('${g.id}')">
+Excluir
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
 
 function renderReports(){
 
-  const transactions=
-    [...database.transactions]
-      .sort(
-        (a,b)=>
-          String(b.date||"")
-            .localeCompare(
-              String(a.date||"")
-            )
-      );
+const transactions=
+[...database.transactions]
+.sort(
+(a,b)=>
+String(b.date||"")
+.localeCompare(
+String(a.date||"")
+)
+);
 
+const income=
+transactions
+.filter(x=>x.type==="income")
+.reduce(
+(s,x)=>s+Number(x.amount||0),
+0
+);
 
-  const income=
-    transactions
-      .filter(x=>x.type==="income")
-      .reduce(
-        (s,x)=>
-          s+
-          Number(x.amount||0),
-        0
-      );
+const expense=
+transactions
+.filter(x=>x.type==="expense")
+.reduce(
+(s,x)=>s+Number(x.amount||0),
+0
+);
 
+const result=income-expense;
 
-  const expense=
-    transactions
-      .filter(x=>x.type==="expense")
-      .reduce(
-        (s,x)=>
-          s+
-          Number(x.amount||0),
-        0
-      );
+$("reportIncomeTotal").textContent=
+money(income);
 
+$("reportExpenseTotal").textContent=
+money(expense);
 
-  const result=income-expense;
+$("reportResultTotal").textContent=
+money(result);
 
+if(!transactions.length){
 
-  $("reportIncomeTotal")
-    .textContent=
-    money(income);
+$("reportContent").innerHTML=
+'<p class="muted">Nenhuma movimentação registrada ainda.</p>';
 
-
-  $("reportExpenseTotal")
-    .textContent=
-    money(expense);
-
-
-  $("reportResultTotal")
-    .textContent=
-    money(result);
-
-
-  if(!transactions.length){
-
-    $("reportContent").innerHTML=
-      '<p class="muted">Nenhuma movimentação registrada ainda.</p>';
-
-    return;
-
-  }
-
-
-  $("reportContent").innerHTML=
-    transactions.map(x=>`
-
-      <div class="reportItem">
-
-        <div>
-
-          <div class="reportDescription">
-
-            ${escapeHtml(
-              x.description||
-              "Movimentação"
-            )}
-
-          </div>
-
-
-          <div class="reportMeta">
-
-            ${escapeHtml(x.date||"Sem data")}
-
-            ·
-
-            ${escapeHtml(
-              x.category||
-              "Sem categoria"
-            )}
-
-            ·
-
-            ${x.type==="income"
-              ?"Entrada"
-              :"Saída"}
-
-          </div>
-
-        </div>
-
-
-        <div
-          class="reportAmount
-            ${x.type==="income"
-              ?"green"
-              :"red"}"
-        >
-
-          ${x.type==="income"
-            ?"+"
-            :"-"}
-
-          ${money(x.amount)}
-
-        </div>
-
-      </div>
-
-    `).join("");
+return;
 
 }
 
+$("reportContent").innerHTML=
+transactions.map(x=>`
+
+<div class="reportItem">
+
+<div>
+
+<div class="reportDescription">
+${escapeHtml(
+x.description||
+"Movimentação"
+)}
+</div>
+
+<div class="reportMeta">
+
+${escapeHtml(x.date||"Sem data")}
+·
+${escapeHtml(
+x.category||
+"Sem categoria"
+)}
+·
+${x.type==="income"
+?"Entrada"
+:"Saída"}
+
+</div>
+
+</div>
+
+<div class="reportAmount ${x.type==="income"?"green":"red"}">
+
+${x.type==="income"?"+":"-"}
+${money(x.amount)}
+
+</div>
+
+</div>
+
+`).join("");
+
+}
 
 function renderSettings(){
 
-  $("balanceInput").value=
-    database.balance;
+$("balanceInput").value=
+database.balance;
 
 }
-
 
 function renderEverything(){
 
-  renderHome();
-
-  renderTransactions();
-
-  renderBills();
-
-  renderDebts();
-
-  renderGoals();
-
-  renderReports();
-
-  renderSettings();
+renderHome();
+renderTransactions();
+renderBills();
+renderDebts();
+renderGoals();
+renderReports();
+renderSettings();
 
 }
 
 
-/* =========================
-   NAVEGAÇÃO
-========================= */
+/* NAVEGAÇÃO */
 
 document
-  .querySelectorAll("#navigation button")
-  .forEach(btn=>{
+.querySelectorAll("#navigation button")
+.forEach(btn=>{
 
-    btn.addEventListener(
-      "click",
-      function(){
+btn.addEventListener(
+"click",
+function(){
 
-        document
-          .querySelectorAll(".page")
-          .forEach(p=>
-            p.classList.add("hidden")
-          );
+document
+.querySelectorAll(".page")
+.forEach(p=>
+p.classList.add("hidden")
+);
+
+$(this.dataset.page)
+.classList.remove("hidden");
+
+document
+.querySelectorAll("#navigation button")
+.forEach(b=>
+b.classList.remove("active")
+);
+
+this.classList.add("active");
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+);
+
+});
 
 
-        $(this.dataset.page)
-          .classList
-          .remove("hidden");
-
-
-        document
-          .querySelectorAll("#navigation button")
-          .forEach(b=>
-            b.classList.remove("active")
-          );
-
-
-        this.classList.add("active");
-
-      }
-    );
-
-  });
-
-
-/* =========================
-   MOVIMENTAÇÕES
-========================= */
+/* MOVIMENTAÇÕES */
 
 $("addTransactionButton").onclick=()=>{
 
-  $("transactionForm")
-    .classList
-    .remove("hidden");
+$("transactionForm")
+.classList.remove("hidden");
 
 };
-
 
 $("cancelTransactionButton").onclick=()=>{
 
-  $("transactionForm")
-    .classList
-    .add("hidden");
+$("transactionForm")
+.classList.add("hidden");
 
 };
-
 
 $("saveTransactionButton").onclick=async()=>{
 
-  try{
+try{
 
-    const description=
-      $("transactionDescription")
-        .value
-        .trim();
+const description=
+$("transactionDescription")
+.value.trim();
 
+const amount=
+numberValue(
+$("transactionAmount").value
+);
 
-    const amount=
-      numberValue(
-        $("transactionAmount").value
-      );
+if(!description){
 
-
-    if(!description){
-
-      return alert(
-        "Digite uma descrição."
-      );
-
-    }
-
-
-    if(amount<=0){
-
-      return alert(
-        "Digite um valor válido."
-      );
-
-    }
-
-
-    const r=
-      await supabaseClient
-        .from("transactions")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          type:
-            $("transactionType").value,
-
-          description,
-
-          amount,
-
-          date:
-            $("transactionDate").value||
-            new Date()
-              .toISOString()
-              .slice(0,10),
-
-          category:
-            $("transactionCategory").value||
-            null
-
-        });
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-
-    $("transactionForm")
-      .classList
-      .add("hidden");
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-
-  }catch(e){
-
-    alert(e.message);
-
-  }
-
-};
-
-
-/* =========================
-   CONTAS
-========================= */
-
-$("addBillButton").onclick=()=>{
-
-  $("billForm")
-    .classList
-    .remove("hidden");
-
-};
-
-
-$("cancelBillButton").onclick=()=>{
-
-  $("billForm")
-    .classList
-    .add("hidden");
-
-};
-
-
-$("saveBillButton").onclick=async()=>{
-
-  try{
-
-    const name=
-      $("billName")
-        .value
-        .trim();
-
-
-    const amount=
-      numberValue(
-        $("billAmount").value
-      );
-
-
-    let total=
-      numberValue(
-        $("billTotalDebt").value
-      );
-
-
-    if(!name){
-
-      return alert(
-        "Digite o nome da conta."
-      );
-
-    }
-
-
-    if(amount<=0){
-
-      return alert(
-        "Digite o valor da parcela."
-      );
-
-    }
-
-
-    if(total<=0){
-      total=amount;
-    }
-
-
-    const r=
-      await supabaseClient
-        .from("bills")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          name,
-
-          amount,
-
-          total_debt:
-            total,
-
-          info:
-            $("billInfo").value||
-            "Vencimento: dia 10",
-
-          due_day:10,
-
-          paid:false
-
-        });
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-
-    $("billForm")
-      .classList
-      .add("hidden");
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-
-  }catch(e){
-
-    alert(e.message);
-
-  }
-
-};
-
-
-/* =========================
-   OBJETIVOS
-========================= */
-
-$("addGoalButton").onclick=()=>{
-
-  $("goalForm")
-    .classList
-    .remove("hidden");
-
-};
-
-
-$("cancelGoalButton").onclick=()=>{
-
-  $("goalForm")
-    .classList
-    .add("hidden");
-
-};
-
-
-$("saveGoalButton").onclick=async()=>{
-
-  try{
-
-    const name=
-      $("goalName")
-        .value
-        .trim();
-
-
-    const target=
-      numberValue(
-        $("goalTarget").value
-      );
-
-
-    const saved=
-      numberValue(
-        $("goalSaved").value
-      );
-
-
-    if(!name){
-
-      return alert(
-        "Digite o nome do objetivo."
-      );
-
-    }
-
-
-    if(target<=0){
-
-      return alert(
-        "Digite uma meta válida."
-      );
-
-    }
-
-
-    const r=
-      await supabaseClient
-        .from("goals")
-        .insert({
-
-          user_id:
-            currentUser.id,
-
-          name,
-
-          icon:
-            $("goalIcon").value||
-            "🎯",
-
-          target,
-
-          saved
-
-        });
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-
-    $("goalForm")
-      .classList
-      .add("hidden");
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-
-  }catch(e){
-
-    alert(e.message);
-
-  }
-
-};
-
-
-/* =========================
-   SALDO
-========================= */
-
-$("saveBalanceButton").onclick=async()=>{
-
-  try{
-
-    const balance=
-      numberValue(
-        $("balanceInput").value
-      );
-
-
-    const r=
-      await supabaseClient
-        .from("account_settings")
-        .upsert({
-
-          user_id:
-            currentUser.id,
-
-          balance,
-
-          updated_at:
-            new Date().toISOString()
-
-        },{
-          onConflict:"user_id"
-        });
-
-
-    if(r.error){
-      throw r.error;
-    }
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-
-    alert(
-      "Saldo salvo com sucesso! 🧡"
-    );
-
-
-  }catch(e){
-
-    alert(e.message);
-
-  }
-
-};
-
-
-/* =========================
-   EXCLUIR MOVIMENTAÇÃO
-========================= */
-
-window.deleteTransaction=
-async id=>{
-
-  if(
-    !confirm(
-      "Excluir esta movimentação?"
-    )
-  ){
-    return;
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("transactions")
-      .delete()
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-};
-
-
-/* =========================
-   EXCLUIR CONTA
-========================= */
-
-window.deleteBill=
-async id=>{
-
-  if(
-    !confirm(
-      "Excluir esta conta?"
-    )
-  ){
-    return;
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("bills")
-      .delete()
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-};
-
-
-/* =========================
-   MARCAR PARCELA PAGA
-========================= */
-
-window.markBillPaid=
-async id=>{
-
-  const r=
-    await supabaseClient
-      .from("bills")
-      .update({
-        paid:true
-      })
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-};
-
-
-/* =========================
-   QUITAR DÍVIDA
-========================= */
-
-window.quitDebt=
-async id=>{
-
-  const bill=
-    database.bills.find(
-      x=>x.id===id
-    );
-
-
-  if(!bill){
-    return;
-  }
-
-
-  const total=
-    Number(
-      bill.total_debt||
-      bill.amount||
-      0
-    );
-
-
-  const confirmed=
-    confirm(
-      "Deseja realmente quitar esta dívida?\n\n"+
-      "Dívida: "+
-      bill.name+
-      "\n"+
-      "Valor: "+
-      money(total)+
-      "\n\n"+
-      "A dívida será marcada como quitada."
-    );
-
-
-  if(!confirmed){
-    return;
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("bills")
-      .update({
-        paid:true
-      })
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-
-  alert(
-    "Dívida quitada com sucesso! 🎉"
-  );
-
-};
-
-
-/* =========================
-   OBJETIVOS
-========================= */
-
-window.deleteGoal=
-async id=>{
-
-  if(
-    !confirm(
-      "Excluir este objetivo?"
-    )
-  ){
-    return;
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("goals")
-      .delete()
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-};
-
-
-window.addMoneyToGoal=
-async id=>{
-
-  const goal=
-    database.goals.find(
-      x=>x.id===id
-    );
-
-
-  if(!goal){
-    return;
-  }
-
-
-  const answer=
-    prompt(
-      "Quanto deseja guardar?",
-      "0"
-    );
-
-
-  if(answer===null){
-    return;
-  }
-
-
-  const amount=
-    numberValue(answer);
-
-
-  if(amount<=0){
-
-    return alert(
-      "Digite um valor válido."
-    );
-
-  }
-
-
-  const r=
-    await supabaseClient
-      .from("goals")
-      .update({
-
-        saved:
-          Number(goal.saved||0)+
-          amount
-
-      })
-      .eq("id",id)
-      .eq("user_id",currentUser.id);
-
-
-  if(r.error){
-
-    return alert(
-      r.error.message
-    );
-
-  }
-
-
-  await loadCloudData(false);
-
-  renderEverything();
-
-};
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-$("logoutButton").onclick=
-async()=>{
-
-  await supabaseClient
-    .auth
-    .signOut();
-
-
-  currentUser=null;
-
-
-  database={
-    transactions:[],
-    bills:[],
-    goals:[],
-    balance:0
-  };
-
-
-  showLogin();
-
-};
-
-
-/* =========================
-   LOGIN
-========================= */
-
-$("loginButton")
-  .addEventListener(
-    "click",
-    authAction
-  );
-
-
-$("toggleAuthButton")
-  .addEventListener(
-    "click",
-    toggleAuthMode
-  );
-
-
-$("password")
-  .addEventListener(
-    "keydown",
-    e=>{
-
-      if(e.key==="Enter"){
-        authAction();
-      }
-
-    }
-  );
-
-
-/* =========================
-   SESSÃO
-========================= */
-
-async function initialize(){
-
-  try{
-
-    const r=
-      await supabaseClient
-        .auth
-        .getSession();
-
-
-    if(r.data?.session){
-
-      currentUser=
-        r.data.session.user;
-
-
-      await loadCloudData(true);
-
-      showApplication();
-
-    }else{
-
-      showLogin();
-
-    }
-
-
-  }catch(e){
-
-    console.error(
-      "Erro ao iniciar:",
-      e
-    );
-
-    showLogin();
-
-  }
+return alert(
+"Digite uma descrição."
+);
 
 }
 
+if(amount<=0){
+
+return alert(
+"Digite um valor válido."
+);
+
+}
+
+const r=
+await supabaseClient
+.from("transactions")
+.insert({
+
+user_id:currentUser.id,
+
+type:$("transactionType").value,
+
+description,
+
+amount,
+
+date:
+$("transactionDate").value||
+new Date()
+.toISOString()
+.slice(0,10),
+
+category:
+$("transactionCategory").value||
+null
+
+});
+
+if(r.error){
+throw r.error;
+}
+
+$("transactionForm")
+.classList.add("hidden");
+
+await loadCloudData(false);
+
+renderEverything();
+
+}catch(e){
+
+alert(e.message);
+
+}
+
+};
+
+
+/* CONTAS */
+
+$("addBillButton").onclick=()=>{
+
+$("billForm")
+.classList.remove("hidden");
+
+};
+
+$("cancelBillButton").onclick=()=>{
+
+$("billForm")
+.classList.add("hidden");
+
+};
+
+$("saveBillButton").onclick=async()=>{
+
+try{
+
+const name=
+$("billName")
+.value
+.trim();
+
+const amount=
+numberValue(
+$("billAmount").value
+);
+
+let total=
+numberValue(
+$("billTotalDebt").value
+);
+
+if(!name){
+
+return alert(
+"Digite o nome da conta."
+);
+
+}
+
+if(amount<=0){
+
+return alert(
+"Digite o valor da parcela."
+);
+
+}
+
+if(total<=0){
+total=amount;
+}
+
+const r=
+await supabaseClient
+.from("bills")
+.insert({
+
+user_id:currentUser.id,
+
+name,
+
+amount,
+
+total_debt:total,
+
+info:
+$("billInfo").value||
+"Vencimento: dia 10",
+
+due_day:10,
+
+paid:false
+
+});
+
+if(r.error){
+throw r.error;
+}
+
+$("billForm")
+.classList.add("hidden");
+
+await loadCloudData(false);
+
+renderEverything();
+
+}catch(e){
+
+alert(e.message);
+
+}
+
+};
+
+
+/* OBJETIVOS */
+
+$("addGoalButton").onclick=()=>{
+
+$("goalForm")
+.classList.remove("hidden");
+
+};
+
+$("cancelGoalButton").onclick=()=>{
+
+$("goalForm")
+.classList.add("hidden");
+
+};
+
+$("saveGoalButton").onclick=async()=>{
+
+try{
+
+const name=
+$("goalName")
+.value
+.trim();
+
+const target=
+numberValue(
+$("goalTarget").value
+);
+
+const saved=
+numberValue(
+$("goalSaved").value
+);
+
+if(!name){
+
+return alert(
+"Digite o nome do objetivo."
+);
+
+}
+
+if(target<=0){
+
+return alert(
+"Digite uma meta válida."
+);
+
+}
+
+const r=
+await supabaseClient
+.from("goals")
+.insert({
+
+user_id:currentUser.id,
+
+name,
+
+icon:
+$("goalIcon").value||
+"🎯",
+
+target,
+
+saved
+
+});
+
+if(r.error){
+throw r.error;
+}
+
+$("goalForm")
+.classList.add("hidden");
+
+await loadCloudData(false);
+
+renderEverything();
+
+}catch(e){
+
+alert(e.message);
+
+}
+
+};
+
+
+/* SALDO */
+
+$("saveBalanceButton").onclick=async()=>{
+
+try{
+
+const balance=
+numberValue(
+$("balanceInput").value
+);
+
+const r=
+await supabaseClient
+.from("account_settings")
+.upsert({
+
+user_id:currentUser.id,
+
+balance,
+
+updated_at:
+new Date().toISOString()
+
+},{
+onConflict:"user_id"
+});
+
+if(r.error){
+throw r.error;
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+alert(
+"Saldo salvo com sucesso! 🧡"
+);
+
+}catch(e){
+
+alert(e.message);
+
+}
+
+};
+
+
+/* EXCLUIR MOVIMENTAÇÃO */
+
+window.deleteTransaction=async id=>{
+
+if(!confirm(
+"Excluir esta movimentação?"
+)){
+return;
+}
+
+const r=
+await supabaseClient
+.from("transactions")
+.delete()
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+};
+
+
+/* EXCLUIR CONTA */
+
+window.deleteBill=async id=>{
+
+if(!confirm(
+"Excluir esta conta?"
+)){
+return;
+}
+
+const r=
+await supabaseClient
+.from("bills")
+.delete()
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+};
+
+
+/* MARCAR PARCELA PAGA */
+
+window.markBillPaid=async id=>{
+
+const r=
+await supabaseClient
+.from("bills")
+.update({
+paid:true
+})
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+};
+
+
+/* QUITAR DÍVIDA */
+
+window.quitDebt=async id=>{
+
+const bill=
+database.bills.find(
+x=>x.id===id
+);
+
+if(!bill){
+return;
+}
+
+const total=
+Number(
+bill.total_debt||
+bill.amount||
+0
+);
+
+const confirmed=
+confirm(
+"Deseja realmente quitar esta dívida?\n\n"+
+"Dívida: "+
+bill.name+
+"\n"+
+"Valor: "+
+money(total)+
+"\n\n"+
+"A dívida será marcada como quitada."
+);
+
+if(!confirmed){
+return;
+}
+
+const r=
+await supabaseClient
+.from("bills")
+.update({
+paid:true
+})
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+alert(
+"Dívida quitada com sucesso! 🎉"
+);
+
+};
+
+
+/* OBJETIVOS */
+
+window.deleteGoal=async id=>{
+
+if(!confirm(
+"Excluir este objetivo?"
+)){
+return;
+}
+
+const r=
+await supabaseClient
+.from("goals")
+.delete()
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+};
+
+window.addMoneyToGoal=async id=>{
+
+const goal=
+database.goals.find(
+x=>x.id===id
+);
+
+if(!goal){
+return;
+}
+
+const answer=
+prompt(
+"Quanto deseja guardar?",
+"0"
+);
+
+if(answer===null){
+return;
+}
+
+const amount=
+numberValue(answer);
+
+if(amount<=0){
+
+return alert(
+"Digite um valor válido."
+);
+
+}
+
+const r=
+await supabaseClient
+.from("goals")
+.update({
+
+saved:
+Number(goal.saved||0)+
+amount
+
+})
+.eq("id",id)
+.eq("user_id",currentUser.id);
+
+if(r.error){
+
+return alert(
+r.error.message
+);
+
+}
+
+await loadCloudData(false);
+
+renderEverything();
+
+};
+
+
+/* LOGOUT */
+
+$("logoutButton").onclick=async()=>{
+
+await supabaseClient
+.auth
+.signOut();
+
+currentUser=null;
+
+database={
+transactions:[],
+bills:[],
+goals:[],
+balance:0
+};
+
+showLogin();
+
+};
+
+
+/* LOGIN */
+
+$("loginButton")
+.addEventListener(
+"click",
+authAction
+);
+
+$("toggleAuthButton")
+.addEventListener(
+"click",
+toggleAuthMode
+);
+
+$("password")
+.addEventListener(
+"keydown",
+e=>{
+
+if(e.key==="Enter"){
+authAction();
+}
+
+}
+);
+
+
+/* SESSÃO */
+
+async function initialize(){
+
+try{
+
+const r=
+await supabaseClient
+.auth
+.getSession();
+
+if(r.data?.session){
+
+currentUser=
+r.data.session.user;
+
+await loadCloudData(true);
+
+showApplication();
+
+}else{
+
+showLogin();
+
+}
+
+}catch(e){
+
+console.error(
+"Erro ao iniciar:",
+e
+);
+
+showLogin();
+
+}
+
+}
 
 initialize();
 
