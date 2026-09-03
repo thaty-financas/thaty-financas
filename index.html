@@ -5523,7 +5523,9 @@ function renderReports(){
       (s,x)=>
         s +
         Number(
-          x.amount ||
+          x.total_debt ??
+          x.totalDebt ??
+          x.amount ??
           0
         ),
       0
