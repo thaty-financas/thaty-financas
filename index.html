@@ -3,6 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Thaty Finanças</title>
@@ -12,8 +13,11 @@
 <meta name="theme-color" content="#071426">
 
 <meta name="mobile-web-app-capable" content="yes">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
+
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <meta name="apple-mobile-web-app-title" content="Thaty Finanças">
 
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -149,12 +153,14 @@ button:disabled{
 }
 
 .logo .thaty,
-.brand .thaty{
+.brand .thaty,
+.mobileMenuBrand .thaty{
   color:var(--orange);
 }
 
 .logo .financas,
-.brand .financas{
+.brand .financas,
+.mobileMenuBrand .financas{
   color:#fff;
 }
 
@@ -417,6 +423,15 @@ main{
     repeat(4,1fr);
 
   gap:16px;
+}
+
+.formGrid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:4px 16px;
 }
 
 .grid>.card{
@@ -725,6 +740,11 @@ td button{
   color:var(--red);
 }
 
+.badge.installment{
+  background:rgba(244,123,32,.12);
+  color:#ffae6b;
+}
+
 .debtCards{
   display:grid;
 
@@ -865,6 +885,126 @@ td button{
   color:#fff;
 
   font-weight:850;
+}
+
+.installmentBox{
+  margin-top:18px;
+
+  padding:15px 16px;
+
+  border:1px solid rgba(244,123,32,.14);
+
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(244,123,32,.07),
+      rgba(255,255,255,.02)
+    );
+}
+
+.installmentMain{
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:15px;
+
+  flex-wrap:wrap;
+}
+
+.installmentNumber{
+  color:#fff;
+
+  font-size:17px;
+
+  font-weight:900;
+}
+
+.installmentNumber span{
+  color:var(--orange);
+}
+
+.installmentRemaining{
+  color:#9fb0c2;
+
+  font-size:12px;
+}
+
+.installmentDates{
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:18px;
+
+  margin-top:13px;
+}
+
+.installmentDate{
+  color:#8ea0b4;
+
+  font-size:11px;
+}
+
+.installmentDate strong{
+  display:block;
+
+  margin-top:4px;
+
+  color:#fff;
+
+  font-size:12px;
+}
+
+.installmentProgress{
+  height:7px;
+
+  margin-top:14px;
+
+  overflow:hidden;
+
+  background:#061425;
+
+  border-radius:20px;
+}
+
+.installmentProgressBar{
+  height:100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--orange),
+      var(--orange2)
+    );
+
+  border-radius:20px;
+}
+
+.monthBadge{
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:5px;
+
+  margin-top:10px;
+
+  padding:6px 9px;
+
+  border-radius:9px;
+
+  background:rgba(255,255,255,.045);
+
+  color:#aebdcd;
+
+  font-size:10px;
+
+  font-weight:700;
 }
 
 .quitButton{
@@ -1051,11 +1191,15 @@ td button{
 
 .loadingOverlay{
   position:fixed;
+
   inset:0;
+
   z-index:9999;
 
   display:flex;
+
   align-items:center;
+
   justify-content:center;
 
   padding:20px;
@@ -1067,11 +1211,13 @@ td button{
 
 .loadingBox{
   width:100%;
+
   max-width:360px;
 
   padding:30px;
 
   border:1px solid rgba(255,255,255,.08);
+
   border-radius:22px;
 
   background:#0b2036;
@@ -1083,6 +1229,7 @@ td button{
 
 .loadingSpinner{
   width:38px;
+
   height:38px;
 
   margin:0 auto 17px;
@@ -1097,9 +1244,11 @@ td button{
 }
 
 @keyframes spin{
+
   to{
     transform:rotate(360deg);
   }
+
 }
 
 @media(max-width:1100px){
@@ -1145,6 +1294,7 @@ td button{
     width:100%;
 
     height:auto;
+
     min-height:70px;
 
     padding:
@@ -1513,6 +1663,16 @@ td button{
     gap:20px;
   }
 
+  .installmentMain{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:7px;
+  }
+
+  .installmentDates{
+    gap:13px;
+  }
+
   .reportSummary{
     grid-template-columns:1fr;
   }
@@ -1598,6 +1758,7 @@ td button{
 </head>
 
 <body>
+
 
 <!-- =====================================================
      LOGIN
@@ -1693,33 +1854,56 @@ td button{
 
     </div>
 
+
     <nav id="navigation">
 
-      <button class="active" data-page="home" type="button">
+      <button
+        class="active"
+        data-page="home"
+        type="button"
+      >
         ⌂ Início
       </button>
 
-      <button data-page="transactions" type="button">
+      <button
+        data-page="transactions"
+        type="button"
+      >
         ↕ Movimentações
       </button>
 
-      <button data-page="bills" type="button">
+      <button
+        data-page="bills"
+        type="button"
+      >
         ▣ Contas
       </button>
 
-      <button data-page="debts" type="button">
+      <button
+        data-page="debts"
+        type="button"
+      >
         ◈ Dívidas
       </button>
 
-      <button data-page="goals" type="button">
+      <button
+        data-page="goals"
+        type="button"
+      >
         🎯 Objetivos
       </button>
 
-      <button data-page="reports" type="button">
+      <button
+        data-page="reports"
+        type="button"
+      >
         ▥ Relatórios
       </button>
 
-      <button data-page="settings" type="button">
+      <button
+        data-page="settings"
+        type="button"
+      >
         ⚙ Configurações
       </button>
 
@@ -1734,6 +1918,7 @@ td button{
     id="mobileMenuOverlay"
     class="mobileMenuOverlay"
   ></div>
+
 
   <aside
     id="mobileMenuPanel"
@@ -1755,6 +1940,7 @@ td button{
 
       </div>
 
+
       <button
         id="mobileMenuClose"
         class="mobileMenuClose"
@@ -1766,37 +1952,61 @@ td button{
 
     </div>
 
+
     <nav id="mobileNavigation">
 
-      <button class="active" data-page="home" type="button">
+      <button
+        class="active"
+        data-page="home"
+        type="button"
+      >
         ⌂ Início
       </button>
 
-      <button data-page="transactions" type="button">
+      <button
+        data-page="transactions"
+        type="button"
+      >
         ↕ Movimentações
       </button>
 
-      <button data-page="bills" type="button">
+      <button
+        data-page="bills"
+        type="button"
+      >
         ▣ Contas
       </button>
 
-      <button data-page="debts" type="button">
+      <button
+        data-page="debts"
+        type="button"
+      >
         ◈ Dívidas
       </button>
 
-      <button data-page="goals" type="button">
+      <button
+        data-page="goals"
+        type="button"
+      >
         🎯 Objetivos
       </button>
 
-      <button data-page="reports" type="button">
+      <button
+        data-page="reports"
+        type="button"
+      >
         ▥ Relatórios
       </button>
 
-      <button data-page="settings" type="button">
+      <button
+        data-page="settings"
+        type="button"
+      >
         ⚙ Configurações
       </button>
 
     </nav>
+
 
     <button
       id="mobileLogoutButton"
@@ -1815,13 +2025,20 @@ td button{
 
   <main>
 
-    <!-- INÍCIO -->
 
-    <section id="home" class="page">
+    <!-- ===================================================
+         INÍCIO
+         =================================================== -->
+
+    <section
+      id="home"
+      class="page"
+    >
 
       <h2 id="homeGreeting">
         Olá, Thaty! 👋
       </h2>
+
 
       <button
         id="privacyToggle"
@@ -1834,7 +2051,9 @@ td button{
         👁️
       </button>
 
+
       <div class="grid">
+
 
         <div class="card">
 
@@ -1918,7 +2137,9 @@ td button{
     </section>
 
 
-    <!-- MOVIMENTAÇÕES -->
+    <!-- ===================================================
+         MOVIMENTAÇÕES
+         =================================================== -->
 
     <section
       id="transactions"
@@ -1950,9 +2171,12 @@ td button{
 
         <div class="formGrid">
 
+
           <div>
 
-            <label>Tipo</label>
+            <label>
+              Tipo
+            </label>
 
             <select id="transactionType">
 
@@ -1971,7 +2195,9 @@ td button{
 
           <div>
 
-            <label>Descrição</label>
+            <label>
+              Descrição
+            </label>
 
             <input
               id="transactionDescription"
@@ -1983,7 +2209,9 @@ td button{
 
           <div>
 
-            <label>Valor</label>
+            <label>
+              Valor
+            </label>
 
             <input
               id="transactionAmount"
@@ -1996,7 +2224,9 @@ td button{
 
           <div>
 
-            <label>Data</label>
+            <label>
+              Data
+            </label>
 
             <input
               id="transactionDate"
@@ -2008,7 +2238,9 @@ td button{
 
           <div>
 
-            <label>Categoria</label>
+            <label>
+              Categoria
+            </label>
 
             <input
               id="transactionCategory"
@@ -2052,7 +2284,9 @@ td button{
     </section>
 
 
-    <!-- CONTAS -->
+    <!-- ===================================================
+         CONTAS
+         =================================================== -->
 
     <section
       id="bills"
@@ -2084,6 +2318,7 @@ td button{
 
         <div class="formGrid">
 
+
           <div>
 
             <label>
@@ -2093,6 +2328,7 @@ td button{
             <input
               id="billName"
               type="text"
+              placeholder="Ex.: Cartão Nubank"
             >
 
           </div>
@@ -2101,13 +2337,35 @@ td button{
           <div>
 
             <label>
-              Valor da parcela
+              Tipo de conta
+            </label>
+
+            <select id="billType">
+
+              <option value="installment">
+                💳 Parcelada
+              </option>
+
+              <option value="monthly">
+                🔄 Mensal / recorrente
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Valor da parcela / conta
             </label>
 
             <input
               id="billAmount"
               type="number"
               step="0.01"
+              placeholder="0,00"
             >
 
           </div>
@@ -2123,21 +2381,55 @@ td button{
               id="billTotalDebt"
               type="number"
               step="0.01"
+              placeholder="0,00"
             >
 
           </div>
 
 
-          <div>
+          <div id="installmentFields">
 
             <label>
-              Parcelas / informação
+              Parcela atual
             </label>
 
             <input
-              id="billInfo"
-              type="text"
-              placeholder="Ex.: 02/36"
+              id="billCurrentInstallment"
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+            >
+
+          </div>
+
+
+          <div id="totalInstallmentsField">
+
+            <label>
+              Total de parcelas
+            </label>
+
+            <input
+              id="billTotalInstallments"
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+            >
+
+          </div>
+
+
+          <div id="startMonthField">
+
+            <label>
+              Mês da primeira parcela
+            </label>
+
+            <input
+              id="billStartMonth"
+              type="month"
             >
 
           </div>
@@ -2153,6 +2445,67 @@ td button{
               value="Dia 10"
               disabled
             >
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="installmentPreview"
+          class="installmentBox hidden"
+        >
+
+          <div class="installmentMain">
+
+            <div>
+
+              <div class="muted">
+                Parcelamento
+              </div>
+
+              <div
+                id="installmentPreviewMain"
+                class="installmentNumber"
+              >
+                1ª de 1 parcelas
+              </div>
+
+            </div>
+
+
+            <div
+              id="installmentPreviewRemaining"
+              class="installmentRemaining"
+            >
+              Nenhuma parcela restante
+            </div>
+
+          </div>
+
+
+          <div class="installmentDates">
+
+            <div class="installmentDate">
+
+              Início
+
+              <strong id="previewStartDate">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="installmentDate">
+
+              Término
+
+              <strong id="previewEndDate">
+                —
+              </strong>
+
+            </div>
 
           </div>
 
@@ -2191,7 +2544,9 @@ td button{
     </section>
 
 
-    <!-- DÍVIDAS -->
+    <!-- ===================================================
+         DÍVIDAS
+         =================================================== -->
 
     <section
       id="debts"
@@ -2204,6 +2559,7 @@ td button{
 
 
       <div class="debtCards">
+
 
         <div class="debtStat total">
 
@@ -2284,7 +2640,9 @@ td button{
     </section>
 
 
-    <!-- OBJETIVOS -->
+    <!-- ===================================================
+         OBJETIVOS
+         =================================================== -->
 
     <section
       id="goals"
@@ -2310,6 +2668,7 @@ td button{
 
 
       <div class="grid">
+
 
         <div class="card">
 
@@ -2351,6 +2710,7 @@ td button{
       >
 
         <div class="formGrid">
+
 
           <div>
 
@@ -2445,7 +2805,9 @@ td button{
     </section>
 
 
-    <!-- RELATÓRIOS -->
+    <!-- ===================================================
+         RELATÓRIOS
+         =================================================== -->
 
     <section
       id="reports"
@@ -2458,6 +2820,7 @@ td button{
 
 
       <div class="reportSummary">
+
 
         <div class="reportStat reportIncome">
 
@@ -2513,7 +2876,9 @@ td button{
     </section>
 
 
-    <!-- CONFIGURAÇÕES -->
+    <!-- ===================================================
+         CONFIGURAÇÕES
+         =================================================== -->
 
     <section
       id="settings"
@@ -2537,6 +2902,7 @@ td button{
           step="0.01"
         >
 
+
         <button
           id="saveBalanceButton"
           class="primary"
@@ -2545,6 +2911,7 @@ td button{
         >
           Salvar saldo
         </button>
+
 
         <p class="muted">
           O saldo é o valor atual da sua conta
@@ -2587,6 +2954,7 @@ td button{
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
@@ -2638,7 +3006,7 @@ let database = {
 
 
 /* =========================================================
-   EDIÇÃO DE CONTA
+   CONTROLE DE EDIÇÃO
    ========================================================= */
 
 let editingBillId = null;
@@ -2727,14 +3095,18 @@ function showLoading(
 ){
 
   if($("loadingText")){
+
     $("loadingText").textContent =
       message || "Carregando...";
+
   }
 
   if($("loadingOverlay")){
+
     $("loadingOverlay")
       .classList
       .remove("hidden");
+
   }
 
 }
@@ -2743,36 +3115,757 @@ function showLoading(
 function hideLoading(){
 
   if($("loadingOverlay")){
+
     $("loadingOverlay")
       .classList
       .add("hidden");
+
   }
 
 }
 
 
 /* =========================================================
-   INICIALIZAR SUPABASE COM SEGURANÇA
+   DATAS
    ========================================================= */
 
-function initializeSupabase(){
+function parseMonthInput(
+  value
+){
+
+  if(!value){
+    return null;
+  }
+
+
+  const parts =
+    String(value).split("-");
+
+
+  if(parts.length !== 2){
+    return null;
+  }
+
+
+  const year =
+    Number(parts[0]);
+
+  const month =
+    Number(parts[1]);
+
 
   if(
-    !window.supabase ||
-    !window.supabase.createClient
+    !year ||
+    !month ||
+    month < 1 ||
+    month > 12
   ){
 
-    throw new Error(
-      "Não foi possível carregar o sistema de conexão."
-    );
+    return null;
 
   }
 
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+
+  return new Date(
+    year,
+    month - 1,
+    1
+  );
+
+}
+
+
+function formatMonth(
+  date
+){
+
+  if(!date){
+    return "—";
+  }
+
+
+  return date.toLocaleDateString(
+    "pt-BR",
+    {
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+function monthInputValue(
+  date
+){
+
+  if(!date){
+    return "";
+  }
+
+
+  const year =
+    date.getFullYear();
+
+
+  const month =
+    String(
+      date.getMonth()+1
+    ).padStart(2,"0");
+
+
+  return (
+    year +
+    "-" +
+    month
+  );
+
+}
+
+
+function addMonths(
+  date,
+  amount
+){
+
+  if(!date){
+    return null;
+  }
+
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth() + amount,
+    1
+  );
+
+}
+
+
+/* =========================================================
+   PARCELAS
+   ========================================================= */
+
+/*
+  Para não obrigar você a criar novas colunas no Supabase,
+  as informações do parcelamento ficam armazenadas no campo
+  "info" da conta.
+
+  Formato interno:
+
+  [PARCELADA]|ATUAL=2|TOTAL=5|INICIO=2026-09
+
+  O usuário nunca precisa ver esse formato.
+*/
+
+
+function createInstallmentInfo(
+  current,
+  total,
+  startMonth,
+  extra
+){
+
+  let result =
+    "[PARCELADA]" +
+    "|ATUAL=" +
+    current +
+    "|TOTAL=" +
+    total +
+    "|INICIO=" +
+    startMonth;
+
+
+  if(extra){
+
+    result +=
+      "|INFO=" +
+      encodeURIComponent(extra);
+
+  }
+
+
+  return result;
+
+}
+
+
+function createMonthlyInfo(
+  extra
+){
+
+  let result =
+    "[MENSAL]";
+
+
+  if(extra){
+
+    result +=
+      "|INFO=" +
+      encodeURIComponent(extra);
+
+  }
+
+
+  return result;
+
+}
+
+
+function parseBillInfo(
+  bill
+){
+
+  const raw =
+    String(bill.info || "");
+
+
+  /*
+    Novo formato de conta parcelada.
+  */
+
+  if(
+    raw.indexOf("[PARCELADA]") === 0
+  ){
+
+    const currentMatch =
+      raw.match(
+        /\|ATUAL=(\d+)/
+      );
+
+    const totalMatch =
+      raw.match(
+        /\|TOTAL=(\d+)/
+      );
+
+    const startMatch =
+      raw.match(
+        /\|INICIO=([0-9]{4}-[0-9]{2})/
+      );
+
+    const infoMatch =
+      raw.match(
+        /\|INFO=(.*)$/
+      );
+
+
+    const current =
+      currentMatch
+        ? Number(currentMatch[1])
+        : 1;
+
+
+    const total =
+      totalMatch
+        ? Number(totalMatch[1])
+        : 1;
+
+
+    const start =
+      startMatch
+        ? startMatch[1]
+        : monthInputValue(
+            new Date()
+          );
+
+
+    let extra = "";
+
+    if(infoMatch){
+
+      try{
+
+        extra =
+          decodeURIComponent(
+            infoMatch[1]
+          );
+
+      }catch(e){
+
+        extra =
+          infoMatch[1];
+
+      }
+
+    }
+
+
+    return {
+
+      type:"installment",
+
+      current:Math.max(
+        1,
+        current
+      ),
+
+      total:Math.max(
+        1,
+        total
+      ),
+
+      start,
+
+      extra
+
+    };
+
+  }
+
+
+  /*
+    Novo formato mensal.
+  */
+
+  if(
+    raw.indexOf("[MENSAL]") === 0
+  ){
+
+    const infoMatch =
+      raw.match(
+        /\|INFO=(.*)$/
+      );
+
+
+    let extra = "";
+
+    if(infoMatch){
+
+      try{
+
+        extra =
+          decodeURIComponent(
+            infoMatch[1]
+          );
+
+      }catch(e){
+
+        extra =
+          infoMatch[1];
+
+      }
+
+    }
+
+
+    return {
+
+      type:"monthly",
+
+      current:1,
+
+      total:0,
+
+      start:"",
+
+      extra
+
+    };
+
+  }
+
+
+  /*
+    Compatibilidade com o formato antigo:
+    02/05
+  */
+
+  const oldMatch =
+    raw.match(
+      /(?:^|\D)(\d+)\s*\/\s*(\d+)(?:\D|$)/
     );
+
+
+  if(oldMatch){
+
+    const current =
+      Number(oldMatch[1]);
+
+
+    const total =
+      Number(oldMatch[2]);
+
+
+    /*
+      Como o formato antigo não guardava o mês
+      inicial, estimamos o início a partir da
+      parcela atual e do mês atual.
+    */
+
+    const now =
+      new Date();
+
+
+    const estimatedStart =
+      addMonths(
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1
+        ),
+        -(current - 1)
+      );
+
+
+    return {
+
+      type:"installment",
+
+      current:Math.max(
+        1,
+        current
+      ),
+
+      total:Math.max(
+        1,
+        total
+      ),
+
+      start:
+        monthInputValue(
+          estimatedStart
+        ),
+
+      extra:
+        raw
+
+    };
+
+  }
+
+
+  /*
+    Conta antiga sem parcelamento.
+  */
+
+  return {
+
+    type:"monthly",
+
+    current:1,
+
+    total:0,
+
+    start:"",
+
+    extra:raw
+
+  };
+
+}
+
+
+function getInstallmentData(
+  bill
+){
+
+  return parseBillInfo(
+    bill
+  );
+
+}
+
+
+function getInstallmentEndDate(
+  data
+){
+
+  if(
+    !data ||
+    data.type !== "installment"
+  ){
+
+    return null;
+
+  }
+
+
+  const start =
+    parseMonthInput(
+      data.start
+    );
+
+
+  if(!start){
+    return null;
+  }
+
+
+  return addMonths(
+    start,
+    data.total - 1
+  );
+
+}
+
+
+function getCurrentInstallmentDate(
+  data
+){
+
+  if(
+    !data ||
+    data.type !== "installment"
+  ){
+
+    return null;
+
+  }
+
+
+  const start =
+    parseMonthInput(
+      data.start
+    );
+
+
+  if(!start){
+    return null;
+  }
+
+
+  return addMonths(
+    start,
+    data.current - 1
+  );
+
+}
+
+
+function getInstallmentPercent(
+  data
+){
+
+  if(
+    !data ||
+    data.type !== "installment" ||
+    !data.total
+  ){
+
+    return 0;
+
+  }
+
+
+  return Math.min(
+    100,
+    Math.max(
+      0,
+      (
+        data.current /
+        data.total
+      ) * 100
+    )
+  );
+
+}
+
+
+function getRemainingInstallments(
+  data
+){
+
+  if(
+    !data ||
+    data.type !== "installment"
+  ){
+
+    return 0;
+
+  }
+
+
+  return Math.max(
+    0,
+    data.total -
+    data.current
+  );
+
+}
+
+
+/* =========================================================
+   MOSTRAR / ESCONDER CAMPOS DE PARCELAMENTO
+   ========================================================= */
+
+function updateBillTypeFields(){
+
+  const type =
+    $("billType").value;
+
+
+  const isInstallment =
+    type === "installment";
+
+
+  $("installmentFields")
+    .classList
+    .toggle(
+      "hidden",
+      !isInstallment
+    );
+
+
+  $("totalInstallmentsField")
+    .classList
+    .toggle(
+      "hidden",
+      !isInstallment
+    );
+
+
+  $("startMonthField")
+    .classList
+    .toggle(
+      "hidden",
+      !isInstallment
+    );
+
+
+  if(isInstallment){
+
+    updateInstallmentPreview();
+
+  }else{
+
+    $("installmentPreview")
+      .classList
+      .add("hidden");
+
+  }
+
+}
+
+
+/* =========================================================
+   PREVISUALIZAÇÃO DA PARCELA
+   ========================================================= */
+
+function updateInstallmentPreview(){
+
+  if(
+    $("billType").value !==
+    "installment"
+  ){
+
+    $("installmentPreview")
+      .classList
+      .add("hidden");
+
+    return;
+
+  }
+
+
+  const current =
+    Math.max(
+      1,
+      Number(
+        $("billCurrentInstallment")
+          .value
+      ) || 1
+    );
+
+
+  const total =
+    Math.max(
+      current,
+      Number(
+        $("billTotalInstallments")
+          .value
+      ) || 1
+    );
+
+
+  let start =
+    $("billStartMonth").value;
+
+
+  if(!start){
+
+    start =
+      monthInputValue(
+        addMonths(
+          new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1
+          ),
+          -(current - 1)
+        )
+      );
+
+  }
+
+
+  const data = {
+
+    type:"installment",
+
+    current,
+
+    total,
+
+    start
+
+  };
+
+
+  const end =
+    getInstallmentEndDate(
+      data
+    );
+
+
+  const remaining =
+    getRemainingInstallments(
+      data
+    );
+
+
+  $("installmentPreview")
+    .classList
+    .remove("hidden");
+
+
+  $("installmentPreviewMain")
+    .innerHTML =
+      current +
+      "ª de " +
+      total +
+      " parcelas";
+
+
+  if(remaining === 0){
+
+    $("installmentPreviewRemaining")
+      .textContent =
+        "Esta é a última parcela";
+
+  }else{
+
+    $("installmentPreviewRemaining")
+      .textContent =
+        remaining +
+        (
+          remaining === 1
+            ? " parcela restante"
+            : " parcelas restantes"
+        );
+
+  }
+
+
+  $("previewStartDate")
+    .textContent =
+      formatMonth(
+        parseMonthInput(start)
+      );
+
+
+  $("previewEndDate")
+    .textContent =
+      formatMonth(end);
 
 }
 
@@ -2784,10 +3877,12 @@ function initializeSupabase(){
 function applyPrivacyMode(){
 
   const ids = [
+
     "dashboardBalance",
     "dashboardIncome",
     "dashboardExpense",
     "dashboardDebt"
+
   ];
 
 
@@ -2795,6 +3890,7 @@ function applyPrivacyMode(){
 
     const element =
       $(id);
+
 
     if(!element){
       return;
@@ -2875,6 +3971,7 @@ function getUserName(){
 
   }
 
+
   return "Thaty";
 
 }
@@ -2895,6 +3992,33 @@ function renderUserGreeting(){
 
 
 /* =========================================================
+   INICIALIZAR SUPABASE
+   ========================================================= */
+
+function initializeSupabase(){
+
+  if(
+    !window.supabase ||
+    !window.supabase.createClient
+  ){
+
+    throw new Error(
+      "Não foi possível carregar o sistema de conexão."
+    );
+
+  }
+
+
+  supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+}
+
+
+/* =========================================================
    AUTENTICAÇÃO
    ========================================================= */
 
@@ -2902,6 +4026,7 @@ async function authAction(){
 
   const email =
     $("email").value.trim();
+
 
   const password =
     $("password").value;
@@ -2918,7 +4043,8 @@ async function authAction(){
   }
 
 
-  $("loginButton").disabled = true;
+  $("loginButton").disabled =
+    true;
 
 
   $("loginButton").textContent =
@@ -2948,13 +4074,17 @@ async function authAction(){
         await supabaseClient
           .auth
           .signUp({
+
             email,
+
             password,
+
             options:{
               data:{
                 name:"Thaty"
               }
             }
+
           });
 
     }else{
@@ -2963,8 +4093,11 @@ async function authAction(){
         await supabaseClient
           .auth
           .signInWithPassword({
+
             email,
+
             password
+
           });
 
     }
@@ -2984,10 +4117,12 @@ async function authAction(){
 
       hideLoading();
 
+
       showAuthMessage(
         "Conta criada! Confirme seu e-mail se o Supabase solicitar.",
         "success"
       );
+
 
       return;
 
@@ -2999,19 +4134,14 @@ async function authAction(){
 
 
     /*
-      IMPORTANTE:
-      O aplicativo agora é aberto ANTES do carregamento
-      das tabelas.
-
-      Assim, um erro em uma tabela não impede o login.
+      Abre o app imediatamente.
     */
 
     showApplication();
 
 
     /*
-      Depois que o aplicativo aparece,
-      tentamos carregar os dados.
+      Carrega os dados depois.
     */
 
     try{
@@ -3020,9 +4150,12 @@ async function authAction(){
         "Carregando seus dados..."
       );
 
+
       await loadCloudData(true);
 
+
       renderEverything();
+
 
       hideLoading();
 
@@ -3033,14 +4166,19 @@ async function authAction(){
         dataError
       );
 
+
       hideLoading();
+
 
       alert(
         "Você entrou com sucesso! 🧡\n\n" +
         "Porém, não foi possível carregar alguns dados do banco.\n\n" +
         "O aplicativo foi aberto mesmo assim.\n\n" +
         "Erro: " +
-        (dataError.message || dataError)
+        (
+          dataError.message ||
+          dataError
+        )
       );
 
     }
@@ -3150,31 +4288,6 @@ function showLogin(){
 
 
 /* =========================================================
-   PARCELAS
-   ========================================================= */
-
-function extractInstallmentAmount(
-  bill
-){
-
-  const info =
-    String(bill.info || "");
-
-
-  const match =
-    info.match(
-      /(?:-|\u2013|\u2014)\s*([0-9.]+,[0-9]{2})\s*$/
-    );
-
-
-  return match
-    ? numberValue(match[1])
-    : numberValue(bill.amount);
-
-}
-
-
-/* =========================================================
    CARREGAR DADOS
    ========================================================= */
 
@@ -3197,7 +4310,10 @@ async function loadCloudData(
       supabaseClient
         .from("transactions")
         .select("*")
-        .eq("user_id",uid)
+        .eq(
+          "user_id",
+          uid
+        )
         .order(
           "date",
           {
@@ -3208,7 +4324,10 @@ async function loadCloudData(
       supabaseClient
         .from("bills")
         .select("*")
-        .eq("user_id",uid)
+        .eq(
+          "user_id",
+          uid
+        )
         .order(
           "created_at",
           {
@@ -3219,7 +4338,10 @@ async function loadCloudData(
       supabaseClient
         .from("goals")
         .select("*")
-        .eq("user_id",uid)
+        .eq(
+          "user_id",
+          uid
+        )
         .order(
           "created_at",
           {
@@ -3230,7 +4352,10 @@ async function loadCloudData(
       supabaseClient
         .from("account_settings")
         .select("*")
-        .eq("user_id",uid)
+        .eq(
+          "user_id",
+          uid
+        )
         .maybeSingle()
 
     ]);
@@ -3264,6 +4389,10 @@ async function loadCloudData(
       results[3].data?.balance || 0
     );
 
+
+  /*
+    Importação do sistema antigo.
+  */
 
   if(
     allowImport &&
@@ -3302,9 +4431,14 @@ async function loadCloudData(
           )
         ){
 
-          await importOldData(old);
+          await importOldData(
+            old
+          );
 
-          await loadCloudData(false);
+
+          await loadCloudData(
+            false
+          );
 
         }
 
@@ -3326,7 +4460,7 @@ async function loadCloudData(
 
 
 /* =========================================================
-   IMPORTAÇÃO
+   IMPORTAÇÃO ANTIGA
    ========================================================= */
 
 async function importOldData(
@@ -3402,36 +4536,77 @@ async function importOldData(
   if(bills.length){
 
     const rows =
-      bills.map(x=>({
+      bills.map(x=>{
 
-        user_id:uid,
+        const data =
+          parseBillInfo(x);
 
-        name:
-          x.name ||
-          "Conta",
 
-        amount:
-          extractInstallmentAmount(x),
+        let info;
 
-        total_debt:
-          numberValue(
-            x.totalDebt ??
-            x.amount
-          ),
 
-        info:
-          x.info ||
-          "Vencimento: dia 10",
+        if(
+          data.type === "installment"
+        ){
 
-        due_day:10,
+          info =
+            createInstallmentInfo(
 
-        installment_label:
-          x.installmentLabel ||
-          null,
+              data.current,
 
-        paid:Boolean(x.paid)
+              data.total,
 
-      }));
+              data.start,
+
+              data.extra
+
+            );
+
+        }else{
+
+          info =
+            createMonthlyInfo(
+              data.extra
+            );
+
+        }
+
+
+        return {
+
+          user_id:uid,
+
+          name:
+            x.name ||
+            "Conta",
+
+          amount:
+            numberValue(
+              x.amount
+            ),
+
+          total_debt:
+            numberValue(
+              x.totalDebt ??
+              x.total_debt ??
+              x.amount
+            ),
+
+          info,
+
+          due_day:10,
+
+          installment_label:
+            x.installmentLabel ||
+            null,
+
+          paid:Boolean(
+            x.paid
+          )
+
+        };
+
+      });
 
 
     const r =
@@ -3469,10 +4644,14 @@ async function importOldData(
           "🎯",
 
         target:
-          numberValue(x.target),
+          numberValue(
+            x.target
+          ),
 
         saved:
-          numberValue(x.saved)
+          numberValue(
+            x.saved
+          )
 
       }));
 
@@ -3498,7 +4677,9 @@ async function importOldData(
         user_id:uid,
 
         balance:
-          numberValue(old.balance),
+          numberValue(
+            old.balance
+          ),
 
         updated_at:
           new Date().toISOString()
@@ -3533,8 +4714,11 @@ function getBillStatus(
   if(bill.paid){
 
     return{
+
       text:"Paga",
+
       className:"paid"
+
     };
 
   }
@@ -3546,26 +4730,216 @@ function getBillStatus(
 
   const due =
     new Date(
+
       now.getFullYear(),
+
       now.getMonth(),
+
       10,
+
       23,
+
       59,
+
       59
+
     );
 
 
   return now > due
 
     ? {
+
         text:"Atrasada",
+
         className:"late"
+
       }
 
     : {
+
         text:"Vencimento dia 10",
+
         className:"due"
+
       };
+
+}
+
+
+/* =========================================================
+   HTML DO PARCELAMENTO
+   ========================================================= */
+
+function installmentHTML(
+  bill
+){
+
+  const data =
+    getInstallmentData(
+      bill
+    );
+
+
+  if(
+    data.type !==
+    "installment"
+  ){
+
+    return `
+
+      <div class="monthBadge">
+        🔄 Conta mensal / recorrente
+      </div>
+
+    `;
+
+  }
+
+
+  const end =
+    getInstallmentEndDate(
+      data
+    );
+
+
+  const currentDate =
+    getCurrentInstallmentDate(
+      data
+    );
+
+
+  const remaining =
+    getRemainingInstallments(
+      data
+    );
+
+
+  const pct =
+    getInstallmentPercent(
+      data
+    );
+
+
+  let remainingText;
+
+
+  if(remaining === 0){
+
+    remainingText =
+      "Última parcela";
+
+  }else{
+
+    remainingText =
+      remaining +
+      (
+        remaining === 1
+          ? " parcela restante"
+          : " parcelas restantes"
+      );
+
+  }
+
+
+  return `
+
+    <div class="installmentBox">
+
+      <div class="installmentMain">
+
+        <div>
+
+          <div class="muted">
+            Parcelamento
+          </div>
+
+          <div class="installmentNumber">
+
+            <span>
+              ${data.current}ª
+            </span>
+
+            de
+            ${data.total}
+            parcelas
+
+          </div>
+
+        </div>
+
+
+        <div class="installmentRemaining">
+
+          ${remainingText}
+
+        </div>
+
+      </div>
+
+
+      <div class="installmentDates">
+
+
+        <div class="installmentDate">
+
+          📅 Mês atual
+
+          <strong>
+
+            ${formatMonth(
+              currentDate
+            )}
+
+          </strong>
+
+        </div>
+
+
+        <div class="installmentDate">
+
+          🏁 Termina em
+
+          <strong>
+
+            ${formatMonth(
+              end
+            )}
+
+          </strong>
+
+        </div>
+
+
+        <div class="installmentDate">
+
+          💰 Valor
+
+          <strong>
+
+            ${money(
+              bill.amount
+            )}
+
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="installmentProgress">
+
+        <div
+          class="installmentProgressBar"
+          style="width:${pct}%"
+        ></div>
+
+      </div>
+
+    </div>
+
+  `;
 
 }
 
@@ -3582,12 +4956,14 @@ function renderHome(){
   const income =
     database.transactions
       .filter(
-        x=>x.type==="income"
+        x=>x.type === "income"
       )
       .reduce(
         (s,x)=>
           s +
-          Number(x.amount || 0),
+          Number(
+            x.amount || 0
+          ),
         0
       );
 
@@ -3595,19 +4971,23 @@ function renderHome(){
   const expense =
     database.transactions
       .filter(
-        x=>x.type==="expense"
+        x=>x.type === "expense"
       )
       .reduce(
         (s,x)=>
           s +
-          Number(x.amount || 0),
+          Number(
+            x.amount || 0
+          ),
         0
       );
 
 
   const debts =
     database.bills
-      .filter(x=>!x.paid)
+      .filter(
+        x=>!x.paid
+      )
       .reduce(
         (s,x)=>
           s +
@@ -3623,7 +5003,9 @@ function renderHome(){
   $("dashboardBalance")
     .dataset
     .realValue =
-      money(database.balance);
+      money(
+        database.balance
+      );
 
 
   $("dashboardIncome")
@@ -3649,29 +5031,52 @@ function renderHome(){
 
   const open =
     database.bills
-      .filter(x=>!x.paid)
+      .filter(
+        x=>!x.paid
+      )
       .length;
 
 
   $("homeSummary").innerHTML = `
 
     <p>
+
       💳 Você tem
-      <strong>${open}</strong>
+      <strong>
+        ${open}
+      </strong>
       conta(s) em aberto.
+
     </p>
 
+
     <p>
+
       📅 Todas as contas vencem no
-      <strong>dia 10</strong>.
+      <strong>
+        dia 10
+      </strong>.
+
     </p>
 
+
     <p>
+
+      💳 Nas contas parceladas,
+      o sistema mostra automaticamente
+      a parcela atual e o mês de término.
+
+    </p>
+
+
+    <p>
+
       ⚠️ Depois do dia 10,
       uma conta não paga aparece como
       <strong class="red">
         Atrasada
       </strong>.
+
     </p>
 
   `;
@@ -3716,6 +5121,7 @@ function renderTransactions(){
 
         </thead>
 
+
         <tbody>
 
           ${database.transactions.map(x=>`
@@ -3723,8 +5129,11 @@ function renderTransactions(){
             <tr>
 
               <td>
-                ${escapeHtml(x.date || "")}
+                ${escapeHtml(
+                  x.date || ""
+                )}
               </td>
+
 
               <td>
                 <strong>
@@ -3734,11 +5143,13 @@ function renderTransactions(){
                 </strong>
               </td>
 
+
               <td>
                 ${escapeHtml(
                   x.category || "-"
                 )}
               </td>
+
 
               <td>
                 ${
@@ -3747,6 +5158,7 @@ function renderTransactions(){
                     : "Saída"
                 }
               </td>
+
 
               <td
                 class="${
@@ -3762,9 +5174,12 @@ function renderTransactions(){
                     : "-"
                 }
 
-                ${money(x.amount)}
+                ${money(
+                  x.amount
+                )}
 
               </td>
+
 
               <td>
 
@@ -3815,9 +5230,14 @@ function renderBills(){
         getBillStatus(b);
 
 
+      const data =
+        getInstallmentData(b);
+
+
       return `
 
         <div class="debtItem">
+
 
           <div class="row">
 
@@ -3831,11 +5251,17 @@ function renderBills(){
 
               </strong>
 
+
               <div class="debtItemInfo">
 
-                ${escapeHtml(
-                  b.info || ""
-                )}
+                ${
+                  data.type ===
+                  "installment"
+
+                    ? "💳 Conta parcelada"
+
+                    : "🔄 Conta mensal"
+                }
 
                 · Vencimento dia 10
 
@@ -3847,13 +5273,16 @@ function renderBills(){
             <span
               class="badge ${st.className}"
             >
+
               ${st.text}
+
             </span>
 
           </div>
 
 
           <div class="debtItemValues">
+
 
             <div>
 
@@ -3862,7 +5291,9 @@ function renderBills(){
               </span>
 
               <span class="debtValueNumber">
-                ${money(b.amount)}
+                ${money(
+                  b.amount
+                )}
               </span>
 
             </div>
@@ -3875,15 +5306,22 @@ function renderBills(){
               </span>
 
               <span class="debtValueNumber">
-                ${money(b.total_debt)}
+                ${money(
+                  b.total_debt
+                )}
               </span>
 
             </div>
 
+
           </div>
 
 
+          ${installmentHTML(b)}
+
+
           <div class="actions">
+
 
             <button
               type="button"
@@ -3896,16 +5334,20 @@ function renderBills(){
 
             ${
               !b.paid
+
                 ? `
 
                   <button
                     type="button"
                     onclick="markBillPaid('${b.id}')"
                   >
-                    ✓ Marcar como paga
+
+                    ✓ Marcar parcela paga
+
                   </button>
 
                 `
+
                 : ""
             }
 
@@ -3917,7 +5359,9 @@ function renderBills(){
               Excluir
             </button>
 
+
           </div>
+
 
         </div>
 
@@ -3936,12 +5380,16 @@ function renderDebts(){
 
   const open =
     database.bills
-      .filter(x=>!x.paid);
+      .filter(
+        x=>!x.paid
+      );
 
 
   const paid =
     database.bills
-      .filter(x=>x.paid);
+      .filter(
+        x=>x.paid
+      );
 
 
   const total =
@@ -3998,6 +5446,7 @@ function renderDebts(){
 
         <div class="debtItem">
 
+
           <div class="row">
 
             <div>
@@ -4013,9 +5462,12 @@ function renderDebts(){
 
               <div class="debtItemInfo">
 
-                ${escapeHtml(
-                  x.info || ""
-                )}
+                ${
+                  getInstallmentData(x)
+                    .type === "installment"
+                    ? "💳 Parcelamento"
+                    : "🔄 Conta mensal"
+                }
 
                 · Vencimento dia 10
 
@@ -4027,13 +5479,16 @@ function renderDebts(){
             <span
               class="badge ${status.className}"
             >
+
               ${status.text}
+
             </span>
 
           </div>
 
 
           <div class="debtItemValues">
+
 
             <div>
 
@@ -4042,7 +5497,9 @@ function renderDebts(){
               </span>
 
               <span class="debtValueNumber">
-                ${money(x.amount)}
+                ${money(
+                  x.amount
+                )}
               </span>
 
             </div>
@@ -4055,15 +5512,22 @@ function renderDebts(){
               </span>
 
               <span class="debtValueNumber">
-                ${money(x.total_debt)}
+                ${money(
+                  x.total_debt
+                )}
               </span>
 
             </div>
 
+
           </div>
 
 
+          ${installmentHTML(x)}
+
+
           <div class="actions">
+
 
             <button
               type="button"
@@ -4127,7 +5591,9 @@ function renderDebts(){
               Excluir
             </button>
 
+
           </div>
+
 
         </div>
 
@@ -4148,7 +5614,9 @@ function renderGoals(){
     database.goals.reduce(
       (s,x)=>
         s +
-        Number(x.saved || 0),
+        Number(
+          x.saved || 0
+        ),
       0
     );
 
@@ -4157,7 +5625,9 @@ function renderGoals(){
     database.goals.reduce(
       (s,x)=>
         s +
-        Number(x.target || 0),
+        Number(
+          x.target || 0
+        ),
       0
     );
 
@@ -4200,7 +5670,9 @@ function renderGoals(){
 
         <div class="debtItem">
 
+
           <div class="goal">
+
 
             <div class="goalIcon">
 
@@ -4214,15 +5686,23 @@ function renderGoals(){
             <div>
 
               <strong>
-                ${escapeHtml(g.name)}
+                ${escapeHtml(
+                  g.name
+                )}
               </strong>
 
 
               <div class="muted">
 
-                ${money(g.saved)}
+                ${money(
+                  g.saved
+                )}
+
                 de
-                ${money(g.target)}
+
+                ${money(
+                  g.target
+                )}
 
                 ·
 
@@ -4245,6 +5725,7 @@ function renderGoals(){
 
             <div class="actions">
 
+
               <button
                 type="button"
                 onclick="addMoneyToGoal('${g.id}')"
@@ -4260,9 +5741,12 @@ function renderGoals(){
                 Excluir
               </button>
 
+
             </div>
 
+
           </div>
+
 
         </div>
 
@@ -4283,10 +5767,13 @@ function renderReports(){
     [...database.transactions]
       .sort(
         (a,b)=>
-          String(b.date || "")
-            .localeCompare(
-              String(a.date || "")
+          String(
+            b.date || ""
+          ).localeCompare(
+            String(
+              a.date || ""
             )
+          )
       );
 
 
@@ -4298,7 +5785,9 @@ function renderReports(){
       .reduce(
         (s,x)=>
           s +
-          Number(x.amount || 0),
+          Number(
+            x.amount || 0
+          ),
         0
       );
 
@@ -4311,7 +5800,9 @@ function renderReports(){
       .reduce(
         (s,x)=>
           s +
-          Number(x.amount || 0),
+          Number(
+            x.amount || 0
+          ),
         0
       );
 
@@ -4349,6 +5840,7 @@ function renderReports(){
     transactions.map(x=>`
 
       <div class="reportItem">
+
 
         <div>
 
@@ -4406,9 +5898,12 @@ function renderReports(){
               : "-"
           }
 
-          ${money(x.amount)}
+          ${money(
+            x.amount
+          )}
 
         </div>
+
 
       </div>
 
@@ -4430,7 +5925,7 @@ function renderSettings(){
 
 
 /* =========================================================
-   RENDERIZAÇÃO GERAL
+   RENDERIZAÇÃO
    ========================================================= */
 
 function renderEverything(){
@@ -4464,7 +5959,9 @@ function navigateToPage(
     .querySelectorAll(".page")
     .forEach(
       p=>
-        p.classList.add("hidden")
+        p.classList.add(
+          "hidden"
+        )
     );
 
 
@@ -4474,7 +5971,9 @@ function navigateToPage(
 
   if(target){
 
-    target.classList.remove("hidden");
+    target.classList.remove(
+      "hidden"
+    );
 
   }
 
@@ -4499,8 +5998,11 @@ function navigateToPage(
 
 
   window.scrollTo({
+
     top:0,
+
     behavior:"smooth"
+
   });
 
 }
@@ -4556,15 +6058,18 @@ function openMobileMenu(){
     .classList
     .add("open");
 
+
   $("mobileMenuOverlay")
     .classList
     .add("open");
+
 
   $("mobileMenuPanel")
     .setAttribute(
       "aria-hidden",
       "false"
     );
+
 
   $("mobileMenuButton")
     .setAttribute(
@@ -4580,6 +6085,7 @@ function closeMobileMenu(){
   const panel =
     $("mobileMenuPanel");
 
+
   const overlay =
     $("mobileMenuOverlay");
 
@@ -4589,9 +6095,15 @@ function closeMobileMenu(){
   }
 
 
-  panel.classList.remove("open");
+  panel.classList.remove(
+    "open"
+  );
 
-  overlay.classList.remove("open");
+
+  overlay.classList.remove(
+    "open"
+  );
+
 
   panel.setAttribute(
     "aria-hidden",
@@ -4634,7 +6146,7 @@ $("mobileMenuOverlay")
 
 
 /* =========================================================
-   PRIVACIDADE
+   OLHINHO
    ========================================================= */
 
 $("privacyToggle")
@@ -4771,7 +6283,10 @@ $("saveTransactionButton").onclick =
         .add("hidden");
 
 
-      await loadCloudData(false);
+      await loadCloudData(
+        false
+      );
+
 
       renderEverything();
 
@@ -4779,6 +6294,7 @@ $("saveTransactionButton").onclick =
     }catch(e){
 
       console.error(e);
+
 
       alert(
         e.message ||
@@ -4791,6 +6307,31 @@ $("saveTransactionButton").onclick =
 
 
 /* =========================================================
+   CONTAS - TIPO
+   ========================================================= */
+
+$("billType")
+  .addEventListener(
+    "change",
+    updateBillTypeFields
+  );
+
+
+[
+  "billCurrentInstallment",
+  "billTotalInstallments",
+  "billStartMonth"
+].forEach(id=>{
+
+  $(id).addEventListener(
+    "input",
+    updateInstallmentPreview
+  );
+
+});
+
+
+/* =========================================================
    CONTAS - ADICIONAR
    ========================================================= */
 
@@ -4800,22 +6341,54 @@ $("addBillButton").onclick =
     editingBillId = null;
 
 
-    $("billName").value = "";
-
-    $("billAmount").value = "";
-
-    $("billTotalDebt").value = "";
-
-    $("billInfo").value = "";
+    $("billName").value =
+      "";
 
 
-    $("saveBillButton").textContent =
+    $("billAmount").value =
+      "";
+
+
+    $("billTotalDebt").value =
+      "";
+
+
+    $("billType").value =
+      "installment";
+
+
+    $("billCurrentInstallment").value =
+      "1";
+
+
+    $("billTotalInstallments").value =
+      "1";
+
+
+    $("billStartMonth").value =
+      monthInputValue(
+        new Date()
+      );
+
+
+    $("saveBillButton")
+      .textContent =
       "Salvar";
 
 
     $("billForm")
       .classList
       .remove("hidden");
+
+
+    updateBillTypeFields();
+
+
+    $("billForm")
+      .scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
 
   };
 
@@ -4830,16 +6403,24 @@ $("cancelBillButton").onclick =
     editingBillId = null;
 
 
-    $("billName").value = "";
-
-    $("billAmount").value = "";
-
-    $("billTotalDebt").value = "";
-
-    $("billInfo").value = "";
+    $("billName").value =
+      "";
 
 
-    $("saveBillButton").textContent =
+    $("billAmount").value =
+      "";
+
+
+    $("billTotalDebt").value =
+      "";
+
+
+    $("billInfo").value =
+      "";
+
+
+    $("saveBillButton")
+      .textContent =
       "Salvar";
 
 
@@ -4859,7 +6440,9 @@ window.editBill =
 
     const bill =
       database.bills.find(
-        x=>String(x.id) === String(id)
+        x=>
+          String(x.id) ===
+          String(id)
       );
 
 
@@ -4876,23 +6459,77 @@ window.editBill =
       bill.id;
 
 
+    const data =
+      getInstallmentData(
+        bill
+      );
+
+
     $("billName").value =
       bill.name || "";
 
 
     $("billAmount").value =
-      Number(bill.amount || 0);
+      Number(
+        bill.amount || 0
+      );
 
 
     $("billTotalDebt").value =
-      Number(bill.total_debt || 0);
+      Number(
+        bill.total_debt || 0
+      );
 
 
-    $("billInfo").value =
-      bill.info || "";
+    if(
+      data.type ===
+      "installment"
+    ){
+
+      $("billType").value =
+        "installment";
 
 
-    $("saveBillButton").textContent =
+      $("billCurrentInstallment")
+        .value =
+          data.current;
+
+
+      $("billTotalInstallments")
+        .value =
+          data.total;
+
+
+      $("billStartMonth")
+        .value =
+          data.start || "";
+
+
+    }else{
+
+      $("billType").value =
+        "monthly";
+
+
+      $("billCurrentInstallment")
+        .value =
+          "1";
+
+
+      $("billTotalInstallments")
+        .value =
+          "1";
+
+
+      $("billStartMonth")
+        .value =
+          "";
+
+    }
+
+
+    $("saveBillButton")
+      .textContent =
       "Salvar alterações";
 
 
@@ -4901,10 +6538,16 @@ window.editBill =
       .remove("hidden");
 
 
+    updateBillTypeFields();
+
+
     $("billForm")
       .scrollIntoView({
+
         behavior:"smooth",
+
         block:"start"
+
       });
 
   };
@@ -4941,11 +6584,16 @@ $("saveBillButton").onclick =
         );
 
 
-      let total =
+      let totalDebt =
         numberValue(
           $("billTotalDebt")
             .value
         );
+
+
+      const type =
+        $("billType")
+          .value;
 
 
       if(!name){
@@ -4960,22 +6608,96 @@ $("saveBillButton").onclick =
       if(amount <= 0){
 
         return alert(
-          "Digite o valor da parcela."
+          "Digite o valor da parcela/conta."
         );
 
       }
 
 
-      if(total <= 0){
+      if(totalDebt <= 0){
 
-        total = amount;
+        totalDebt =
+          amount;
 
       }
 
 
-      /* =====================================================
+      let info;
+
+
+      if(
+        type ===
+        "installment"
+      ){
+
+        const current =
+          Math.max(
+            1,
+            Number(
+              $("billCurrentInstallment")
+                .value
+            ) || 1
+          );
+
+
+        const total =
+          Math.max(
+            current,
+            Number(
+              $("billTotalInstallments")
+                .value
+            ) || 1
+          );
+
+
+        let start =
+          $("billStartMonth")
+            .value;
+
+
+        if(!start){
+
+          start =
+            monthInputValue(
+              addMonths(
+                new Date(
+                  new Date().getFullYear(),
+                  new Date().getMonth(),
+                  1
+                ),
+                -(current - 1)
+              )
+            );
+
+        }
+
+
+        info =
+          createInstallmentInfo(
+
+            current,
+
+            total,
+
+            start,
+
+            ""
+
+          );
+
+      }else{
+
+        info =
+          createMonthlyInfo(
+            ""
+          );
+
+      }
+
+
+      /* ===================================================
          EDITAR
-         ===================================================== */
+         =================================================== */
 
       if(editingBillId){
 
@@ -4989,11 +6711,9 @@ $("saveBillButton").onclick =
               amount,
 
               total_debt:
-                total,
+                totalDebt,
 
-              info:
-                $("billInfo").value ||
-                "Vencimento: dia 10",
+              info,
 
               due_day:10
 
@@ -5013,7 +6733,8 @@ $("saveBillButton").onclick =
         }
 
 
-        editingBillId = null;
+        editingBillId =
+          null;
 
 
         $("billForm")
@@ -5021,20 +6742,27 @@ $("saveBillButton").onclick =
           .add("hidden");
 
 
-        $("saveBillButton").textContent =
+        $("saveBillButton")
+          .textContent =
           "Salvar";
 
 
-        $("billName").value = "";
-
-        $("billAmount").value = "";
-
-        $("billTotalDebt").value = "";
-
-        $("billInfo").value = "";
+        $("billName").value =
+          "";
 
 
-        await loadCloudData(false);
+        $("billAmount").value =
+          "";
+
+
+        $("billTotalDebt").value =
+          "";
+
+
+        await loadCloudData(
+          false
+        );
+
 
         renderEverything();
 
@@ -5049,9 +6777,9 @@ $("saveBillButton").onclick =
       }
 
 
-      /* =====================================================
+      /* ===================================================
          NOVA CONTA
-         ===================================================== */
+         =================================================== */
 
       const r =
         await supabaseClient
@@ -5066,11 +6794,9 @@ $("saveBillButton").onclick =
             amount,
 
             total_debt:
-              total,
+              totalDebt,
 
-            info:
-              $("billInfo").value ||
-              "Vencimento: dia 10",
+            info,
 
             due_day:10,
 
@@ -5089,16 +6815,22 @@ $("saveBillButton").onclick =
         .add("hidden");
 
 
-      $("billName").value = "";
-
-      $("billAmount").value = "";
-
-      $("billTotalDebt").value = "";
-
-      $("billInfo").value = "";
+      $("billName").value =
+        "";
 
 
-      await loadCloudData(false);
+      $("billAmount").value =
+        "";
+
+
+      $("billTotalDebt").value =
+        "";
+
+
+      await loadCloudData(
+        false
+      );
+
 
       renderEverything();
 
@@ -5107,12 +6839,326 @@ $("saveBillButton").onclick =
 
       console.error(e);
 
+
       alert(
         e.message ||
         "Não foi possível salvar a conta."
       );
 
     }
+
+  };
+
+
+/* =========================================================
+   MARCAR PARCELA PAGA
+   ========================================================= */
+
+window.markBillPaid =
+  async id=>{
+
+    const bill =
+      database.bills.find(
+        x=>
+          String(x.id) ===
+          String(id)
+      );
+
+
+    if(!bill){
+      return;
+    }
+
+
+    const data =
+      getInstallmentData(
+        bill
+      );
+
+
+    /*
+      Conta mensal:
+      continua funcionando como antes.
+    */
+
+    if(
+      data.type ===
+      "monthly"
+    ){
+
+      const r =
+        await supabaseClient
+          .from("bills")
+          .update({
+
+            paid:true
+
+          })
+          .eq(
+            "id",
+            id
+          )
+          .eq(
+            "user_id",
+            currentUser.id
+          );
+
+
+      if(r.error){
+
+        return alert(
+          r.error.message
+        );
+
+      }
+
+
+      await loadCloudData(
+        false
+      );
+
+
+      renderEverything();
+
+
+      return;
+
+    }
+
+
+    /*
+      Conta parcelada:
+      se ainda não for a última,
+      avança automaticamente para a próxima.
+    */
+
+    if(
+      data.current <
+      data.total
+    ){
+
+      const next =
+        data.current + 1;
+
+
+      const newInfo =
+        createInstallmentInfo(
+
+          next,
+
+          data.total,
+
+          data.start,
+
+          data.extra
+
+        );
+
+
+      const r =
+        await supabaseClient
+          .from("bills")
+          .update({
+
+            info:
+              newInfo,
+
+            paid:false
+
+          })
+          .eq(
+            "id",
+            id
+          )
+          .eq(
+            "user_id",
+            currentUser.id
+          );
+
+
+      if(r.error){
+
+        return alert(
+          r.error.message
+        );
+
+      }
+
+
+      await loadCloudData(
+        false
+      );
+
+
+      renderEverything();
+
+
+      alert(
+        "Parcela paga! 🧡\n\n" +
+        "Agora a conta está na " +
+        next +
+        "ª de " +
+        data.total +
+        " parcelas."
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+      Se chegou aqui, era a última parcela.
+    */
+
+    const confirmed =
+      confirm(
+        "Esta é a última parcela.\n\n" +
+        "Ao confirmar, a conta será marcada como quitada.\n\n" +
+        "Deseja continuar?"
+      );
+
+
+    if(!confirmed){
+      return;
+    }
+
+
+    const r =
+      await supabaseClient
+        .from("bills")
+        .update({
+
+          paid:true
+
+        })
+        .eq(
+          "id",
+          id
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if(r.error){
+
+      return alert(
+        r.error.message
+      );
+
+    }
+
+
+    await loadCloudData(
+      false
+    );
+
+
+    renderEverything();
+
+
+    alert(
+      "🎉 Última parcela paga!\n\n" +
+      "Dívida quitada com sucesso."
+    );
+
+  };
+
+
+/* =========================================================
+   QUITAR DÍVIDA
+   ========================================================= */
+
+window.quitDebt =
+  async id=>{
+
+    const bill =
+      database.bills.find(
+        x=>
+          String(x.id) ===
+          String(id)
+      );
+
+
+    if(!bill){
+      return;
+    }
+
+
+    const total =
+      Number(
+        bill.total_debt ||
+        bill.amount ||
+        0
+      );
+
+
+    const confirmed =
+      confirm(
+
+        "Deseja realmente quitar esta dívida?\n\n" +
+
+        "Dívida: " +
+        bill.name +
+
+        "\n" +
+
+        "Valor registrado: " +
+        money(total) +
+
+        "\n\n" +
+
+        "A dívida será marcada como quitada."
+
+      );
+
+
+    if(!confirmed){
+      return;
+    }
+
+
+    const r =
+      await supabaseClient
+        .from("bills")
+        .update({
+
+          paid:true
+
+        })
+        .eq(
+          "id",
+          id
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        );
+
+
+    if(r.error){
+
+      return alert(
+        r.error.message
+      );
+
+    }
+
+
+    await loadCloudData(
+      false
+    );
+
+
+    renderEverything();
+
+
+    alert(
+      "Dívida quitada com sucesso! 🎉"
+    );
 
   };
 
@@ -5204,7 +7250,8 @@ $("saveGoalButton").onclick =
             name,
 
             icon:
-              $("goalIcon").value ||
+              $("goalIcon")
+                .value ||
               "🎯",
 
             target,
@@ -5224,7 +7271,10 @@ $("saveGoalButton").onclick =
         .add("hidden");
 
 
-      await loadCloudData(false);
+      await loadCloudData(
+        false
+      );
+
 
       renderEverything();
 
@@ -5232,6 +7282,7 @@ $("saveGoalButton").onclick =
     }catch(e){
 
       console.error(e);
+
 
       alert(
         e.message ||
@@ -5283,7 +7334,8 @@ $("saveBalanceButton").onclick =
                 .toISOString()
 
           },{
-            onConflict:"user_id"
+            onConflict:
+              "user_id"
           });
 
 
@@ -5292,7 +7344,10 @@ $("saveBalanceButton").onclick =
       }
 
 
-      await loadCloudData(false);
+      await loadCloudData(
+        false
+      );
+
 
       renderEverything();
 
@@ -5305,6 +7360,7 @@ $("saveBalanceButton").onclick =
     }catch(e){
 
       console.error(e);
+
 
       alert(
         e.message ||
@@ -5328,7 +7384,9 @@ window.deleteTransaction =
         "Excluir esta movimentação?"
       )
     ){
+
       return;
+
     }
 
 
@@ -5355,7 +7413,10 @@ window.deleteTransaction =
     }
 
 
-    await loadCloudData(false);
+    await loadCloudData(
+      false
+    );
+
 
     renderEverything();
 
@@ -5374,7 +7435,9 @@ window.deleteBill =
         "Excluir esta conta?"
       )
     ){
+
       return;
+
     }
 
 
@@ -5406,136 +7469,18 @@ window.deleteBill =
       String(id)
     ){
 
-      editingBillId = null;
+      editingBillId =
+        null;
 
     }
 
 
-    await loadCloudData(false);
-
-    renderEverything();
-
-  };
-
-
-/* =========================================================
-   MARCAR PARCELA PAGA
-   ========================================================= */
-
-window.markBillPaid =
-  async id=>{
-
-    const r =
-      await supabaseClient
-        .from("bills")
-        .update({
-          paid:true
-        })
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
-
-
-    if(r.error){
-
-      return alert(
-        r.error.message
-      );
-
-    }
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-  };
-
-
-/* =========================================================
-   QUITAR DÍVIDA
-   ========================================================= */
-
-window.quitDebt =
-  async id=>{
-
-    const bill =
-      database.bills.find(
-        x=>String(x.id) === String(id)
-      );
-
-
-    if(!bill){
-      return;
-    }
-
-
-    const total =
-      Number(
-        bill.total_debt ||
-        bill.amount ||
-        0
-      );
-
-
-    const confirmed =
-      confirm(
-
-        "Deseja realmente quitar esta dívida?\n\n" +
-        "Dívida: " +
-        bill.name +
-        "\n" +
-        "Valor: " +
-        money(total) +
-        "\n\n" +
-        "A dívida será marcada como quitada."
-
-      );
-
-
-    if(!confirmed){
-      return;
-    }
-
-
-    const r =
-      await supabaseClient
-        .from("bills")
-        .update({
-          paid:true
-        })
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
-
-
-    if(r.error){
-
-      return alert(
-        r.error.message
-      );
-
-    }
-
-
-    await loadCloudData(false);
-
-    renderEverything();
-
-
-    alert(
-      "Dívida quitada com sucesso! 🎉"
+    await loadCloudData(
+      false
     );
+
+
+    renderEverything();
 
   };
 
@@ -5552,7 +7497,9 @@ window.deleteGoal =
         "Excluir este objetivo?"
       )
     ){
+
       return;
+
     }
 
 
@@ -5579,7 +7526,10 @@ window.deleteGoal =
     }
 
 
-    await loadCloudData(false);
+    await loadCloudData(
+      false
+    );
+
 
     renderEverything();
 
@@ -5595,7 +7545,9 @@ window.addMoneyToGoal =
 
     const goal =
       database.goals.find(
-        x=>String(x.id) === String(id)
+        x=>
+          String(x.id) ===
+          String(id)
       );
 
 
@@ -5635,7 +7587,9 @@ window.addMoneyToGoal =
         .update({
 
           saved:
-            Number(goal.saved || 0) +
+            Number(
+              goal.saved || 0
+            ) +
             amount
 
         })
@@ -5658,7 +7612,10 @@ window.addMoneyToGoal =
     }
 
 
-    await loadCloudData(false);
+    await loadCloudData(
+      false
+    );
+
 
     renderEverything();
 
@@ -5672,6 +7629,7 @@ window.addMoneyToGoal =
 async function logout(){
 
   closeMobileMenu();
+
 
   try{
 
@@ -5693,7 +7651,8 @@ async function logout(){
   }
 
 
-  currentUser = null;
+  currentUser =
+    null;
 
 
   database = {
@@ -5706,7 +7665,8 @@ async function logout(){
   };
 
 
-  editingBillId = null;
+  editingBillId =
+    null;
 
 
   showLogin();
@@ -5715,8 +7675,22 @@ async function logout(){
 
 
 /* =========================================================
-   EVENTOS DE LOGIN
+   EVENTOS
    ========================================================= */
+
+$("logoutButton")
+  .addEventListener(
+    "click",
+    logout
+  );
+
+
+$("mobileLogoutButton")
+  .addEventListener(
+    "click",
+    logout
+  );
+
 
 $("loginButton")
   .addEventListener(
@@ -5758,10 +7732,6 @@ async function initialize(){
     initializeSupabase();
 
 
-    /*
-      Verifica se já existe uma sessão.
-    */
-
     const r =
       await supabaseClient
         .auth
@@ -5781,16 +7751,8 @@ async function initialize(){
         r.data.session.user;
 
 
-      /*
-        Abre o aplicativo imediatamente.
-      */
-
       showApplication();
 
-
-      /*
-        Depois carrega os dados.
-      */
 
       try{
 
@@ -5798,9 +7760,14 @@ async function initialize(){
           "Carregando seus dados..."
         );
 
-        await loadCloudData(true);
+
+        await loadCloudData(
+          true
+        );
+
 
         renderEverything();
+
 
         hideLoading();
 
@@ -5811,16 +7778,24 @@ async function initialize(){
           dataError
         );
 
+
         hideLoading();
 
+
         alert(
-          "Seu login está ativo, mas houve um problema ao carregar os dados.\n\n" +
+
+          "Seu login está ativo, " +
+          "mas houve um problema ao carregar os dados.\n\n" +
+
           "O aplicativo foi aberto mesmo assim.\n\n" +
+
           "Erro: " +
+
           (
             dataError.message ||
             dataError
           )
+
         );
 
       }
@@ -5841,6 +7816,7 @@ async function initialize(){
 
 
     hideLoading();
+
 
     showLogin();
 
