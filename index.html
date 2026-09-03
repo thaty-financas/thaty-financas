@@ -522,6 +522,17 @@ main{
   overflow:hidden;
 }
 
+#home .grid{
+  grid-template-columns:minmax(280px,520px);
+}
+
+#home .grid .card:first-child{
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
 #home .grid .card::after{
   content:"";
 
@@ -1624,6 +1635,10 @@ td button{
     grid-template-columns:1fr;
   }
 
+  #home .grid{
+    grid-template-columns:1fr;
+  }
+
   .grid>.card{
     margin-bottom:0;
   }
@@ -1880,13 +1895,6 @@ td button{
       </button>
 
       <button
-        data-page="debts"
-        type="button"
-      >
-        ◈ Dívidas
-      </button>
-
-      <button
         data-page="goals"
         type="button"
       >
@@ -1978,13 +1986,6 @@ td button{
       </button>
 
       <button
-        data-page="debts"
-        type="button"
-      >
-        ◈ Dívidas
-      </button>
-
-      <button
         data-page="goals"
         type="button"
       >
@@ -2039,7 +2040,6 @@ td button{
         Olá, Thaty! 👋
       </h2>
 
-
       <button
         id="privacyToggle"
         class="valuePrivacyButton"
@@ -2051,12 +2051,8 @@ td button{
         👁️
       </button>
 
-
       <div class="grid">
-
-
         <div class="card">
-
           <div class="muted">
             Saldo atual
           </div>
@@ -2067,71 +2063,7 @@ td button{
           >
             R$ 0,00
           </div>
-
         </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Entradas
-          </div>
-
-          <div
-            id="dashboardIncome"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Saídas
-          </div>
-
-          <div
-            id="dashboardExpense"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Dívidas
-          </div>
-
-          <div
-            id="dashboardDebt"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div
-        class="card"
-        style="margin-top:18px"
-      >
-
-        <h3>
-          Resumo financeiro
-        </h3>
-
-        <div id="homeSummary"></div>
-
       </div>
 
     </section>
@@ -2374,7 +2306,7 @@ td button{
           <div>
 
             <label>
-              Dívida total
+              Valor total da conta
             </label>
 
             <input
@@ -2541,106 +2473,7 @@ td button{
 
       </div>
 
-    </section>
-
-
-    <!-- ===================================================
-         DÍVIDAS
-         =================================================== -->
-
-    <section
-      id="debts"
-      class="page hidden"
-    >
-
-      <h2>
-        Dívidas Totais
-      </h2>
-
-
-      <div class="debtCards">
-
-
-        <div class="debtStat total">
-
-          <div class="debtStatLabel">
-            Total das dívidas
-          </div>
-
-          <div
-            id="debtTotal"
-            class="debtStatValue"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="debtStat open">
-
-          <div class="debtStatLabel">
-            Em aberto
-          </div>
-
-          <div
-            id="debtOpen"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat paid">
-
-          <div class="debtStatLabel">
-            Já pagas
-          </div>
-
-          <div
-            id="debtPaid"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat count">
-
-          <div class="debtStatLabel">
-            Quantidade
-          </div>
-
-          <div
-            id="debtCount"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Minhas dívidas
-        </h3>
-
-        <div id="debtList"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
+    </section><!-- ===================================================
          OBJETIVOS
          =================================================== -->
 
@@ -2821,43 +2654,46 @@ td button{
 
       <div class="reportSummary">
 
+        <div class="reportStat">
+          <span>Saldo atual</span>
+          <strong id="reportBalanceTotal">
+            R$ 0,00
+          </strong>
+        </div>
 
         <div class="reportStat reportIncome">
-
-          <span>
-            Total de entradas
-          </span>
-
+          <span>Total de entradas</span>
           <strong id="reportIncomeTotal">
             R$ 0,00
           </strong>
-
         </div>
 
-
         <div class="reportStat reportExpense">
-
-          <span>
-            Total de saídas
-          </span>
-
+          <span>Total de saídas</span>
           <strong id="reportExpenseTotal">
             R$ 0,00
           </strong>
-
         </div>
 
-
         <div class="reportStat reportResult">
-
-          <span>
-            Resultado
-          </span>
-
+          <span>Resultado</span>
           <strong id="reportResultTotal">
             R$ 0,00
           </strong>
+        </div>
 
+        <div class="reportStat">
+          <span>Total de contas</span>
+          <strong id="reportBillsTotal">
+            R$ 0,00
+          </strong>
+        </div>
+
+        <div class="reportStat">
+          <span>Contas pendentes</span>
+          <strong id="reportPendingBillsTotal">
+            R$ 0,00
+          </strong>
         </div>
 
       </div>
@@ -3010,6 +2846,7 @@ let database = {
    ========================================================= */
 
 let editingBillId = null;
+let editingGoalId = null;
 
 
 /* =========================================================
@@ -3878,10 +3715,7 @@ function applyPrivacyMode(){
 
   const ids = [
 
-    "dashboardBalance",
-    "dashboardIncome",
-    "dashboardExpense",
-    "dashboardDebt"
+    "dashboardBalance"
 
   ];
 
@@ -4952,134 +4786,10 @@ function renderHome(){
 
   renderUserGreeting();
 
-
-  const income =
-    database.transactions
-      .filter(
-        x=>x.type === "income"
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(
-            x.amount || 0
-          ),
-        0
-      );
-
-
-  const expense =
-    database.transactions
-      .filter(
-        x=>x.type === "expense"
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(
-            x.amount || 0
-          ),
-        0
-      );
-
-
-  const debts =
-    database.bills
-      .filter(
-        x=>!x.paid
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(
-            x.total_debt ||
-            x.amount ||
-            0
-          ),
-        0
-      );
-
-
-  $("dashboardBalance")
-    .dataset
-    .realValue =
-      money(
-        database.balance
-      );
-
-
-  $("dashboardIncome")
-    .dataset
-    .realValue =
-      money(income);
-
-
-  $("dashboardExpense")
-    .dataset
-    .realValue =
-      money(expense);
-
-
-  $("dashboardDebt")
-    .dataset
-    .realValue =
-      money(debts);
-
+  $("dashboardBalance").dataset.realValue =
+    money(database.balance);
 
   applyPrivacyMode();
-
-
-  const open =
-    database.bills
-      .filter(
-        x=>!x.paid
-      )
-      .length;
-
-
-  $("homeSummary").innerHTML = `
-
-    <p>
-
-      💳 Você tem
-      <strong>
-        ${open}
-      </strong>
-      conta(s) em aberto.
-
-    </p>
-
-
-    <p>
-
-      📅 Todas as contas vencem no
-      <strong>
-        dia 10
-      </strong>.
-
-    </p>
-
-
-    <p>
-
-      💳 Nas contas parceladas,
-      o sistema mostra automaticamente
-      a parcela atual e o mês de término.
-
-    </p>
-
-
-    <p>
-
-      ⚠️ Depois do dia 10,
-      uma conta não paga aparece como
-      <strong class="red">
-        Atrasada
-      </strong>.
-
-    </p>
-
-  `;
 
 }
 
@@ -5302,7 +5012,7 @@ function renderBills(){
             <div>
 
               <span class="debtValueLabel">
-                Dívida total
+                Valor total
               </span>
 
               <span class="debtValueNumber">
@@ -5508,7 +5218,7 @@ function renderDebts(){
             <div>
 
               <span class="debtValueLabel">
-                Dívida total
+                Valor total
               </span>
 
               <span class="debtValueNumber">
@@ -5733,6 +5443,14 @@ function renderGoals(){
                 + Guardar
               </button>
 
+              <button
+                type="button"
+                class="editButton"
+                onclick="editGoal('${g.id}')"
+              >
+                ✏️ Editar
+              </button>
+
 
               <button
                 type="button"
@@ -5767,15 +5485,11 @@ function renderReports(){
     [...database.transactions]
       .sort(
         (a,b)=>
-          String(
-            b.date || ""
-          ).localeCompare(
-            String(
-              a.date || ""
+          String(b.date || "")
+            .localeCompare(
+              String(a.date || "")
             )
-          )
       );
-
 
   const income =
     transactions
@@ -5785,12 +5499,9 @@ function renderReports(){
       .reduce(
         (s,x)=>
           s +
-          Number(
-            x.amount || 0
-          ),
+          Number(x.amount || 0),
         0
       );
-
 
   const expense =
     transactions
@@ -5800,115 +5511,247 @@ function renderReports(){
       .reduce(
         (s,x)=>
           s +
-          Number(
-            x.amount || 0
-          ),
+          Number(x.amount || 0),
         0
       );
-
 
   const result =
     income - expense;
 
+  const totalBills =
+    database.bills.reduce(
+      (s,x)=>
+        s +
+        Number(
+          x.amount ||
+          0
+        ),
+      0
+    );
 
-  $("reportIncomeTotal")
-    .textContent =
-      money(income);
+  const paidBills =
+    database.bills.filter(
+      x=>x.paid
+    );
 
+  const pendingBills =
+    database.bills.filter(
+      x=>!x.paid
+    );
 
-  $("reportExpenseTotal")
-    .textContent =
-      money(expense);
+  const paidBillsTotal =
+    paidBills.reduce(
+      (s,x)=>
+        s +
+        Number(
+          x.amount ||
+          0
+        ),
+      0
+    );
 
+  const pendingBillsTotal =
+    pendingBills.reduce(
+      (s,x)=>
+        s +
+        Number(
+          x.amount ||
+          0
+        ),
+      0
+    );
 
-  $("reportResultTotal")
-    .textContent =
-      money(result);
+  const goalsSaved =
+    database.goals.reduce(
+      (s,x)=>
+        s +
+        Number(
+          x.saved || 0
+        ),
+      0
+    );
 
+  const goalsTarget =
+    database.goals.reduce(
+      (s,x)=>
+        s +
+        Number(
+          x.target || 0
+        ),
+      0
+    );
 
-  if(!transactions.length){
+  $("reportBalanceTotal").textContent =
+    money(database.balance);
 
-    $("reportContent").innerHTML =
-      '<p class="muted">Nenhuma movimentação registrada ainda.</p>';
+  $("reportIncomeTotal").textContent =
+    money(income);
 
-    return;
+  $("reportExpenseTotal").textContent =
+    money(expense);
 
-  }
+  $("reportResultTotal").textContent =
+    money(result);
 
+  $("reportBillsTotal").textContent =
+    money(totalBills);
 
-  $("reportContent").innerHTML =
-    transactions.map(x=>`
+  $("reportPendingBillsTotal").textContent =
+    money(pendingBillsTotal);
+
+  $("reportContent").innerHTML = `
+
+    <div class="card" style="margin-bottom:18px">
+
+      <h3>Resumo das contas</h3>
 
       <div class="reportItem">
-
-
         <div>
-
           <div class="reportDescription">
-
-            ${escapeHtml(
-              x.description ||
-              "Movimentação"
-            )}
-
+            Total de contas cadastradas
           </div>
-
-
           <div class="reportMeta">
-
-            ${escapeHtml(
-              x.date ||
-              "Sem data"
-            )}
-
-            ·
-
-            ${escapeHtml(
-              x.category ||
-              "Sem categoria"
-            )}
-
-            ·
-
-            ${
-              x.type === "income"
-                ? "Entrada"
-                : "Saída"
-            }
-
+            ${database.bills.length} conta(s)
           </div>
-
         </div>
 
-
-        <div
-          class="
-            reportAmount
-            ${
-              x.type === "income"
-                ? "green"
-                : "red"
-            }
-          "
-        >
-
-          ${
-            x.type === "income"
-              ? "+"
-              : "-"
-          }
-
-          ${money(
-            x.amount
-          )}
-
+        <div class="reportAmount">
+          ${money(totalBills)}
         </div>
-
-
       </div>
 
-    `).join("");
+      <div class="reportItem">
+        <div>
+          <div class="reportDescription">
+            Contas pagas
+          </div>
+          <div class="reportMeta">
+            ${paidBills.length} conta(s)
+          </div>
+        </div>
 
+        <div class="reportAmount green">
+          ${money(paidBillsTotal)}
+        </div>
+      </div>
+
+      <div class="reportItem">
+        <div>
+          <div class="reportDescription">
+            Contas pendentes
+          </div>
+          <div class="reportMeta">
+            ${pendingBills.length} conta(s)
+          </div>
+        </div>
+
+        <div class="reportAmount red">
+          ${money(pendingBillsTotal)}
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="card" style="margin-bottom:18px">
+
+      <h3>Objetivos financeiros</h3>
+
+      <div class="reportItem">
+        <div>
+          <div class="reportDescription">
+            Total guardado
+          </div>
+          <div class="reportMeta">
+            Em todos os objetivos
+          </div>
+        </div>
+
+        <div class="reportAmount green">
+          ${money(goalsSaved)}
+        </div>
+      </div>
+
+      <div class="reportItem">
+        <div>
+          <div class="reportDescription">
+            Meta total
+          </div>
+          <div class="reportMeta">
+            Soma de todas as metas
+          </div>
+        </div>
+
+        <div class="reportAmount">
+          ${money(goalsTarget)}
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Movimentações — entradas e saídas</h3>
+
+      ${
+        transactions.length
+          ? transactions.map(x=>`
+              <div class="reportItem">
+
+                <div>
+                  <div class="reportDescription">
+                    ${escapeHtml(
+                      x.description ||
+                      "Movimentação"
+                    )}
+                  </div>
+
+                  <div class="reportMeta">
+                    ${escapeHtml(
+                      x.date ||
+                      "Sem data"
+                    )}
+                    ·
+                    ${escapeHtml(
+                      x.category ||
+                      "Sem categoria"
+                    )}
+                    ·
+                    ${
+                      x.type === "income"
+                        ? "Entrada"
+                        : "Saída"
+                    }
+                  </div>
+                </div>
+
+                <div
+                  class="
+                    reportAmount
+                    ${
+                      x.type === "income"
+                        ? "green"
+                        : "red"
+                    }
+                  "
+                >
+                  ${
+                    x.type === "income"
+                      ? "+"
+                      : "-"
+                  }
+                  ${money(x.amount)}
+                </div>
+
+              </div>
+            `).join("")
+          : '<p class="muted">Nenhuma movimentação registrada ainda.</p>'
+      }
+
+    </div>
+
+  `;
 }
 
 
@@ -5935,8 +5778,6 @@ function renderEverything(){
   renderTransactions();
 
   renderBills();
-
-  renderDebts();
 
   renderGoals();
 
@@ -7170,15 +7011,31 @@ window.quitDebt =
 $("addGoalButton").onclick =
   ()=>{
 
+    editingGoalId = null;
+
+    $("goalName").value = "";
+    $("goalIcon").value = "🎯";
+    $("goalTarget").value = "";
+    $("goalSaved").value = "0";
+    $("saveGoalButton").textContent = "Salvar";
+
     $("goalForm")
       .classList
       .remove("hidden");
+
+    $("goalForm").scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
 
   };
 
 
 $("cancelGoalButton").onclick =
   ()=>{
+
+    editingGoalId = null;
+    $("saveGoalButton").textContent = "Salvar";
 
     $("goalForm")
       .classList
@@ -7221,6 +7078,12 @@ $("saveGoalButton").onclick =
         );
 
 
+      const icon =
+        $("goalIcon")
+          .value ||
+        "🎯";
+
+
       if(!name){
 
         return alert(
@@ -7239,32 +7102,58 @@ $("saveGoalButton").onclick =
       }
 
 
-      const r =
-        await supabaseClient
-          .from("goals")
-          .insert({
+      let r;
 
-            user_id:
-              currentUser.id,
 
-            name,
+      if(editingGoalId){
 
-            icon:
-              $("goalIcon")
-                .value ||
-              "🎯",
+        r =
+          await supabaseClient
+            .from("goals")
+            .update({
+              name,
+              icon,
+              target,
+              saved
+            })
+            .eq(
+              "id",
+              editingGoalId
+            )
+            .eq(
+              "user_id",
+              currentUser.id
+            );
 
-            target,
+      }else{
 
-            saved
+        r =
+          await supabaseClient
+            .from("goals")
+            .insert({
+              user_id:
+                currentUser.id,
+              name,
+              icon,
+              target,
+              saved
+            });
 
-          });
+      }
 
 
       if(r.error){
+
         throw r.error;
+
       }
 
+
+      editingGoalId = null;
+
+      $("saveGoalButton")
+        .textContent =
+        "Salvar";
 
       $("goalForm")
         .classList
@@ -7482,6 +7371,53 @@ window.deleteBill =
 
     renderEverything();
 
+  };
+
+
+/* =========================================================
+   EDITAR OBJETIVO
+   ========================================================= */
+
+window.editGoal =
+  id=>{
+    const goal =
+      database.goals.find(
+        x=>
+          String(x.id) ===
+          String(id)
+      );
+
+    if(!goal){
+      return alert(
+        "Não foi possível encontrar este objetivo."
+      );
+    }
+
+    editingGoalId = goal.id;
+
+    $("goalName").value =
+      goal.name || "";
+
+    $("goalIcon").value =
+      goal.icon || "🎯";
+
+    $("goalTarget").value =
+      Number(goal.target || 0);
+
+    $("goalSaved").value =
+      Number(goal.saved || 0);
+
+    $("saveGoalButton").textContent =
+      "Atualizar";
+
+    $("goalForm")
+      .classList
+      .remove("hidden");
+
+    $("goalForm").scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
   };
 
 
