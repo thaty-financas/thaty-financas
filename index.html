@@ -1878,15 +1878,7 @@ td button{
       >
         ▣ Contas
       </button>
-
-      <button
-        data-page="debts"
-        type="button"
-      >
-        ◈ Dívidas
-      </button>
-
-      <button
+<button
         data-page="goals"
         type="button"
       >
@@ -1897,7 +1889,7 @@ td button{
         data-page="reports"
         type="button"
       >
-        ▥ Relatórios
+        ▥ Dashboard
       </button>
 
       <button
@@ -1976,15 +1968,7 @@ td button{
       >
         ▣ Contas
       </button>
-
-      <button
-        data-page="debts"
-        type="button"
-      >
-        ◈ Dívidas
-      </button>
-
-      <button
+<button
         data-page="goals"
         type="button"
       >
@@ -2296,7 +2280,7 @@ td button{
       <div class="row">
 
         <h2>
-          Contas
+          Contas & Parcelas
         </h2>
 
         <button
@@ -2535,105 +2519,22 @@ td button{
       </div>
 
 
+
+
+      <div class="card">
+        <h3>Resumo do mês</h3>
+        <div class="grid">
+          <div><div class="muted">Total do mês</div><div id="billsMonthTotal" class="value">R$ 0,00</div></div>
+          <div><div class="muted">Pagas</div><div id="billsPaidCount" class="value green">0</div></div>
+          <div><div class="muted">Pendentes</div><div id="billsPendingCount" class="value orange">0</div></div>
+          <div><div class="muted">Atrasadas</div><div id="billsLateCount" class="value red">0</div></div>
+        </div>
+      </div>
+
+
       <div class="card">
 
         <div id="billList"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         DÍVIDAS
-         =================================================== -->
-
-    <section
-      id="debts"
-      class="page hidden"
-    >
-
-      <h2>
-        Dívidas Totais
-      </h2>
-
-
-      <div class="debtCards">
-
-
-        <div class="debtStat total">
-
-          <div class="debtStatLabel">
-            Total das dívidas
-          </div>
-
-          <div
-            id="debtTotal"
-            class="debtStatValue"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="debtStat open">
-
-          <div class="debtStatLabel">
-            Em aberto
-          </div>
-
-          <div
-            id="debtOpen"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat paid">
-
-          <div class="debtStatLabel">
-            Já pagas
-          </div>
-
-          <div
-            id="debtPaid"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat count">
-
-          <div class="debtStatLabel">
-            Quantidade
-          </div>
-
-          <div
-            id="debtCount"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Minhas dívidas
-        </h3>
-
-        <div id="debtList"></div>
 
       </div>
 
