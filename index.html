@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Thaty Finanças</title>
@@ -14,11 +12,8 @@
 <meta name="theme-color" content="#071426">
 
 <meta name="mobile-web-app-capable" content="yes">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
-
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <meta name="apple-mobile-web-app-title" content="Thaty Finanças">
 
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -26,7 +21,7 @@
 <style>
 
 *{
-  box-sizing:border-box
+  box-sizing:border-box;
 }
 
 :root{
@@ -249,6 +244,10 @@ select:focus{
 
 .success{
   color:var(--green);
+}
+
+.warning{
+  color:var(--yellow);
 }
 
 #appScreen{
@@ -1050,6 +1049,59 @@ td button{
   font-size:15px;
 }
 
+.loadingOverlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  background:rgba(3,8,17,.82);
+
+  backdrop-filter:blur(8px);
+}
+
+.loadingBox{
+  width:100%;
+  max-width:360px;
+
+  padding:30px;
+
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+
+  background:#0b2036;
+
+  text-align:center;
+
+  box-shadow:0 30px 80px rgba(0,0,0,.45);
+}
+
+.loadingSpinner{
+  width:38px;
+  height:38px;
+
+  margin:0 auto 17px;
+
+  border:4px solid rgba(255,255,255,.12);
+
+  border-top-color:var(--orange);
+
+  border-radius:50%;
+
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
 @media(max-width:1100px){
 
   header{
@@ -1547,127 +1599,136 @@ td button{
 
 <body>
 
+<!-- =====================================================
+     LOGIN
+     ===================================================== -->
+
 <section id="loginScreen">
 
   <div class="loginBox">
 
-```
-<div class="logo">
-  <span class="thaty">Thaty</span>
-  <span class="financas"> Finanças</span>
-</div>
+    <div class="logo">
+      <span class="thaty">Thaty</span>
+      <span class="financas"> Finanças</span>
+    </div>
 
-<div class="subtitle">
-  Seu controle financeiro na nuvem.
-</div>
+    <div class="subtitle">
+      Seu controle financeiro na nuvem.
+    </div>
 
-<label>E-mail</label>
+    <label>E-mail</label>
 
-<input
-  id="email"
-  type="email"
-  autocomplete="email"
-  placeholder="seu@email.com"
->
+    <input
+      id="email"
+      type="email"
+      autocomplete="email"
+      placeholder="seu@email.com"
+    >
 
-<label>Senha</label>
+    <label>Senha</label>
 
-<input
-  id="password"
-  type="password"
-  autocomplete="current-password"
-  placeholder="Sua senha"
->
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="Sua senha"
+    >
 
-<button
-  id="loginButton"
-  class="primary"
-  type="button"
->
-  Entrar
-</button>
+    <button
+      id="loginButton"
+      class="primary"
+      type="button"
+    >
+      Entrar
+    </button>
 
-<button
-  id="toggleAuthButton"
-  class="secondary"
-  type="button"
-  style="width:100%;margin-top:10px"
->
-  Criar conta
-</button>
+    <button
+      id="toggleAuthButton"
+      class="secondary"
+      type="button"
+      style="width:100%;margin-top:10px"
+    >
+      Criar conta
+    </button>
 
-<div id="authMessage"></div>
-```
+    <div id="authMessage"></div>
 
   </div>
 
 </section>
 
+
+<!-- =====================================================
+     APLICATIVO
+     ===================================================== -->
+
 <section id="appScreen" class="hidden">
 
   <header>
 
-```
-<div class="headerTop">
+    <div class="headerTop">
 
-  <div class="brand">
-    <span class="thaty">Thaty</span>
-    <span class="financas"> Finanças</span>
-  </div>
+      <div class="brand">
+        <span class="thaty">Thaty</span>
+        <span class="financas"> Finanças</span>
+      </div>
 
-  <button
-    id="mobileMenuButton"
-    class="mobileMenuButton"
-    type="button"
-    aria-label="Abrir menu"
-    aria-expanded="false"
-  >
-    ☰
-  </button>
+      <button
+        id="mobileMenuButton"
+        class="mobileMenuButton"
+        type="button"
+        aria-label="Abrir menu"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
 
-  <button
-    id="logoutButton"
-    class="secondary"
-  >
-    Sair
-  </button>
+      <button
+        id="logoutButton"
+        class="secondary"
+        type="button"
+      >
+        Sair
+      </button>
 
-</div>
+    </div>
 
-<nav id="navigation">
+    <nav id="navigation">
 
-  <button class="active" data-page="home">
-    ⌂ Início
-  </button>
+      <button class="active" data-page="home" type="button">
+        ⌂ Início
+      </button>
 
-  <button data-page="transactions">
-    ↕ Movimentações
-  </button>
+      <button data-page="transactions" type="button">
+        ↕ Movimentações
+      </button>
 
-  <button data-page="bills">
-    ▣ Contas
-  </button>
+      <button data-page="bills" type="button">
+        ▣ Contas
+      </button>
 
-  <button data-page="debts">
-    ◈ Dívidas
-  </button>
+      <button data-page="debts" type="button">
+        ◈ Dívidas
+      </button>
 
-  <button data-page="goals">
-    🎯 Objetivos
-  </button>
+      <button data-page="goals" type="button">
+        🎯 Objetivos
+      </button>
 
-  <button data-page="reports">
-    ▥ Relatórios
-  </button>
+      <button data-page="reports" type="button">
+        ▥ Relatórios
+      </button>
 
-  <button data-page="settings">
-    ⚙ Configurações
-  </button>
+      <button data-page="settings" type="button">
+        ⚙ Configurações
+      </button>
 
-</nav>
-```
+    </nav>
 
   </header>
+
+
+  <!-- MENU MOBILE -->
 
   <div
     id="mobileMenuOverlay"
@@ -1680,798 +1741,850 @@ td button{
     aria-hidden="true"
   >
 
-```
-<div class="mobileMenuHeader">
+    <div class="mobileMenuHeader">
 
-  <div class="mobileMenuBrand">
+      <div class="mobileMenuBrand">
 
-    <span class="thaty">
-      Thaty
-    </span>
+        <span class="thaty">
+          Thaty
+        </span>
 
-    <span class="financas">
-      Finanças
-    </span>
+        <span class="financas">
+          Finanças
+        </span>
 
-  </div>
+      </div>
 
-  <button
-    id="mobileMenuClose"
-    class="mobileMenuClose"
-    type="button"
-    aria-label="Fechar menu"
-  >
-    ×
-  </button>
+      <button
+        id="mobileMenuClose"
+        class="mobileMenuClose"
+        type="button"
+        aria-label="Fechar menu"
+      >
+        ×
+      </button>
 
-</div>
+    </div>
 
+    <nav id="mobileNavigation">
 
-<nav id="mobileNavigation">
+      <button class="active" data-page="home" type="button">
+        ⌂ Início
+      </button>
 
-  <button class="active" data-page="home">
-    ⌂ Início
-  </button>
+      <button data-page="transactions" type="button">
+        ↕ Movimentações
+      </button>
 
-  <button data-page="transactions">
-    ↕ Movimentações
-  </button>
+      <button data-page="bills" type="button">
+        ▣ Contas
+      </button>
 
-  <button data-page="bills">
-    ▣ Contas
-  </button>
+      <button data-page="debts" type="button">
+        ◈ Dívidas
+      </button>
 
-  <button data-page="debts">
-    ◈ Dívidas
-  </button>
+      <button data-page="goals" type="button">
+        🎯 Objetivos
+      </button>
 
-  <button data-page="goals">
-    🎯 Objetivos
-  </button>
+      <button data-page="reports" type="button">
+        ▥ Relatórios
+      </button>
 
-  <button data-page="reports">
-    ▥ Relatórios
-  </button>
+      <button data-page="settings" type="button">
+        ⚙ Configurações
+      </button>
 
-  <button data-page="settings">
-    ⚙ Configurações
-  </button>
+    </nav>
 
-</nav>
-
-
-<button
-  id="mobileLogoutButton"
-  class="mobileLogout"
-  type="button"
->
-  🚪 Sair
-</button>
-```
+    <button
+      id="mobileLogoutButton"
+      class="mobileLogout"
+      type="button"
+    >
+      🚪 Sair
+    </button>
 
   </aside>
 
+
+  <!-- =====================================================
+       CONTEÚDO
+       ===================================================== -->
+
   <main>
 
-```
-<section id="home" class="page">
+    <!-- INÍCIO -->
 
-  <h2 id="homeGreeting">
-    Olá, Thaty! 👋
-  </h2>
+    <section id="home" class="page">
 
-  <button
-    id="privacyToggle"
-    class="valuePrivacyButton"
-    type="button"
-    aria-label="Ocultar valores"
-    aria-pressed="false"
-    title="Ocultar valores"
-  >
-    👁️
-  </button>
+      <h2 id="homeGreeting">
+        Olá, Thaty! 👋
+      </h2>
+
+      <button
+        id="privacyToggle"
+        class="valuePrivacyButton"
+        type="button"
+        aria-label="Ocultar valores"
+        aria-pressed="false"
+        title="Ocultar valores"
+      >
+        👁️
+      </button>
+
+      <div class="grid">
+
+        <div class="card">
+
+          <div class="muted">
+            Saldo atual
+          </div>
+
+          <div
+            id="dashboardBalance"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
 
 
-  <div class="grid">
+        <div class="card">
 
-    <div class="card">
+          <div class="muted">
+            Entradas
+          </div>
 
-      <div class="muted">
-        Saldo atual
+          <div
+            id="dashboardIncome"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="muted">
+            Saídas
+          </div>
+
+          <div
+            id="dashboardExpense"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="muted">
+            Dívidas
+          </div>
+
+          <div
+            id="dashboardDebt"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
       </div>
+
 
       <div
-        id="dashboardBalance"
-        class="value"
+        class="card"
+        style="margin-top:18px"
       >
-        R$ 0,00
+
+        <h3>
+          Resumo financeiro
+        </h3>
+
+        <div id="homeSummary"></div>
+
       </div>
 
-    </div>
+    </section>
 
 
-    <div class="card">
+    <!-- MOVIMENTAÇÕES -->
 
-      <div class="muted">
-        Entradas
-      </div>
-
-      <div
-        id="dashboardIncome"
-        class="value"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="muted">
-        Saídas
-      </div>
-
-      <div
-        id="dashboardExpense"
-        class="value"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="muted">
-        Dívidas
-      </div>
-
-      <div
-        id="dashboardDebt"
-        class="value"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card" style="margin-top:18px">
-
-    <h3>
-      Resumo financeiro
-    </h3>
-
-    <div id="homeSummary"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="transactions"
-  class="page hidden"
->
-
-  <div class="row">
-
-    <h2>
-      Movimentações
-    </h2>
-
-    <button
-      id="addTransactionButton"
-      class="primary"
-      style="width:auto;margin:0"
+    <section
+      id="transactions"
+      class="page hidden"
     >
-      + Adicionar
-    </button>
 
-  </div>
+      <div class="row">
 
+        <h2>
+          Movimentações
+        </h2>
 
-  <div
-    id="transactionForm"
-    class="card hidden"
-  >
-
-    <div class="formGrid">
-
-      <div>
-
-        <label>Tipo</label>
-
-        <select id="transactionType">
-
-          <option value="income">
-            Entrada
-          </option>
-
-          <option value="expense">
-            Saída
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div>
-
-        <label>Descrição</label>
-
-        <input
-          id="transactionDescription"
-          type="text"
+        <button
+          id="addTransactionButton"
+          class="primary"
+          type="button"
+          style="width:auto;margin:0"
         >
+          + Adicionar
+        </button>
 
       </div>
 
 
-      <div>
+      <div
+        id="transactionForm"
+        class="card hidden"
+      >
 
-        <label>Valor</label>
+        <div class="formGrid">
+
+          <div>
+
+            <label>Tipo</label>
+
+            <select id="transactionType">
+
+              <option value="income">
+                Entrada
+              </option>
+
+              <option value="expense">
+                Saída
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div>
+
+            <label>Descrição</label>
+
+            <input
+              id="transactionDescription"
+              type="text"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>Valor</label>
+
+            <input
+              id="transactionAmount"
+              type="number"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>Data</label>
+
+            <input
+              id="transactionDate"
+              type="date"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>Categoria</label>
+
+            <input
+              id="transactionCategory"
+              type="text"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            id="saveTransactionButton"
+            class="primary"
+            type="button"
+            style="width:auto;margin:0"
+          >
+            Salvar
+          </button>
+
+          <button
+            id="cancelTransactionButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div id="transactionList"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONTAS -->
+
+    <section
+      id="bills"
+      class="page hidden"
+    >
+
+      <div class="row">
+
+        <h2>
+          Contas
+        </h2>
+
+        <button
+          id="addBillButton"
+          class="primary"
+          type="button"
+          style="width:auto;margin:0"
+        >
+          + Adicionar
+        </button>
+
+      </div>
+
+
+      <div
+        id="billForm"
+        class="card hidden"
+      >
+
+        <div class="formGrid">
+
+          <div>
+
+            <label>
+              Nome da conta
+            </label>
+
+            <input
+              id="billName"
+              type="text"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Valor da parcela
+            </label>
+
+            <input
+              id="billAmount"
+              type="number"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Dívida total
+            </label>
+
+            <input
+              id="billTotalDebt"
+              type="number"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Parcelas / informação
+            </label>
+
+            <input
+              id="billInfo"
+              type="text"
+              placeholder="Ex.: 02/36"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Vencimento
+            </label>
+
+            <input
+              value="Dia 10"
+              disabled
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            id="saveBillButton"
+            class="primary"
+            type="button"
+            style="width:auto;margin:0"
+          >
+            Salvar
+          </button>
+
+          <button
+            id="cancelBillButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div id="billList"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- DÍVIDAS -->
+
+    <section
+      id="debts"
+      class="page hidden"
+    >
+
+      <h2>
+        Dívidas Totais
+      </h2>
+
+
+      <div class="debtCards">
+
+        <div class="debtStat total">
+
+          <div class="debtStatLabel">
+            Total das dívidas
+          </div>
+
+          <div
+            id="debtTotal"
+            class="debtStatValue"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
+
+        <div class="debtStat open">
+
+          <div class="debtStatLabel">
+            Em aberto
+          </div>
+
+          <div
+            id="debtOpen"
+            class="debtStatValue"
+          >
+            0
+          </div>
+
+        </div>
+
+
+        <div class="debtStat paid">
+
+          <div class="debtStatLabel">
+            Já pagas
+          </div>
+
+          <div
+            id="debtPaid"
+            class="debtStatValue"
+          >
+            0
+          </div>
+
+        </div>
+
+
+        <div class="debtStat count">
+
+          <div class="debtStatLabel">
+            Quantidade
+          </div>
+
+          <div
+            id="debtCount"
+            class="debtStatValue"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Minhas dívidas
+        </h3>
+
+        <div id="debtList"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- OBJETIVOS -->
+
+    <section
+      id="goals"
+      class="page hidden"
+    >
+
+      <div class="row">
+
+        <h2>
+          Poupança & Objetivos
+        </h2>
+
+        <button
+          id="addGoalButton"
+          class="primary"
+          type="button"
+          style="width:auto;margin:0"
+        >
+          + Objetivo
+        </button>
+
+      </div>
+
+
+      <div class="grid">
+
+        <div class="card">
+
+          <div class="muted">
+            Total guardado
+          </div>
+
+          <div
+            id="goalSavedTotal"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="muted">
+            Meta total
+          </div>
+
+          <div
+            id="goalTargetTotal"
+            class="value"
+          >
+            R$ 0,00
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="goalForm"
+        class="card hidden"
+      >
+
+        <div class="formGrid">
+
+          <div>
+
+            <label>
+              Nome do objetivo
+            </label>
+
+            <input
+              id="goalName"
+              type="text"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Ícone
+            </label>
+
+            <input
+              id="goalIcon"
+              value="🎯"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Meta
+            </label>
+
+            <input
+              id="goalTarget"
+              type="number"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Já guardado
+            </label>
+
+            <input
+              id="goalSaved"
+              type="number"
+              step="0.01"
+              value="0"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            id="saveGoalButton"
+            class="primary"
+            type="button"
+            style="width:auto;margin:0"
+          >
+            Salvar
+          </button>
+
+          <button
+            id="cancelGoalButton"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div id="goalList"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- RELATÓRIOS -->
+
+    <section
+      id="reports"
+      class="page hidden"
+    >
+
+      <h2>
+        Relatórios
+      </h2>
+
+
+      <div class="reportSummary">
+
+        <div class="reportStat reportIncome">
+
+          <span>
+            Total de entradas
+          </span>
+
+          <strong id="reportIncomeTotal">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+
+        <div class="reportStat reportExpense">
+
+          <span>
+            Total de saídas
+          </span>
+
+          <strong id="reportExpenseTotal">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+
+        <div class="reportStat reportResult">
+
+          <span>
+            Resultado
+          </span>
+
+          <strong id="reportResultTotal">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Detalhamento
+        </h3>
+
+        <div id="reportContent"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONFIGURAÇÕES -->
+
+    <section
+      id="settings"
+      class="page hidden"
+    >
+
+      <h2>
+        Configurações
+      </h2>
+
+
+      <div class="card">
+
+        <label>
+          Saldo da conta atual
+        </label>
 
         <input
-          id="transactionAmount"
+          id="balanceInput"
           type="number"
           step="0.01"
         >
 
-      </div>
-
-
-      <div>
-
-        <label>Data</label>
-
-        <input
-          id="transactionDate"
-          type="date"
+        <button
+          id="saveBalanceButton"
+          class="primary"
+          type="button"
+          style="width:auto"
         >
+          Salvar saldo
+        </button>
+
+        <p class="muted">
+          O saldo é o valor atual da sua conta
+          e fica salvo na nuvem.
+        </p>
 
       </div>
 
-
-      <div>
-
-        <label>Categoria</label>
-
-        <input
-          id="transactionCategory"
-          type="text"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveTransactionButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button
-        id="cancelTransactionButton"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="transactionList"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="bills"
-  class="page hidden"
->
-
-  <div class="row">
-
-    <h2>
-      Contas
-    </h2>
-
-    <button
-      id="addBillButton"
-      class="primary"
-      style="width:auto;margin:0"
-    >
-      + Adicionar
-    </button>
-
-  </div>
-
-
-  <div
-    id="billForm"
-    class="card hidden"
-  >
-
-    <div class="formGrid">
-
-      <div>
-
-        <label>
-          Nome da conta
-        </label>
-
-        <input
-          id="billName"
-          type="text"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Valor da parcela
-        </label>
-
-        <input
-          id="billAmount"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Dívida total
-        </label>
-
-        <input
-          id="billTotalDebt"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Parcelas / informação
-        </label>
-
-        <input
-          id="billInfo"
-          type="text"
-          placeholder="Ex.: 02/36"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Vencimento
-        </label>
-
-        <input
-          value="Dia 10"
-          disabled
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveBillButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button
-        id="cancelBillButton"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="billList"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="debts"
-  class="page hidden"
->
-
-  <h2>
-    Dívidas Totais
-  </h2>
-
-
-  <div class="debtCards">
-
-    <div class="debtStat total">
-
-      <div class="debtStatLabel">
-        Total das dívidas
-      </div>
-
-      <div
-        id="debtTotal"
-        class="debtStatValue"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="debtStat open">
-
-      <div class="debtStatLabel">
-        Em aberto
-      </div>
-
-      <div
-        id="debtOpen"
-        class="debtStatValue"
-      >
-        0
-      </div>
-
-    </div>
-
-
-    <div class="debtStat paid">
-
-      <div class="debtStatLabel">
-        Já pagas
-      </div>
-
-      <div
-        id="debtPaid"
-        class="debtStatValue"
-      >
-        0
-      </div>
-
-    </div>
-
-
-    <div class="debtStat count">
-
-      <div class="debtStatLabel">
-        Quantidade
-      </div>
-
-      <div
-        id="debtCount"
-        class="debtStatValue"
-      >
-        0
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Minhas dívidas
-    </h3>
-
-    <div id="debtList"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="goals"
-  class="page hidden"
->
-
-  <div class="row">
-
-    <h2>
-      Poupança & Objetivos
-    </h2>
-
-    <button
-      id="addGoalButton"
-      class="primary"
-      style="width:auto;margin:0"
-    >
-      + Objetivo
-    </button>
-
-  </div>
-
-
-  <div class="grid">
-
-    <div class="card">
-
-      <div class="muted">
-        Total guardado
-      </div>
-
-      <div
-        id="goalSavedTotal"
-        class="value"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <div class="muted">
-        Meta total
-      </div>
-
-      <div
-        id="goalTargetTotal"
-        class="value"
-      >
-        R$ 0,00
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div
-    id="goalForm"
-    class="card hidden"
-  >
-
-    <div class="formGrid">
-
-      <div>
-
-        <label>
-          Nome do objetivo
-        </label>
-
-        <input
-          id="goalName"
-          type="text"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Ícone
-        </label>
-
-        <input
-          id="goalIcon"
-          value="🎯"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Meta
-        </label>
-
-        <input
-          id="goalTarget"
-          type="number"
-          step="0.01"
-        >
-
-      </div>
-
-
-      <div>
-
-        <label>
-          Já guardado
-        </label>
-
-        <input
-          id="goalSaved"
-          type="number"
-          step="0.01"
-          value="0"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        id="saveGoalButton"
-        class="primary"
-        style="width:auto;margin:0"
-      >
-        Salvar
-      </button>
-
-      <button
-        id="cancelGoalButton"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div id="goalList"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="reports"
-  class="page hidden"
->
-
-  <h2>
-    Relatórios
-  </h2>
-
-
-  <div class="reportSummary">
-
-    <div class="reportStat reportIncome">
-
-      <span>
-        Total de entradas
-      </span>
-
-      <strong id="reportIncomeTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-
-    <div class="reportStat reportExpense">
-
-      <span>
-        Total de saídas
-      </span>
-
-      <strong id="reportExpenseTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-
-    <div class="reportStat reportResult">
-
-      <span>
-        Resultado
-      </span>
-
-      <strong id="reportResultTotal">
-        R$ 0,00
-      </strong>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Detalhamento
-    </h3>
-
-    <div id="reportContent"></div>
-
-  </div>
-
-</section>
-
-
-<section
-  id="settings"
-  class="page hidden"
->
-
-  <h2>
-    Configurações
-  </h2>
-
-
-  <div class="card">
-
-    <label>
-      Saldo da conta atual
-    </label>
-
-    <input
-      id="balanceInput"
-      type="number"
-      step="0.01"
-    >
-
-    <button
-      id="saveBalanceButton"
-      class="primary"
-      style="width:auto"
-    >
-      Salvar saldo
-    </button>
-
-    <p class="muted">
-      O saldo é o valor atual da sua conta
-      e fica salvo na nuvem.
-    </p>
-
-  </div>
-
-</section>
-```
+    </section>
 
   </main>
 
 </section>
+
+
+<!-- =====================================================
+     CARREGAMENTO
+     ===================================================== -->
+
+<div
+  id="loadingOverlay"
+  class="loadingOverlay hidden"
+>
+
+  <div class="loadingBox">
+
+    <div class="loadingSpinner"></div>
+
+    <strong id="loadingText">
+      Entrando...
+    </strong>
+
+    <p class="muted">
+      Aguarde um instante.
+    </p>
+
+  </div>
+
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -2487,18 +2600,13 @@ td button{
    ========================================================= */
 
 const SUPABASE_URL =
-"https://rwwfidxpdybyuojijhaz.supabase.co";
+  "https://rwwfidxpdybyuojijhaz.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv";
+  "sb_publishable_jyTQi9-NFtJzO6__lKT3xg_GDfo2okv";
 
 
-const supabaseClient =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
+let supabaseClient = null;
 
 let currentUser = null;
 
@@ -2530,14 +2638,8 @@ let database = {
 
 
 /* =========================================================
-   CONTROLE DE EDIÇÃO DE CONTA
+   EDIÇÃO DE CONTA
    ========================================================= */
-
-/*
-  null = estamos adicionando uma nova conta
-
-  ID = estamos editando uma conta existente
-*/
 
 let editingBillId = null;
 
@@ -2555,7 +2657,7 @@ function $(id){
 
 function money(v){
 
-  return Number(v||0).toLocaleString(
+  return Number(v || 0).toLocaleString(
     "pt-BR",
     {
       style:"currency",
@@ -2568,24 +2670,24 @@ function money(v){
 
 function numberValue(v){
 
-  if(typeof v==="number"){
+  if(typeof v === "number"){
     return v;
   }
 
   let t =
-    String(v||"")
+    String(v || "")
       .replace(/[^\d,.-]/g,"")
       .replace(/\./g,"")
       .replace(",", ".");
 
-  return Number(t)||0;
+  return Number(t) || 0;
 
 }
 
 
 function escapeHtml(v){
 
-  return String(v??"")
+  return String(v ?? "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
@@ -2600,19 +2702,83 @@ function showAuthMessage(
   type
 ){
 
-  $("authMessage").textContent =
-    message||"";
+  const element =
+    $("authMessage");
 
-  $("authMessage").className =
-    type==="success"
+  if(!element){
+    return;
+  }
+
+  element.textContent =
+    message || "";
+
+  element.className =
+    type === "success"
       ? "success"
-      : "error";
+      : type === "warning"
+        ? "warning"
+        : "error";
+
+}
+
+
+function showLoading(
+  message
+){
+
+  if($("loadingText")){
+    $("loadingText").textContent =
+      message || "Carregando...";
+  }
+
+  if($("loadingOverlay")){
+    $("loadingOverlay")
+      .classList
+      .remove("hidden");
+  }
+
+}
+
+
+function hideLoading(){
+
+  if($("loadingOverlay")){
+    $("loadingOverlay")
+      .classList
+      .add("hidden");
+  }
 
 }
 
 
 /* =========================================================
-   PRIVACIDADE DOS VALORES
+   INICIALIZAR SUPABASE COM SEGURANÇA
+   ========================================================= */
+
+function initializeSupabase(){
+
+  if(
+    !window.supabase ||
+    !window.supabase.createClient
+  ){
+
+    throw new Error(
+      "Não foi possível carregar o sistema de conexão."
+    );
+
+  }
+
+  supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+}
+
+
+/* =========================================================
+   PRIVACIDADE
    ========================================================= */
 
 function applyPrivacyMode(){
@@ -2627,7 +2793,8 @@ function applyPrivacyMode(){
 
   ids.forEach(id=>{
 
-    const element = $(id);
+    const element =
+      $(id);
 
     if(!element){
       return;
@@ -2691,7 +2858,7 @@ function applyPrivacyMode(){
 
 
 /* =========================================================
-   NOME DO USUÁRIO
+   USUÁRIO
    ========================================================= */
 
 function getUserName(){
@@ -2708,7 +2875,6 @@ function getUserName(){
 
   }
 
-
   return "Thaty";
 
 }
@@ -2716,14 +2882,12 @@ function getUserName(){
 
 function renderUserGreeting(){
 
-  const name =
-    getUserName();
-
-
   if($("homeGreeting")){
 
     $("homeGreeting").textContent =
-      "Olá, "+name+"! 👋";
+      "Olá, " +
+      getUserName() +
+      "! 👋";
 
   }
 
@@ -2750,6 +2914,7 @@ async function authAction(){
     );
 
     return;
+
   }
 
 
@@ -2767,18 +2932,30 @@ async function authAction(){
 
   try{
 
+    showLoading(
+      creatingAccount
+        ? "Criando sua conta..."
+        : "Entrando..."
+    );
+
+
     let result;
 
 
     if(creatingAccount){
 
       result =
-        await supabaseClient.auth.signUp({
-
-          email,
-          password
-
-        });
+        await supabaseClient
+          .auth
+          .signUp({
+            email,
+            password,
+            options:{
+              data:{
+                name:"Thaty"
+              }
+            }
+          });
 
     }else{
 
@@ -2786,10 +2963,8 @@ async function authAction(){
         await supabaseClient
           .auth
           .signInWithPassword({
-
             email,
             password
-
           });
 
     }
@@ -2807,12 +2982,15 @@ async function authAction(){
       !result.data.session
     ){
 
+      hideLoading();
+
       showAuthMessage(
-        "Conta criada! Confirme o e-mail se o Supabase solicitar.",
+        "Conta criada! Confirme seu e-mail se o Supabase solicitar.",
         "success"
       );
 
       return;
+
     }
 
 
@@ -2820,14 +2998,63 @@ async function authAction(){
       result.data.user;
 
 
-    await loadCloudData(true);
+    /*
+      IMPORTANTE:
+      O aplicativo agora é aberto ANTES do carregamento
+      das tabelas.
+
+      Assim, um erro em uma tabela não impede o login.
+    */
 
     showApplication();
 
 
+    /*
+      Depois que o aplicativo aparece,
+      tentamos carregar os dados.
+    */
+
+    try{
+
+      showLoading(
+        "Carregando seus dados..."
+      );
+
+      await loadCloudData(true);
+
+      renderEverything();
+
+      hideLoading();
+
+    }catch(dataError){
+
+      console.error(
+        "Erro ao carregar dados:",
+        dataError
+      );
+
+      hideLoading();
+
+      alert(
+        "Você entrou com sucesso! 🧡\n\n" +
+        "Porém, não foi possível carregar alguns dados do banco.\n\n" +
+        "O aplicativo foi aberto mesmo assim.\n\n" +
+        "Erro: " +
+        (dataError.message || dataError)
+      );
+
+    }
+
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Erro de autenticação:",
+      error
+    );
+
+
+    hideLoading();
 
 
     let msg =
@@ -2847,7 +3074,6 @@ async function authAction(){
 
 
     showAuthMessage(msg);
-
 
   }finally{
 
@@ -2887,6 +3113,10 @@ function toggleAuthMode(){
 
 }
 
+
+/* =========================================================
+   MOSTRAR APP
+   ========================================================= */
 
 function showApplication(){
 
@@ -2928,7 +3158,7 @@ function extractInstallmentAmount(
 ){
 
   const info =
-    String(bill.info||"");
+    String(bill.info || "");
 
 
   const match =
@@ -3050,7 +3280,8 @@ async function loadCloudData(
 
     const imported =
       localStorage.getItem(
-        "thaty_financas_importado_"+uid
+        "thaty_financas_importado_" +
+        uid
       );
 
 
@@ -3098,7 +3329,9 @@ async function loadCloudData(
    IMPORTAÇÃO
    ========================================================= */
 
-async function importOldData(old){
+async function importOldData(
+  old
+){
 
   const uid =
     currentUser.id;
@@ -3118,7 +3351,7 @@ async function importOldData(old){
         user_id:uid,
 
         type:
-          x.type==="income"
+          x.type === "income"
             ? "income"
             : "expense",
 
@@ -3281,7 +3514,8 @@ async function importOldData(old){
 
 
   localStorage.setItem(
-    "thaty_financas_importado_"+uid,
+    "thaty_financas_importado_" +
+    uid,
     "1"
   );
 
@@ -3321,7 +3555,7 @@ function getBillStatus(
     );
 
 
-  return now>due
+  return now > due
 
     ? {
         text:"Atrasada",
@@ -3352,8 +3586,8 @@ function renderHome(){
       )
       .reduce(
         (s,x)=>
-          s+
-          Number(x.amount||0),
+          s +
+          Number(x.amount || 0),
         0
       );
 
@@ -3365,8 +3599,8 @@ function renderHome(){
       )
       .reduce(
         (s,x)=>
-          s+
-          Number(x.amount||0),
+          s +
+          Number(x.amount || 0),
         0
       );
 
@@ -3376,7 +3610,7 @@ function renderHome(){
       .filter(x=>!x.paid)
       .reduce(
         (s,x)=>
-          s+
+          s +
           Number(
             x.total_debt ||
             x.amount ||
@@ -3457,6 +3691,7 @@ function renderTransactions(){
       '<p class="muted">Nenhuma movimentação cadastrada.</p>';
 
     return;
+
   }
 
 
@@ -3481,7 +3716,6 @@ function renderTransactions(){
 
         </thead>
 
-
         <tbody>
 
           ${database.transactions.map(x=>`
@@ -3489,7 +3723,7 @@ function renderTransactions(){
             <tr>
 
               <td>
-                ${escapeHtml(x.date||"")}
+                ${escapeHtml(x.date || "")}
               </td>
 
               <td>
@@ -3502,13 +3736,13 @@ function renderTransactions(){
 
               <td>
                 ${escapeHtml(
-                  x.category||"-"
+                  x.category || "-"
                 )}
               </td>
 
               <td>
                 ${
-                  x.type==="income"
+                  x.type === "income"
                     ? "Entrada"
                     : "Saída"
                 }
@@ -3516,14 +3750,14 @@ function renderTransactions(){
 
               <td
                 class="${
-                  x.type==="income"
+                  x.type === "income"
                     ? "green"
                     : "red"
                 }"
               >
 
                 ${
-                  x.type==="income"
+                  x.type === "income"
                     ? "+"
                     : "-"
                 }
@@ -3535,6 +3769,7 @@ function renderTransactions(){
               <td>
 
                 <button
+                  type="button"
                   onclick="deleteTransaction('${x.id}')"
                 >
                   Excluir
@@ -3569,6 +3804,7 @@ function renderBills(){
       '<p class="muted">Nenhuma conta cadastrada.</p>';
 
     return;
+
   }
 
 
@@ -3598,7 +3834,7 @@ function renderBills(){
               <div class="debtItemInfo">
 
                 ${escapeHtml(
-                  b.info||""
+                  b.info || ""
                 )}
 
                 · Vencimento dia 10
@@ -3650,6 +3886,7 @@ function renderBills(){
           <div class="actions">
 
             <button
+              type="button"
               class="editButton"
               onclick="editBill('${b.id}')"
             >
@@ -3662,6 +3899,7 @@ function renderBills(){
                 ? `
 
                   <button
+                    type="button"
                     onclick="markBillPaid('${b.id}')"
                   >
                     ✓ Marcar como paga
@@ -3673,6 +3911,7 @@ function renderBills(){
 
 
             <button
+              type="button"
               onclick="deleteBill('${b.id}')"
             >
               Excluir
@@ -3708,7 +3947,7 @@ function renderDebts(){
   const total =
     open.reduce(
       (s,x)=>
-        s+
+        s +
         Number(
           x.total_debt ||
           x.amount ||
@@ -3744,6 +3983,7 @@ function renderDebts(){
       '<p class="muted">Nenhuma dívida cadastrada.</p>';
 
     return;
+
   }
 
 
@@ -3774,7 +4014,7 @@ function renderDebts(){
               <div class="debtItemInfo">
 
                 ${escapeHtml(
-                  x.info||""
+                  x.info || ""
                 )}
 
                 · Vencimento dia 10
@@ -3826,6 +4066,7 @@ function renderDebts(){
           <div class="actions">
 
             <button
+              type="button"
               class="editButton"
               onclick="editBill('${x.id}')"
             >
@@ -3839,6 +4080,7 @@ function renderDebts(){
                 ? `
 
                   <button
+                    type="button"
                     class="quitButton"
                     onclick="quitDebt('${x.id}')"
                   >
@@ -3849,7 +4091,10 @@ function renderDebts(){
 
                 : `
 
-                  <button disabled>
+                  <button
+                    type="button"
+                    disabled
+                  >
                     ✓ Dívida quitada
                   </button>
 
@@ -3863,6 +4108,7 @@ function renderDebts(){
                 ? `
 
                   <button
+                    type="button"
                     onclick="markBillPaid('${x.id}')"
                   >
                     Marcar parcela paga
@@ -3875,6 +4121,7 @@ function renderDebts(){
 
 
             <button
+              type="button"
               onclick="deleteBill('${x.id}')"
             >
               Excluir
@@ -3900,8 +4147,8 @@ function renderGoals(){
   const saved =
     database.goals.reduce(
       (s,x)=>
-        s+
-        Number(x.saved||0),
+        s +
+        Number(x.saved || 0),
       0
     );
 
@@ -3909,8 +4156,8 @@ function renderGoals(){
   const target =
     database.goals.reduce(
       (s,x)=>
-        s+
-        Number(x.target||0),
+        s +
+        Number(x.target || 0),
       0
     );
 
@@ -3931,6 +4178,7 @@ function renderGoals(){
       '<p class="muted">Nenhum objetivo criado.</p>';
 
     return;
+
   }
 
 
@@ -3941,7 +4189,7 @@ function renderGoals(){
         g.target
           ? Math.min(
               100,
-              Number(g.saved||0) /
+              Number(g.saved || 0) /
               Number(g.target) *
               100
             )
@@ -3957,7 +4205,7 @@ function renderGoals(){
             <div class="goalIcon">
 
               ${escapeHtml(
-                g.icon||"🎯"
+                g.icon || "🎯"
               )}
 
             </div>
@@ -3998,6 +4246,7 @@ function renderGoals(){
             <div class="actions">
 
               <button
+                type="button"
                 onclick="addMoneyToGoal('${g.id}')"
               >
                 + Guardar
@@ -4005,6 +4254,7 @@ function renderGoals(){
 
 
               <button
+                type="button"
                 onclick="deleteGoal('${g.id}')"
               >
                 Excluir
@@ -4033,9 +4283,9 @@ function renderReports(){
     [...database.transactions]
       .sort(
         (a,b)=>
-          String(b.date||"")
+          String(b.date || "")
             .localeCompare(
-              String(a.date||"")
+              String(a.date || "")
             )
       );
 
@@ -4043,12 +4293,12 @@ function renderReports(){
   const income =
     transactions
       .filter(
-        x=>x.type==="income"
+        x=>x.type === "income"
       )
       .reduce(
         (s,x)=>
-          s+
-          Number(x.amount||0),
+          s +
+          Number(x.amount || 0),
         0
       );
 
@@ -4056,18 +4306,18 @@ function renderReports(){
   const expense =
     transactions
       .filter(
-        x=>x.type==="expense"
+        x=>x.type === "expense"
       )
       .reduce(
         (s,x)=>
-          s+
-          Number(x.amount||0),
+          s +
+          Number(x.amount || 0),
         0
       );
 
 
   const result =
-    income-expense;
+    income - expense;
 
 
   $("reportIncomeTotal")
@@ -4091,6 +4341,7 @@ function renderReports(){
       '<p class="muted">Nenhuma movimentação registrada ainda.</p>';
 
     return;
+
   }
 
 
@@ -4128,7 +4379,7 @@ function renderReports(){
             ·
 
             ${
-              x.type==="income"
+              x.type === "income"
                 ? "Entrada"
                 : "Saída"
             }
@@ -4142,7 +4393,7 @@ function renderReports(){
           class="
             reportAmount
             ${
-              x.type==="income"
+              x.type === "income"
                 ? "green"
                 : "red"
             }
@@ -4150,7 +4401,7 @@ function renderReports(){
         >
 
           ${
-            x.type==="income"
+            x.type === "income"
               ? "+"
               : "-"
           }
@@ -4178,6 +4429,10 @@ function renderSettings(){
 }
 
 
+/* =========================================================
+   RENDERIZAÇÃO GERAL
+   ========================================================= */
+
 function renderEverything(){
 
   renderHome();
@@ -4201,15 +4456,15 @@ function renderEverything(){
    NAVEGAÇÃO
    ========================================================= */
 
-function navigateToPage(page){
+function navigateToPage(
+  page
+){
 
   document
     .querySelectorAll(".page")
     .forEach(
       p=>
-        p.classList.add(
-          "hidden"
-        )
+        p.classList.add("hidden")
     );
 
 
@@ -4233,7 +4488,7 @@ function navigateToPage(page){
 
         b.classList.toggle(
           "active",
-          b.dataset.page===page
+          b.dataset.page === page
         );
 
       }
@@ -4379,7 +4634,7 @@ $("mobileMenuOverlay")
 
 
 /* =========================================================
-   OLHINHO
+   PRIVACIDADE
    ========================================================= */
 
 $("privacyToggle")
@@ -4434,6 +4689,15 @@ $("saveTransactionButton").onclick =
 
     try{
 
+      if(!currentUser){
+
+        return alert(
+          "Sua sessão expirou. Entre novamente."
+        );
+
+      }
+
+
       const description =
         $("transactionDescription")
           .value
@@ -4456,7 +4720,7 @@ $("saveTransactionButton").onclick =
       }
 
 
-      if(amount<=0){
+      if(amount <= 0){
 
         return alert(
           "Digite um valor válido."
@@ -4514,7 +4778,12 @@ $("saveTransactionButton").onclick =
 
     }catch(e){
 
-      alert(e.message);
+      console.error(e);
+
+      alert(
+        e.message ||
+        "Não foi possível salvar a movimentação."
+      );
 
     }
 
@@ -4522,17 +4791,11 @@ $("saveTransactionButton").onclick =
 
 
 /* =========================================================
-   CONTAS
+   CONTAS - ADICIONAR
    ========================================================= */
 
 $("addBillButton").onclick =
   ()=>{
-
-    /*
-      Ao clicar em + Adicionar,
-      garantimos que não estamos editando
-      nenhuma conta existente.
-    */
 
     editingBillId = null;
 
@@ -4557,12 +4820,12 @@ $("addBillButton").onclick =
   };
 
 
+/* =========================================================
+   CONTAS - CANCELAR
+   ========================================================= */
+
 $("cancelBillButton").onclick =
   ()=>{
-
-    /*
-      Cancela também o modo de edição.
-    */
 
     editingBillId = null;
 
@@ -4596,7 +4859,7 @@ window.editBill =
 
     const bill =
       database.bills.find(
-        x=>String(x.id)===String(id)
+        x=>String(x.id) === String(id)
       );
 
 
@@ -4609,18 +4872,9 @@ window.editBill =
     }
 
 
-    /*
-      Guarda o ID da conta que será atualizada.
-    */
-
     editingBillId =
       bill.id;
 
-
-    /*
-      Preenche o formulário com
-      os dados atuais da conta.
-    */
 
     $("billName").value =
       bill.name || "";
@@ -4638,27 +4892,14 @@ window.editBill =
       bill.info || "";
 
 
-    /*
-      Muda o texto do botão para deixar
-      claro que estamos editando.
-    */
-
     $("saveBillButton").textContent =
       "Salvar alterações";
 
-
-    /*
-      Abre o formulário.
-    */
 
     $("billForm")
       .classList
       .remove("hidden");
 
-
-    /*
-      Leva a tela até o formulário.
-    */
 
     $("billForm")
       .scrollIntoView({
@@ -4677,6 +4918,15 @@ $("saveBillButton").onclick =
   async()=>{
 
     try{
+
+      if(!currentUser){
+
+        return alert(
+          "Sua sessão expirou. Entre novamente."
+        );
+
+      }
+
 
       const name =
         $("billName")
@@ -4707,7 +4957,7 @@ $("saveBillButton").onclick =
       }
 
 
-      if(amount<=0){
+      if(amount <= 0){
 
         return alert(
           "Digite o valor da parcela."
@@ -4716,18 +4966,16 @@ $("saveBillButton").onclick =
       }
 
 
-      if(total<=0){
+      if(total <= 0){
 
         total = amount;
 
       }
 
 
-      /*
-        =====================================================
-        MODO EDIÇÃO
-        =====================================================
-      */
+      /* =====================================================
+         EDITAR
+         ===================================================== */
 
       if(editingBillId){
 
@@ -4801,11 +5049,9 @@ $("saveBillButton").onclick =
       }
 
 
-      /*
-        =====================================================
-        MODO NOVA CONTA
-        =====================================================
-      */
+      /* =====================================================
+         NOVA CONTA
+         ===================================================== */
 
       const r =
         await supabaseClient
@@ -4861,7 +5107,10 @@ $("saveBillButton").onclick =
 
       console.error(e);
 
-      alert(e.message);
+      alert(
+        e.message ||
+        "Não foi possível salvar a conta."
+      );
 
     }
 
@@ -4897,6 +5146,15 @@ $("saveGoalButton").onclick =
 
     try{
 
+      if(!currentUser){
+
+        return alert(
+          "Sua sessão expirou. Entre novamente."
+        );
+
+      }
+
+
       const name =
         $("goalName")
           .value
@@ -4926,7 +5184,7 @@ $("saveGoalButton").onclick =
       }
 
 
-      if(target<=0){
+      if(target <= 0){
 
         return alert(
           "Digite uma meta válida."
@@ -4973,7 +5231,12 @@ $("saveGoalButton").onclick =
 
     }catch(e){
 
-      alert(e.message);
+      console.error(e);
+
+      alert(
+        e.message ||
+        "Não foi possível salvar o objetivo."
+      );
 
     }
 
@@ -4988,6 +5251,15 @@ $("saveBalanceButton").onclick =
   async()=>{
 
     try{
+
+      if(!currentUser){
+
+        return alert(
+          "Sua sessão expirou. Entre novamente."
+        );
+
+      }
+
 
       const balance =
         numberValue(
@@ -5032,7 +5304,12 @@ $("saveBalanceButton").onclick =
 
     }catch(e){
 
-      alert(e.message);
+      console.error(e);
+
+      alert(
+        e.message ||
+        "Não foi possível salvar o saldo."
+      );
 
     }
 
@@ -5059,7 +5336,10 @@ window.deleteTransaction =
       await supabaseClient
         .from("transactions")
         .delete()
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5102,7 +5382,10 @@ window.deleteBill =
       await supabaseClient
         .from("bills")
         .delete()
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5118,13 +5401,9 @@ window.deleteBill =
     }
 
 
-    /*
-      Se por algum motivo a conta excluída
-      estava sendo editada, cancelamos a edição.
-    */
-
     if(
-      String(editingBillId)===String(id)
+      String(editingBillId) ===
+      String(id)
     ){
 
       editingBillId = null;
@@ -5152,7 +5431,10 @@ window.markBillPaid =
         .update({
           paid:true
         })
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5184,7 +5466,7 @@ window.quitDebt =
 
     const bill =
       database.bills.find(
-        x=>x.id===id
+        x=>String(x.id) === String(id)
       );
 
 
@@ -5204,13 +5486,13 @@ window.quitDebt =
     const confirmed =
       confirm(
 
-        "Deseja realmente quitar esta dívida?\n\n"+
-        "Dívida: "+
-        bill.name+
-        "\n"+
-        "Valor: "+
-        money(total)+
-        "\n\n"+
+        "Deseja realmente quitar esta dívida?\n\n" +
+        "Dívida: " +
+        bill.name +
+        "\n" +
+        "Valor: " +
+        money(total) +
+        "\n\n" +
         "A dívida será marcada como quitada."
 
       );
@@ -5227,7 +5509,10 @@ window.quitDebt =
         .update({
           paid:true
         })
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5275,7 +5560,10 @@ window.deleteGoal =
       await supabaseClient
         .from("goals")
         .delete()
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5307,7 +5595,7 @@ window.addMoneyToGoal =
 
     const goal =
       database.goals.find(
-        x=>x.id===id
+        x=>String(x.id) === String(id)
       );
 
 
@@ -5323,7 +5611,7 @@ window.addMoneyToGoal =
       );
 
 
-    if(answer===null){
+    if(answer === null){
       return;
     }
 
@@ -5332,7 +5620,7 @@ window.addMoneyToGoal =
       numberValue(answer);
 
 
-    if(amount<=0){
+    if(amount <= 0){
 
       return alert(
         "Digite um valor válido."
@@ -5347,11 +5635,14 @@ window.addMoneyToGoal =
         .update({
 
           saved:
-            Number(goal.saved||0)+
+            Number(goal.saved || 0) +
             amount
 
         })
-        .eq("id",id)
+        .eq(
+          "id",
+          id
+        )
         .eq(
           "user_id",
           currentUser.id
@@ -5382,9 +5673,24 @@ async function logout(){
 
   closeMobileMenu();
 
-  await supabaseClient
-    .auth
-    .signOut();
+  try{
+
+    if(supabaseClient){
+
+      await supabaseClient
+        .auth
+        .signOut();
+
+    }
+
+  }catch(e){
+
+    console.error(
+      "Erro ao sair:",
+      e
+    );
+
+  }
 
 
   currentUser = null;
@@ -5408,16 +5714,8 @@ async function logout(){
 }
 
 
-$("logoutButton").onclick =
-  logout;
-
-
-$("mobileLogoutButton").onclick =
-  logout;
-
-
 /* =========================================================
-   LOGIN
+   EVENTOS DE LOGIN
    ========================================================= */
 
 $("loginButton")
@@ -5439,7 +5737,7 @@ $("password")
     "keydown",
     e=>{
 
-      if(e.key==="Enter"){
+      if(e.key === "Enter"){
 
         authAction();
 
@@ -5450,17 +5748,31 @@ $("password")
 
 
 /* =========================================================
-   SESSÃO
+   INICIALIZAÇÃO
    ========================================================= */
 
 async function initialize(){
 
   try{
 
+    initializeSupabase();
+
+
+    /*
+      Verifica se já existe uma sessão.
+    */
+
     const r =
       await supabaseClient
         .auth
         .getSession();
+
+
+    if(r.error){
+
+      throw r.error;
+
+    }
 
 
     if(r.data?.session){
@@ -5469,10 +5781,49 @@ async function initialize(){
         r.data.session.user;
 
 
-      await loadCloudData(true);
+      /*
+        Abre o aplicativo imediatamente.
+      */
 
       showApplication();
 
+
+      /*
+        Depois carrega os dados.
+      */
+
+      try{
+
+        showLoading(
+          "Carregando seus dados..."
+        );
+
+        await loadCloudData(true);
+
+        renderEverything();
+
+        hideLoading();
+
+      }catch(dataError){
+
+        console.error(
+          "Erro ao carregar dados:",
+          dataError
+        );
+
+        hideLoading();
+
+        alert(
+          "Seu login está ativo, mas houve um problema ao carregar os dados.\n\n" +
+          "O aplicativo foi aberto mesmo assim.\n\n" +
+          "Erro: " +
+          (
+            dataError.message ||
+            dataError
+          )
+        );
+
+      }
 
     }else{
 
@@ -5489,12 +5840,23 @@ async function initialize(){
     );
 
 
+    hideLoading();
+
     showLogin();
+
+
+    showAuthMessage(
+      "O sistema de login não conseguiu iniciar. Atualize a página e tente novamente."
+    );
 
   }
 
 }
 
+
+/* =========================================================
+   INICIAR
+   ========================================================= */
 
 initialize();
 
@@ -5502,6 +5864,11 @@ initialize();
 })();
 
 </script>
+
+
+<!-- =====================================================
+     SERVICE WORKER
+     ===================================================== -->
 
 <script>
 
