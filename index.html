@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 
@@ -8,7 +9,6 @@
 
 <title>Thaty Finanças</title>
 
-<!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 
 <meta name="theme-color" content="#071426">
@@ -100,11 +100,6 @@ button:disabled{
 .hidden{
   display:none!important;
 }
-
-
-/* =========================
-   LOGIN
-   ========================= */
 
 #loginScreen{
   min-height:100vh;
@@ -256,20 +251,10 @@ select:focus{
   color:var(--green);
 }
 
-
-/* =========================
-   APP
-   ========================= */
-
 #appScreen{
   min-height:100vh;
   display:flex;
 }
-
-
-/* =========================
-   DESKTOP HEADER
-   ========================= */
 
 header{
   position:fixed;
@@ -355,11 +340,6 @@ nav button.active{
     0 8px 24px rgba(244,123,32,.18);
 }
 
-
-/* =========================
-   MOBILE MENU ELEMENTS
-   ========================= */
-
 .mobileMenuButton{
   display:none;
 }
@@ -371,11 +351,6 @@ nav button.active{
 .mobileMenuPanel{
   display:none;
 }
-
-
-/* =========================
-   MAIN
-   ========================= */
 
 main{
   width:calc(100% - 245px);
@@ -410,11 +385,6 @@ main{
 
   background:var(--orange);
 }
-
-
-/* =========================
-   CARDS
-   ========================= */
 
 .card{
   margin-bottom:18px;
@@ -522,11 +492,6 @@ main{
   font-weight:850;
 }
 
-
-/* =========================
-   HOME
-   ========================= */
-
 #home{
   position:relative;
 }
@@ -630,11 +595,6 @@ main{
   background:rgba(255,255,255,.025);
 }
 
-
-/* =========================
-   OLHINHO / PRIVACIDADE
-   ========================= */
-
 .valuePrivacyButton{
   position:absolute;
 
@@ -682,11 +642,6 @@ main{
   box-shadow:
     0 0 0 3px rgba(244,123,32,.14);
 }
-
-
-/* =========================
-   TABLE
-   ========================= */
 
 .tableWrap{
   overflow-x:auto;
@@ -738,11 +693,6 @@ td button{
   color:#b8c6d6;
 }
 
-
-/* =========================
-   BADGES
-   ========================= */
-
 .badge{
   display:inline-flex;
 
@@ -775,11 +725,6 @@ td button{
   background:rgba(255,100,120,.11);
   color:var(--red);
 }
-
-
-/* =========================
-   DÍVIDAS
-   ========================= */
 
 .debtCards{
   display:grid;
@@ -941,10 +886,21 @@ td button{
     0 6px 18px rgba(244,123,32,.18);
 }
 
+.editButton{
+  background:rgba(244,123,32,.10)!important;
 
-/* =========================
-   OBJETIVOS
-   ========================= */
+  border-color:
+    rgba(244,123,32,.25)!important;
+
+  color:#ffae6b!important;
+}
+
+.editButton:hover{
+  background:rgba(244,123,32,.18)!important;
+
+  border-color:
+    rgba(244,123,32,.40)!important;
+}
 
 .goal{
   display:grid;
@@ -1004,11 +960,6 @@ td button{
   box-shadow:
     0 0 12px rgba(244,123,32,.25);
 }
-
-
-/* =========================
-   RELATÓRIOS
-   ========================= */
 
 .reportSummary{
   display:grid;
@@ -1099,11 +1050,6 @@ td button{
   font-size:15px;
 }
 
-
-/* =========================
-   TABLET
-   ========================= */
-
 @media(max-width:1100px){
 
   header{
@@ -1130,22 +1076,11 @@ td button{
 
 }
 
-
-/* =========================================================
-   MOBILE
-   MENU HAMBÚRGUER
-   ========================================================= */
-
 @media(max-width:700px){
 
   #appScreen{
     display:block;
   }
-
-
-  /* =========================
-     CABEÇALHO MOBILE
-     ========================= */
 
   header{
     position:fixed;
@@ -1182,11 +1117,6 @@ td button{
     z-index:100;
   }
 
-
-  /* =========================
-     LOGO + HAMBÚRGUER
-     ========================= */
-
   .headerTop{
     display:flex;
 
@@ -1208,7 +1138,6 @@ td button{
 
     white-space:nowrap;
   }
-
 
   .mobileMenuButton{
     display:flex;
@@ -1243,28 +1172,13 @@ td button{
       rgba(244,123,32,.35);
   }
 
-
-  /* =========================
-     ESCONDE NAVEGAÇÃO NORMAL
-     ========================= */
-
   header>nav{
     display:none;
   }
 
-
-  /* =========================
-     BOTÃO SAIR
-     ========================= */
-
   header .secondary{
     display:none;
   }
-
-
-  /* =========================
-     MENU LATERAL
-     ========================= */
 
   .mobileMenuOverlay{
     display:block;
@@ -1289,7 +1203,6 @@ td button{
 
     pointer-events:auto;
   }
-
 
   .mobileMenuPanel{
     display:flex;
@@ -1334,7 +1247,6 @@ td button{
   .mobileMenuPanel.open{
     transform:translateX(0);
   }
-
 
   .mobileMenuHeader{
     display:flex;
@@ -1384,7 +1296,6 @@ td button{
 
     font-size:22px;
   }
-
 
   .mobileMenuPanel nav{
     display:flex;
@@ -1439,7 +1350,6 @@ td button{
       0 7px 20px rgba(244,123,32,.18);
   }
 
-
   .mobileLogout{
     width:100%;
 
@@ -1468,11 +1378,6 @@ td button{
     color:#fff;
   }
 
-
-  /* =========================
-     CONTEÚDO
-     ========================= */
-
   main{
     width:100%;
 
@@ -1483,11 +1388,6 @@ td button{
       15px
       35px;
   }
-
-
-  /* =========================
-     TÍTULOS
-     ========================= */
 
   .page h2{
     font-size:24px;
@@ -1511,11 +1411,6 @@ td button{
     border-radius:12px;
   }
 
-
-  /* =========================
-     CARDS
-     ========================= */
-
   .card{
     padding:18px;
 
@@ -1530,11 +1425,6 @@ td button{
   .grid>.card{
     margin-bottom:0;
   }
-
-
-  /* =========================
-     DÍVIDAS
-     ========================= */
 
   .debtCards{
     grid-template-columns:
@@ -1571,11 +1461,6 @@ td button{
     gap:20px;
   }
 
-
-  /* =========================
-     RELATÓRIOS
-     ========================= */
-
   .reportSummary{
     grid-template-columns:1fr;
   }
@@ -1585,11 +1470,6 @@ td button{
 
     gap:12px;
   }
-
-
-  /* =========================
-     OBJETIVOS
-     ========================= */
 
   .goal{
     grid-template-columns:
@@ -1607,11 +1487,6 @@ td button{
     grid-column:2;
   }
 
-
-  /* =========================
-     TABELAS
-     ========================= */
-
   .tableWrap{
     overflow-x:auto;
 
@@ -1621,11 +1496,6 @@ td button{
   table{
     min-width:650px;
   }
-
-
-  /* =========================
-     BOTÕES
-     ========================= */
 
   .actions{
     gap:7px;
@@ -1637,11 +1507,6 @@ td button{
     font-size:12px;
   }
 
-
-  /* =========================
-     LOGIN
-     ========================= */
-
   .loginBox{
     padding:30px 22px;
 
@@ -1649,11 +1514,6 @@ td button{
   }
 
 }
-
-
-/* =========================================================
-   CELULARES PEQUENOS
-   ========================================================= */
 
 @media(max-width:400px){
 
@@ -1687,149 +1547,132 @@ td button{
 
 <body>
 
-
-<!-- =========================================================
-     LOGIN
-     ========================================================= -->
-
 <section id="loginScreen">
 
   <div class="loginBox">
 
-    <div class="logo">
-      <span class="thaty">Thaty</span>
-      <span class="financas"> Finanças</span>
-    </div>
+```
+<div class="logo">
+  <span class="thaty">Thaty</span>
+  <span class="financas"> Finanças</span>
+</div>
 
-    <div class="subtitle">
-      Seu controle financeiro na nuvem.
-    </div>
+<div class="subtitle">
+  Seu controle financeiro na nuvem.
+</div>
 
-    <label>E-mail</label>
+<label>E-mail</label>
 
-    <input
-      id="email"
-      type="email"
-      autocomplete="email"
-      placeholder="seu@email.com"
-    >
+<input
+  id="email"
+  type="email"
+  autocomplete="email"
+  placeholder="seu@email.com"
+>
 
-    <label>Senha</label>
+<label>Senha</label>
 
-    <input
-      id="password"
-      type="password"
-      autocomplete="current-password"
-      placeholder="Sua senha"
-    >
+<input
+  id="password"
+  type="password"
+  autocomplete="current-password"
+  placeholder="Sua senha"
+>
 
-    <button
-      id="loginButton"
-      class="primary"
-      type="button"
-    >
-      Entrar
-    </button>
+<button
+  id="loginButton"
+  class="primary"
+  type="button"
+>
+  Entrar
+</button>
 
-    <button
-      id="toggleAuthButton"
-      class="secondary"
-      type="button"
-      style="width:100%;margin-top:10px"
-    >
-      Criar conta
-    </button>
+<button
+  id="toggleAuthButton"
+  class="secondary"
+  type="button"
+  style="width:100%;margin-top:10px"
+>
+  Criar conta
+</button>
 
-    <div id="authMessage"></div>
+<div id="authMessage"></div>
+```
 
   </div>
 
 </section>
 
-
-
-<!-- =========================================================
-     APLICAÇÃO
-     ========================================================= -->
-
 <section id="appScreen" class="hidden">
 
   <header>
 
-    <div class="headerTop">
+```
+<div class="headerTop">
 
-      <div class="brand">
-        <span class="thaty">Thaty</span>
-        <span class="financas"> Finanças</span>
-      </div>
+  <div class="brand">
+    <span class="thaty">Thaty</span>
+    <span class="financas"> Finanças</span>
+  </div>
 
-      <button
-        id="mobileMenuButton"
-        class="mobileMenuButton"
-        type="button"
-        aria-label="Abrir menu"
-        aria-expanded="false"
-      >
-        ☰
-      </button>
+  <button
+    id="mobileMenuButton"
+    class="mobileMenuButton"
+    type="button"
+    aria-label="Abrir menu"
+    aria-expanded="false"
+  >
+    ☰
+  </button>
 
-      <button
-        id="logoutButton"
-        class="secondary"
-      >
-        Sair
-      </button>
+  <button
+    id="logoutButton"
+    class="secondary"
+  >
+    Sair
+  </button>
 
-    </div>
+</div>
 
+<nav id="navigation">
 
-    <nav id="navigation">
+  <button class="active" data-page="home">
+    ⌂ Início
+  </button>
 
-      <button
-        class="active"
-        data-page="home"
-      >
-        ⌂ Início
-      </button>
+  <button data-page="transactions">
+    ↕ Movimentações
+  </button>
 
-      <button data-page="transactions">
-        ↕ Movimentações
-      </button>
+  <button data-page="bills">
+    ▣ Contas
+  </button>
 
-      <button data-page="bills">
-        ▣ Contas
-      </button>
+  <button data-page="debts">
+    ◈ Dívidas
+  </button>
 
-      <button data-page="debts">
-        ◈ Dívidas
-      </button>
+  <button data-page="goals">
+    🎯 Objetivos
+  </button>
 
-      <button data-page="goals">
-        🎯 Objetivos
-      </button>
+  <button data-page="reports">
+    ▥ Relatórios
+  </button>
 
-      <button data-page="reports">
-        ▥ Relatórios
-      </button>
+  <button data-page="settings">
+    ⚙ Configurações
+  </button>
 
-      <button data-page="settings">
-        ⚙ Configurações
-      </button>
-
-    </nav>
+</nav>
+```
 
   </header>
-
-
-  <!-- =======================================================
-       MENU MOBILE
-       ======================================================= -->
 
   <div
     id="mobileMenuOverlay"
     class="mobileMenuOverlay"
   ></div>
-
 
   <aside
     id="mobileMenuPanel"
@@ -1837,850 +1680,800 @@ td button{
     aria-hidden="true"
   >
 
-    <div class="mobileMenuHeader">
+```
+<div class="mobileMenuHeader">
 
-      <div class="mobileMenuBrand">
+  <div class="mobileMenuBrand">
 
-        <span class="thaty">
-          Thaty
-        </span>
+    <span class="thaty">
+      Thaty
+    </span>
 
-        <span class="financas">
-          Finanças
-        </span>
+    <span class="financas">
+      Finanças
+    </span>
 
+  </div>
+
+  <button
+    id="mobileMenuClose"
+    class="mobileMenuClose"
+    type="button"
+    aria-label="Fechar menu"
+  >
+    ×
+  </button>
+
+</div>
+
+
+<nav id="mobileNavigation">
+
+  <button class="active" data-page="home">
+    ⌂ Início
+  </button>
+
+  <button data-page="transactions">
+    ↕ Movimentações
+  </button>
+
+  <button data-page="bills">
+    ▣ Contas
+  </button>
+
+  <button data-page="debts">
+    ◈ Dívidas
+  </button>
+
+  <button data-page="goals">
+    🎯 Objetivos
+  </button>
+
+  <button data-page="reports">
+    ▥ Relatórios
+  </button>
+
+  <button data-page="settings">
+    ⚙ Configurações
+  </button>
+
+</nav>
+
+
+<button
+  id="mobileLogoutButton"
+  class="mobileLogout"
+  type="button"
+>
+  🚪 Sair
+</button>
+```
+
+  </aside>
+
+  <main>
+
+```
+<section id="home" class="page">
+
+  <h2 id="homeGreeting">
+    Olá, Thaty! 👋
+  </h2>
+
+  <button
+    id="privacyToggle"
+    class="valuePrivacyButton"
+    type="button"
+    aria-label="Ocultar valores"
+    aria-pressed="false"
+    title="Ocultar valores"
+  >
+    👁️
+  </button>
+
+
+  <div class="grid">
+
+    <div class="card">
+
+      <div class="muted">
+        Saldo atual
       </div>
 
-
-      <button
-        id="mobileMenuClose"
-        class="mobileMenuClose"
-        type="button"
-        aria-label="Fechar menu"
+      <div
+        id="dashboardBalance"
+        class="value"
       >
-        ×
-      </button>
+        R$ 0,00
+      </div>
 
     </div>
 
 
-    <nav id="mobileNavigation">
+    <div class="card">
 
-      <button
-        class="active"
-        data-page="home"
+      <div class="muted">
+        Entradas
+      </div>
+
+      <div
+        id="dashboardIncome"
+        class="value"
       >
-        ⌂ Início
-      </button>
+        R$ 0,00
+      </div>
 
-      <button data-page="transactions">
-        ↕ Movimentações
-      </button>
+    </div>
 
-      <button data-page="bills">
-        ▣ Contas
-      </button>
 
-      <button data-page="debts">
-        ◈ Dívidas
-      </button>
+    <div class="card">
 
-      <button data-page="goals">
-        🎯 Objetivos
-      </button>
+      <div class="muted">
+        Saídas
+      </div>
 
-      <button data-page="reports">
-        ▥ Relatórios
-      </button>
+      <div
+        id="dashboardExpense"
+        class="value"
+      >
+        R$ 0,00
+      </div>
 
-      <button data-page="settings">
-        ⚙ Configurações
-      </button>
+    </div>
 
-    </nav>
 
+    <div class="card">
+
+      <div class="muted">
+        Dívidas
+      </div>
+
+      <div
+        id="dashboardDebt"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card" style="margin-top:18px">
+
+    <h3>
+      Resumo financeiro
+    </h3>
+
+    <div id="homeSummary"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="transactions"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Movimentações
+    </h2>
 
     <button
-      id="mobileLogoutButton"
-      class="mobileLogout"
-      type="button"
+      id="addTransactionButton"
+      class="primary"
+      style="width:auto;margin:0"
     >
-      🚪 Sair
+      + Adicionar
     </button>
 
-  </aside>
+  </div>
 
 
-  <main>
+  <div
+    id="transactionForm"
+    class="card hidden"
+  >
 
+    <div class="formGrid">
 
-    <!-- =====================================================
-         INÍCIO
-         ===================================================== -->
+      <div>
 
-    <section
-      id="home"
-      class="page"
-    >
+        <label>Tipo</label>
 
-      <h2 id="homeGreeting">
-        Olá, Thaty! 👋
-      </h2>
+        <select id="transactionType">
 
-      <!-- OLHINHO -->
-      <button
-        id="privacyToggle"
-        class="valuePrivacyButton"
-        type="button"
-        aria-label="Ocultar valores"
-        aria-pressed="false"
-        title="Ocultar valores"
-      >
-        👁️
-      </button>
+          <option value="income">
+            Entrada
+          </option>
 
+          <option value="expense">
+            Saída
+          </option>
 
-      <div class="grid">
-
-        <div class="card">
-
-          <div class="muted">
-            Saldo atual
-          </div>
-
-          <div
-            id="dashboardBalance"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Entradas
-          </div>
-
-          <div
-            id="dashboardIncome"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Saídas
-          </div>
-
-          <div
-            id="dashboardExpense"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Dívidas
-          </div>
-
-          <div
-            id="dashboardDebt"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
+        </select>
 
       </div>
 
 
-      <div
-        class="card"
-        style="margin-top:18px"
-      >
+      <div>
 
-        <h3>
-          Resumo financeiro
-        </h3>
-
-        <div id="homeSummary"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         MOVIMENTAÇÕES
-         ===================================================== -->
-
-    <section
-      id="transactions"
-      class="page hidden"
-    >
-
-      <div class="row">
-
-        <h2>
-          Movimentações
-        </h2>
-
-        <button
-          id="addTransactionButton"
-          class="primary"
-          style="width:auto;margin:0"
-        >
-          + Adicionar
-        </button>
-
-      </div>
-
-
-      <div
-        id="transactionForm"
-        class="card hidden"
-      >
-
-        <div class="formGrid">
-
-          <div>
-
-            <label>Tipo</label>
-
-            <select id="transactionType">
-
-              <option value="income">
-                Entrada
-              </option>
-
-              <option value="expense">
-                Saída
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div>
-
-            <label>Descrição</label>
-
-            <input
-              id="transactionDescription"
-              type="text"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>Valor</label>
-
-            <input
-              id="transactionAmount"
-              type="number"
-              step="0.01"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>Data</label>
-
-            <input
-              id="transactionDate"
-              type="date"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>Categoria</label>
-
-            <input
-              id="transactionCategory"
-              type="text"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="actions">
-
-          <button
-            id="saveTransactionButton"
-            class="primary"
-            style="width:auto;margin:0"
-          >
-            Salvar
-          </button>
-
-          <button
-            id="cancelTransactionButton"
-          >
-            Cancelar
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div id="transactionList"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         CONTAS
-         ===================================================== -->
-
-    <section
-      id="bills"
-      class="page hidden"
-    >
-
-      <div class="row">
-
-        <h2>
-          Contas
-        </h2>
-
-        <button
-          id="addBillButton"
-          class="primary"
-          style="width:auto;margin:0"
-        >
-          + Adicionar
-        </button>
-
-      </div>
-
-
-      <div
-        id="billForm"
-        class="card hidden"
-      >
-
-        <div class="formGrid">
-
-          <div>
-
-            <label>
-              Nome da conta
-            </label>
-
-            <input
-              id="billName"
-              type="text"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Valor da parcela
-            </label>
-
-            <input
-              id="billAmount"
-              type="number"
-              step="0.01"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Dívida total
-            </label>
-
-            <input
-              id="billTotalDebt"
-              type="number"
-              step="0.01"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Parcelas / informação
-            </label>
-
-            <input
-              id="billInfo"
-              type="text"
-              placeholder="Ex.: 02/36"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Vencimento
-            </label>
-
-            <input
-              value="Dia 10"
-              disabled
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="actions">
-
-          <button
-            id="saveBillButton"
-            class="primary"
-            style="width:auto;margin:0"
-          >
-            Salvar
-          </button>
-
-          <button
-            id="cancelBillButton"
-          >
-            Cancelar
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div id="billList"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         DÍVIDAS
-         ===================================================== -->
-
-    <section
-      id="debts"
-      class="page hidden"
-    >
-
-      <h2>
-        Dívidas Totais
-      </h2>
-
-
-      <div class="debtCards">
-
-        <div class="debtStat total">
-
-          <div class="debtStatLabel">
-            Total das dívidas
-          </div>
-
-          <div
-            id="debtTotal"
-            class="debtStatValue"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="debtStat open">
-
-          <div class="debtStatLabel">
-            Em aberto
-          </div>
-
-          <div
-            id="debtOpen"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat paid">
-
-          <div class="debtStatLabel">
-            Já pagas
-          </div>
-
-          <div
-            id="debtPaid"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="debtStat count">
-
-          <div class="debtStatLabel">
-            Quantidade
-          </div>
-
-          <div
-            id="debtCount"
-            class="debtStatValue"
-          >
-            0
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Minhas dívidas
-        </h3>
-
-        <div id="debtList"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         OBJETIVOS
-         ===================================================== -->
-
-    <section
-      id="goals"
-      class="page hidden"
-    >
-
-      <div class="row">
-
-        <h2>
-          Poupança & Objetivos
-        </h2>
-
-        <button
-          id="addGoalButton"
-          class="primary"
-          style="width:auto;margin:0"
-        >
-          + Objetivo
-        </button>
-
-      </div>
-
-
-      <div class="grid">
-
-        <div class="card">
-
-          <div class="muted">
-            Total guardado
-          </div>
-
-          <div
-            id="goalSavedTotal"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="muted">
-            Meta total
-          </div>
-
-          <div
-            id="goalTargetTotal"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div
-        id="goalForm"
-        class="card hidden"
-      >
-
-        <div class="formGrid">
-
-          <div>
-
-            <label>
-              Nome do objetivo
-            </label>
-
-            <input
-              id="goalName"
-              type="text"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Ícone
-            </label>
-
-            <input
-              id="goalIcon"
-              value="🎯"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Meta
-            </label>
-
-            <input
-              id="goalTarget"
-              type="number"
-              step="0.01"
-            >
-
-          </div>
-
-
-          <div>
-
-            <label>
-              Já guardado
-            </label>
-
-            <input
-              id="goalSaved"
-              type="number"
-              step="0.01"
-              value="0"
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="actions">
-
-          <button
-            id="saveGoalButton"
-            class="primary"
-            style="width:auto;margin:0"
-          >
-            Salvar
-          </button>
-
-          <button
-            id="cancelGoalButton"
-          >
-            Cancelar
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div id="goalList"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         RELATÓRIOS
-         ===================================================== -->
-
-    <section
-      id="reports"
-      class="page hidden"
-    >
-
-      <h2>
-        Relatórios
-      </h2>
-
-
-      <div class="reportSummary">
-
-        <div class="reportStat reportIncome">
-
-          <span>
-            Total de entradas
-          </span>
-
-          <strong id="reportIncomeTotal">
-            R$ 0,00
-          </strong>
-
-        </div>
-
-
-        <div class="reportStat reportExpense">
-
-          <span>
-            Total de saídas
-          </span>
-
-          <strong id="reportExpenseTotal">
-            R$ 0,00
-          </strong>
-
-        </div>
-
-
-        <div class="reportStat reportResult">
-
-          <span>
-            Resultado
-          </span>
-
-          <strong id="reportResultTotal">
-            R$ 0,00
-          </strong>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Detalhamento
-        </h3>
-
-        <div id="reportContent"></div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         CONFIGURAÇÕES
-         ===================================================== -->
-
-    <section
-      id="settings"
-      class="page hidden"
-    >
-
-      <h2>
-        Configurações
-      </h2>
-
-
-      <div class="card">
-
-        <label>
-          Saldo da conta atual
-        </label>
+        <label>Descrição</label>
 
         <input
-          id="balanceInput"
+          id="transactionDescription"
+          type="text"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Valor</label>
+
+        <input
+          id="transactionAmount"
           type="number"
           step="0.01"
         >
 
-        <button
-          id="saveBalanceButton"
-          class="primary"
-          style="width:auto"
-        >
-          Salvar saldo
-        </button>
+      </div>
 
-        <p class="muted">
-          O saldo é o valor atual da sua conta
-          e fica salvo na nuvem.
-        </p>
+
+      <div>
+
+        <label>Data</label>
+
+        <input
+          id="transactionDate"
+          type="date"
+        >
 
       </div>
 
-    </section>
+
+      <div>
+
+        <label>Categoria</label>
+
+        <input
+          id="transactionCategory"
+          type="text"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        id="saveTransactionButton"
+        class="primary"
+        style="width:auto;margin:0"
+      >
+        Salvar
+      </button>
+
+      <button
+        id="cancelTransactionButton"
+      >
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="transactionList"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="bills"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Contas
+    </h2>
+
+    <button
+      id="addBillButton"
+      class="primary"
+      style="width:auto;margin:0"
+    >
+      + Adicionar
+    </button>
+
+  </div>
+
+
+  <div
+    id="billForm"
+    class="card hidden"
+  >
+
+    <div class="formGrid">
+
+      <div>
+
+        <label>
+          Nome da conta
+        </label>
+
+        <input
+          id="billName"
+          type="text"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Valor da parcela
+        </label>
+
+        <input
+          id="billAmount"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Dívida total
+        </label>
+
+        <input
+          id="billTotalDebt"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Parcelas / informação
+        </label>
+
+        <input
+          id="billInfo"
+          type="text"
+          placeholder="Ex.: 02/36"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Vencimento
+        </label>
+
+        <input
+          value="Dia 10"
+          disabled
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        id="saveBillButton"
+        class="primary"
+        style="width:auto;margin:0"
+      >
+        Salvar
+      </button>
+
+      <button
+        id="cancelBillButton"
+      >
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="billList"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="debts"
+  class="page hidden"
+>
+
+  <h2>
+    Dívidas Totais
+  </h2>
+
+
+  <div class="debtCards">
+
+    <div class="debtStat total">
+
+      <div class="debtStatLabel">
+        Total das dívidas
+      </div>
+
+      <div
+        id="debtTotal"
+        class="debtStatValue"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+
+    <div class="debtStat open">
+
+      <div class="debtStatLabel">
+        Em aberto
+      </div>
+
+      <div
+        id="debtOpen"
+        class="debtStatValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="debtStat paid">
+
+      <div class="debtStatLabel">
+        Já pagas
+      </div>
+
+      <div
+        id="debtPaid"
+        class="debtStatValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="debtStat count">
+
+      <div class="debtStatLabel">
+        Quantidade
+      </div>
+
+      <div
+        id="debtCount"
+        class="debtStatValue"
+      >
+        0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>
+      Minhas dívidas
+    </h3>
+
+    <div id="debtList"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="goals"
+  class="page hidden"
+>
+
+  <div class="row">
+
+    <h2>
+      Poupança & Objetivos
+    </h2>
+
+    <button
+      id="addGoalButton"
+      class="primary"
+      style="width:auto;margin:0"
+    >
+      + Objetivo
+    </button>
+
+  </div>
+
+
+  <div class="grid">
+
+    <div class="card">
+
+      <div class="muted">
+        Total guardado
+      </div>
+
+      <div
+        id="goalSavedTotal"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Meta total
+      </div>
+
+      <div
+        id="goalTargetTotal"
+        class="value"
+      >
+        R$ 0,00
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="goalForm"
+    class="card hidden"
+  >
+
+    <div class="formGrid">
+
+      <div>
+
+        <label>
+          Nome do objetivo
+        </label>
+
+        <input
+          id="goalName"
+          type="text"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Ícone
+        </label>
+
+        <input
+          id="goalIcon"
+          value="🎯"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Meta
+        </label>
+
+        <input
+          id="goalTarget"
+          type="number"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Já guardado
+        </label>
+
+        <input
+          id="goalSaved"
+          type="number"
+          step="0.01"
+          value="0"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        id="saveGoalButton"
+        class="primary"
+        style="width:auto;margin:0"
+      >
+        Salvar
+      </button>
+
+      <button
+        id="cancelGoalButton"
+      >
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div id="goalList"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="reports"
+  class="page hidden"
+>
+
+  <h2>
+    Relatórios
+  </h2>
+
+
+  <div class="reportSummary">
+
+    <div class="reportStat reportIncome">
+
+      <span>
+        Total de entradas
+      </span>
+
+      <strong id="reportIncomeTotal">
+        R$ 0,00
+      </strong>
+
+    </div>
+
+
+    <div class="reportStat reportExpense">
+
+      <span>
+        Total de saídas
+      </span>
+
+      <strong id="reportExpenseTotal">
+        R$ 0,00
+      </strong>
+
+    </div>
+
+
+    <div class="reportStat reportResult">
+
+      <span>
+        Resultado
+      </span>
+
+      <strong id="reportResultTotal">
+        R$ 0,00
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>
+      Detalhamento
+    </h3>
+
+    <div id="reportContent"></div>
+
+  </div>
+
+</section>
+
+
+<section
+  id="settings"
+  class="page hidden"
+>
+
+  <h2>
+    Configurações
+  </h2>
+
+
+  <div class="card">
+
+    <label>
+      Saldo da conta atual
+    </label>
+
+    <input
+      id="balanceInput"
+      type="number"
+      step="0.01"
+    >
+
+    <button
+      id="saveBalanceButton"
+      class="primary"
+      style="width:auto"
+    >
+      Salvar saldo
+    </button>
+
+    <p class="muted">
+      O saldo é o valor atual da sua conta
+      e fica salvo na nuvem.
+    </p>
+
+  </div>
+
+</section>
+```
 
   </main>
 
 </section>
 
-
-
-<!-- =========================================================
-     SUPABASE
-     ========================================================= -->
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 
 <script>
 
@@ -2713,7 +2506,7 @@ let creatingAccount = false;
 
 
 /* =========================================================
-   PRIVACIDADE DOS VALORES
+   PRIVACIDADE
    ========================================================= */
 
 let valuesHidden =
@@ -2721,6 +2514,10 @@ let valuesHidden =
     "thaty_financas_valores_ocultos"
   ) === "1";
 
+
+/* =========================================================
+   BANCO LOCAL
+   ========================================================= */
 
 let database = {
 
@@ -2730,6 +2527,19 @@ let database = {
   balance:0
 
 };
+
+
+/* =========================================================
+   CONTROLE DE EDIÇÃO DE CONTA
+   ========================================================= */
+
+/*
+  null = estamos adicionando uma nova conta
+
+  ID = estamos editando uma conta existente
+*/
+
+let editingBillId = null;
 
 
 /* =========================================================
@@ -3154,7 +2964,6 @@ async function loadCloudData(
   const results =
     await Promise.all([
 
-
       supabaseClient
         .from("transactions")
         .select("*")
@@ -3165,7 +2974,6 @@ async function loadCloudData(
             ascending:false
           }
         ),
-
 
       supabaseClient
         .from("bills")
@@ -3178,7 +2986,6 @@ async function loadCloudData(
           }
         ),
 
-
       supabaseClient
         .from("goals")
         .select("*")
@@ -3189,7 +2996,6 @@ async function loadCloudData(
             ascending:false
           }
         ),
-
 
       supabaseClient
         .from("account_settings")
@@ -3580,10 +3386,6 @@ function renderHome(){
       );
 
 
-  /* =======================================================
-     GUARDA OS VALORES REAIS PARA O OLHINHO
-     ======================================================= */
-
   $("dashboardBalance")
     .dataset
     .realValue =
@@ -3669,15 +3471,10 @@ function renderTransactions(){
           <tr>
 
             <th>Data</th>
-
             <th>Descrição</th>
-
             <th>Categoria</th>
-
             <th>Tipo</th>
-
             <th>Valor</th>
-
             <th></th>
 
           </tr>
@@ -3852,6 +3649,14 @@ function renderBills(){
 
           <div class="actions">
 
+            <button
+              class="editButton"
+              onclick="editBill('${b.id}')"
+            >
+              ✏️ Editar
+            </button>
+
+
             ${
               !b.paid
                 ? `
@@ -4019,6 +3824,14 @@ function renderDebts(){
 
 
           <div class="actions">
+
+            <button
+              class="editButton"
+              onclick="editBill('${x.id}')"
+            >
+              ✏️ Editar
+            </button>
+
 
             ${
               !x.paid
@@ -4715,6 +4528,28 @@ $("saveTransactionButton").onclick =
 $("addBillButton").onclick =
   ()=>{
 
+    /*
+      Ao clicar em + Adicionar,
+      garantimos que não estamos editando
+      nenhuma conta existente.
+    */
+
+    editingBillId = null;
+
+
+    $("billName").value = "";
+
+    $("billAmount").value = "";
+
+    $("billTotalDebt").value = "";
+
+    $("billInfo").value = "";
+
+
+    $("saveBillButton").textContent =
+      "Salvar";
+
+
     $("billForm")
       .classList
       .remove("hidden");
@@ -4725,12 +4560,118 @@ $("addBillButton").onclick =
 $("cancelBillButton").onclick =
   ()=>{
 
+    /*
+      Cancela também o modo de edição.
+    */
+
+    editingBillId = null;
+
+
+    $("billName").value = "";
+
+    $("billAmount").value = "";
+
+    $("billTotalDebt").value = "";
+
+    $("billInfo").value = "";
+
+
+    $("saveBillButton").textContent =
+      "Salvar";
+
+
     $("billForm")
       .classList
       .add("hidden");
 
   };
 
+
+/* =========================================================
+   EDITAR CONTA
+   ========================================================= */
+
+window.editBill =
+  id=>{
+
+    const bill =
+      database.bills.find(
+        x=>String(x.id)===String(id)
+      );
+
+
+    if(!bill){
+
+      return alert(
+        "Não foi possível encontrar esta conta."
+      );
+
+    }
+
+
+    /*
+      Guarda o ID da conta que será atualizada.
+    */
+
+    editingBillId =
+      bill.id;
+
+
+    /*
+      Preenche o formulário com
+      os dados atuais da conta.
+    */
+
+    $("billName").value =
+      bill.name || "";
+
+
+    $("billAmount").value =
+      Number(bill.amount || 0);
+
+
+    $("billTotalDebt").value =
+      Number(bill.total_debt || 0);
+
+
+    $("billInfo").value =
+      bill.info || "";
+
+
+    /*
+      Muda o texto do botão para deixar
+      claro que estamos editando.
+    */
+
+    $("saveBillButton").textContent =
+      "Salvar alterações";
+
+
+    /*
+      Abre o formulário.
+    */
+
+    $("billForm")
+      .classList
+      .remove("hidden");
+
+
+    /*
+      Leva a tela até o formulário.
+    */
+
+    $("billForm")
+      .scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+  };
+
+
+/* =========================================================
+   SALVAR / ATUALIZAR CONTA
+   ========================================================= */
 
 $("saveBillButton").onclick =
   async()=>{
@@ -4782,6 +4723,90 @@ $("saveBillButton").onclick =
       }
 
 
+      /*
+        =====================================================
+        MODO EDIÇÃO
+        =====================================================
+      */
+
+      if(editingBillId){
+
+        const r =
+          await supabaseClient
+            .from("bills")
+            .update({
+
+              name,
+
+              amount,
+
+              total_debt:
+                total,
+
+              info:
+                $("billInfo").value ||
+                "Vencimento: dia 10",
+
+              due_day:10
+
+            })
+            .eq(
+              "id",
+              editingBillId
+            )
+            .eq(
+              "user_id",
+              currentUser.id
+            );
+
+
+        if(r.error){
+          throw r.error;
+        }
+
+
+        editingBillId = null;
+
+
+        $("billForm")
+          .classList
+          .add("hidden");
+
+
+        $("saveBillButton").textContent =
+          "Salvar";
+
+
+        $("billName").value = "";
+
+        $("billAmount").value = "";
+
+        $("billTotalDebt").value = "";
+
+        $("billInfo").value = "";
+
+
+        await loadCloudData(false);
+
+        renderEverything();
+
+
+        alert(
+          "Conta atualizada com sucesso! 🧡"
+        );
+
+
+        return;
+
+      }
+
+
+      /*
+        =====================================================
+        MODO NOVA CONTA
+        =====================================================
+      */
+
       const r =
         await supabaseClient
           .from("bills")
@@ -4818,12 +4843,23 @@ $("saveBillButton").onclick =
         .add("hidden");
 
 
+      $("billName").value = "";
+
+      $("billAmount").value = "";
+
+      $("billTotalDebt").value = "";
+
+      $("billInfo").value = "";
+
+
       await loadCloudData(false);
 
       renderEverything();
 
 
     }catch(e){
+
+      console.error(e);
 
       alert(e.message);
 
@@ -5078,6 +5114,20 @@ window.deleteBill =
       return alert(
         r.error.message
       );
+
+    }
+
+
+    /*
+      Se por algum motivo a conta excluída
+      estava sendo editada, cancelamos a edição.
+    */
+
+    if(
+      String(editingBillId)===String(id)
+    ){
+
+      editingBillId = null;
 
     }
 
@@ -5350,6 +5400,9 @@ async function logout(){
   };
 
 
+  editingBillId = null;
+
+
   showLogin();
 
 }
@@ -5450,12 +5503,6 @@ initialize();
 
 </script>
 
-
-
-<!-- =========================================================
-     ATIVAÇÃO DO PWA
-     ========================================================= -->
-
 <script>
 
 if("serviceWorker" in navigator){
@@ -5488,7 +5535,6 @@ if("serviceWorker" in navigator){
 }
 
 </script>
-
 
 </body>
 </html>
