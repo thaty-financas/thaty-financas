@@ -1,1 +1,235 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#07111f"/><title>Thaty Finanças</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>Thaty Finanças</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1b2d;--panel2:#11243a;--line:#1d344e;--text:#f7fbff;--muted:#8fa5bb;--orange:#ff8a00;--green:#31d17c;--red:#ff5f6d;--yellow:#ffc857;--blue:#4da3ff;--shadow:0 18px 50px rgba(0,0,0,.25);--radius:20px}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07111f,#081727 55%,#0b1a2b);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}.app{min-height:100vh}.shell{display:flex;min-height:100vh}
+    aside{width:245px;background:rgba(5,13,24,.92);border-right:1px solid var(--line);padding:25px 16px;position:fixed;inset:0 auto 0 0;z-index:20}
+    .brand{display:flex;align-items:center;gap:11px;padding:7px 10px 28px;font-weight:800;font-size:20px}.brandmark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--orange),#ffb13b);display:grid;place-items:center;color:#101b2b;font-weight:900}
+    nav{display:grid;gap:7px}.navbtn{width:100%;background:transparent;color:var(--muted);padding:13px 14px;border-radius:13px;text-align:left;display:flex;align-items:center;gap:11px;font-weight:650}.navbtn:hover,.navbtn.active{background:var(--panel2);color:white}.navbtn.active{box-shadow:inset 3px 0 var(--orange)}
+    .main{margin-left:245px;width:calc(100% - 245px);padding:30px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.top h1{margin:0;font-size:29px}.top p{margin:5px 0;color:var(--muted)}.userbox{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:13px}
+    .grid{display:grid;gap:18px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+    .card{background:linear-gradient(145deg,rgba(17,36,58,.96),rgba(10,27,44,.96));border:1px solid var(--line);border-radius:var(--radius);padding:21px;box-shadow:var(--shadow)}.card h3{margin:0 0 15px;font-size:17px}.muted{color:var(--muted)}
+    .balance{grid-column:span 2;min-height:180px;background:linear-gradient(145deg,#132b44,#0e2034)}.label{color:var(--muted);font-size:13px}.money{font-size:39px;font-weight:850;letter-spacing:-1px;margin:9px 0 18px}.eye{background:#18304a;color:#bcd0e3;border-radius:10px;padding:8px 10px}
+    .stat{min-height:125px}.stat .value{font-size:26px;font-weight:800;margin-top:8px}.income{color:var(--green)}.expense{color:var(--red)}.pending{color:var(--yellow)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.primary{background:var(--orange);color:#141d29;padding:12px 16px;border-radius:13px;font-weight:800}.secondary{background:#18304a;color:white;padding:12px 16px;border-radius:13px;font-weight:750}.danger{background:#3a1820;color:#ff9ba4;padding:9px 12px;border-radius:10px}.ghost{background:transparent;color:var(--muted);padding:9px}
+    .status{padding:13px 15px;border-radius:14px;font-weight:750;background:#153224;color:var(--green)}.status.warn{background:#3b3015;color:var(--yellow)}.status.bad{background:#3a1820;color:var(--red)}
+    .sectionhead{display:flex;justify-content:space-between;align-items:center;margin:25px 0 13px}.sectionhead h2{margin:0;font-size:20px}
+    .list{display:grid;gap:9px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#0d1d30;border:1px solid #17304a;padding:14px 15px;border-radius:14px}.rowmain{min-width:0}.rowtitle{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{font-size:12px;color:var(--muted);margin-top:4px}.right{text-align:right}.amount{font-weight:850}.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed #28425c;border-radius:15px}
+    .toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px}.filter,.field input,.field select{background:#09192b;color:white;border:1px solid #24405b;border-radius:11px;padding:11px 12px;outline:none}.filter.active{background:var(--orange);color:#151d28;border-color:var(--orange)}
+    .field{display:grid;gap:7px;margin-bottom:12px}.field label{font-size:12px;color:var(--muted)}.field input,.field select{width:100%}.modal{position:fixed;inset:0;background:rgba(0,0,0,.67);z-index:100;display:grid;place-items:center;padding:20px}.modalbox{width:min(560px,100%);max-height:90vh;overflow:auto;background:#0d1d30;border:1px solid #29445f;border-radius:22px;padding:23px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h2{margin:0}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}.full{grid-column:1/-1}
+    .goalbar{height:10px;background:#172c43;border-radius:20px;overflow:hidden;margin:12px 0}.goalbar span{height:100%;display:block;background:linear-gradient(90deg,var(--orange),#ffc04d);border-radius:20px}.goalnum{display:flex;justify-content:space-between;font-size:13px}.chart{height:230px;display:flex;align-items:flex-end;gap:10px;padding-top:20px}.barwrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}.bar{width:100%;max-width:36px;border-radius:8px 8px 2px 2px;background:var(--orange);min-height:3px}.barlabel{font-size:10px;color:var(--muted)}.barvalue{font-size:9px;color:#b9c9d8}
+    .auth{min-height:100vh;display:grid;place-items:center;padding:20px}.authbox{width:min(430px,100%);padding:30px}.authbox .brand{padding:0 0 20px}.authbox h1{margin:0 0 8px}.auth-actions{display:grid;gap:9px}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:13px}
+    .toast{position:fixed;right:22px;bottom:22px;z-index:200;background:#10283e;border:1px solid #31506d;color:white;padding:13px 16px;border-radius:13px;box-shadow:var(--shadow);max-width:360px}.toast.err{border-color:#8b3341}.mobile-nav{display:none}
+    @media(max-width:1050px){.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}}
+    @media(max-width:760px){aside{display:none}.main{margin:0;width:100%;padding:18px 14px 90px}.top{align-items:flex-start}.top h1{font-size:23px}.userbox{display:none}.g4{grid-template-columns:1fr 1fr}.balance{grid-column:span 2}.money{font-size:31px}.mobile-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);bottom:0;left:0;right:0;height:68px;background:#07121f;border-top:1px solid var(--line);z-index:30}.mobile-nav button{background:transparent;color:var(--muted);font-size:10px;display:grid;place-items:center;gap:2px}.mobile-nav button.active{color:white}.mobile-nav .quick{background:var(--orange);color:#172333;width:48px;height:48px;border-radius:16px;align-self:center;justify-self:center;font-size:22px}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.row{align-items:flex-start}.actions{width:100%}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(() => {
+  const SUPABASE_URL = "COLE_AQUI_SEU_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "COLE_AQUI_SUA_ANON_OU_PUBLISHABLE_KEY";
+
+  const sbReady = !SUPABASE_URL.includes("COLE_AQUI") && !SUPABASE_ANON_KEY.includes("COLE_AQUI");
+  const { createClient } = window.supabase;
+  const supabase = createClient(
+    sbReady ? SUPABASE_URL : "https://placeholder.supabase.co",
+    sbReady ? SUPABASE_ANON_KEY : "placeholder"
+  );
+
+  const cats = ["Alimentação","Trabalho","Casa","Transporte","Compras","Saúde","Lazer","Outros"];
+  const billCats = ["Casa","Cartão","Transporte","Assinaturas","Empréstimo","Compras","Serviços","Outros"];
+  const payMethods = [["pix","Pix"],["cash","Dinheiro"],["debit","Débito"],["credit","Crédito"],["transfer","Transferência"]];
+  const state = { session:null, page:"home", transactions:[], bills:[], goals:[], goalTx:[], settings:{initial_balance:0,show_balance:true}, loading:false, txFilter:"all", search:"" };
+
+  const money = n => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n)||0);
+  const dateBR = s => s ? new Date(s+"T12:00:00").toLocaleDateString("pt-BR") : "";
+  const today = () => new Date().toISOString().slice(0,10);
+  const monthStart = () => { const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); };
+  const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  const uid = () => crypto.randomUUID();
+  const toast = (msg,err=false) => { const el=document.createElement("div"); el.className="toast"+(err?" err":""); el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(),3000); };
+  const fmtAmount = (t) => `${t.type==="income"?"+":"−"} ${money(t.amount)}`;
+
+  async function auth() {
+    if(!sbReady){ renderAuth(); return; }
+    const {data:{session}} = await supabase.auth.getSession(); state.session=session; if(session) await loadData(); else renderAuth();
+    supabase.auth.onAuthStateChange(async (_e,s)=>{state.session=s;if(s) await loadData(); else renderAuth();});
+  }
+
+  async function loadData(){
+    state.loading=true; render();
+    const uid=state.session.user.id;
+    const [tx,bills,goals,gts,settings] = await Promise.all([
+      supabase.from("transactions").select("*").eq("user_id",uid).order("date",{ascending:false}),
+      supabase.from("bills").select("*").eq("user_id",uid).order("due_date",{ascending:true}),
+      supabase.from("goals").select("*").eq("user_id",uid).order("created_at",{ascending:false}),
+      supabase.from("goal_transactions").select("*").eq("user_id",uid).order("date",{ascending:false}),
+      supabase.from("user_settings").select("*").eq("user_id",uid).maybeSingle()
+    ]);
+    state.transactions=tx.data||[]; state.bills=bills.data||[]; state.goals=goals.data||[]; state.goalTx=gts.data||[];
+    state.settings=settings.data||{initial_balance:0,show_balance:true};
+    state.loading=false; render();
+  }
+
+  function calc(){
+    const income=state.transactions.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount),0);
+    const expense=state.transactions.filter(x=>x.type==="expense").reduce((a,x)=>a+Number(x.amount),0);
+    const mtx=state.transactions.filter(x=>x.date>=monthStart());
+    const mi=mtx.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount),0);
+    const me=mtx.filter(x=>x.type==="expense").reduce((a,x)=>a+Number(x.amount),0);
+    const pending=state.bills.filter(x=>x.status!=="paid").reduce((a,x)=>a+Number(x.amount),0);
+    const overdue=state.bills.filter(x=>x.status!=="paid" && x.due_date<today());
+    return {income,expense,balance:Number(state.settings.initial_balance||0)+income-expense,mi,me,pending,overdue};
+  }
+
+  function nav(page){state.page=page;render();}
+  function render(){
+    if(!state.session){renderAuth();return}
+    document.getElementById("root").innerHTML=`
+      <div class="app"><div class="shell">
+        <aside>
+          <div class="brand"><div class="brandmark">₿</div><div>Thaty Finanças</div></div>
+          <nav>${navButtons()}</nav>
+          <div style="position:absolute;bottom:25px;left:16px;right:16px"><button class="navbtn" id="logout">↪ Sair</button></div>
+        </aside>
+        <main class="main">
+          <div class="top"><div><h1>${pageTitle()}</h1><p>${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}</p></div><div class="userbox">● ${esc(state.session.user.email||"Conta")}</div></div>
+          ${state.loading?`<div class="card">Carregando seus dados...</div>`:pageContent()}
+        </main>
+        <div class="mobile-nav">${mobileNav()}</div>
+      </div></div>
+      <div id="modal" class="hidden"></div>`;
+    bindCommon();
+  }
+  function navButtons(){return [["home","⌂","Início"],["transactions","↕","Movimentações"],["bills","▣","Contas"],["goals","◎","Objetivos"],["reports","▥","Relatórios"],["settings","⚙","Configurações"]].map(x=>`<button class="navbtn ${state.page===x[0]?"active":""}" data-nav="${x[0]}"><span>${x[1]}</span>${x[2]}</button>`).join("")}
+  function mobileNav(){return [["home","⌂"],["transactions","↕"],["quick","+"],["bills","▣"],["goals","◎"]].map(x=>x[0]==="quick"?`<button class="quick" id="quick">+</button>`:`<button class="${state.page===x[0]?"active":""}" data-nav="${x[0]}"><span style="font-size:20px">${x[1]}</span><span>${x[0]==="home"?"Início":x[0]==="transactions"?"Mov.":x[0]==="bills"?"Contas":"Metas"}</span></button>`).join("")}
+  function pageTitle(){return {home:"Início",transactions:"Movimentações",bills:"Contas",goals:"Objetivos",reports:"Relatórios",settings:"Configurações"}[state.page]||"Thaty Finanças"}
+
+  function pageContent(){
+    if(state.page==="transactions")return transactionsPage();
+    if(state.page==="bills")return billsPage();
+    if(state.page==="goals")return goalsPage();
+    if(state.page==="reports")return reportsPage();
+    if(state.page==="settings")return settingsPage();
+    return homePage();
+  }
+
+  function homePage(){
+    const c=calc(), status=c.overdue.length||c.me>c.mi*1.15?(c.me>c.mi?"bad":"warn"):"ok";
+    const statusText=status==="bad"?"Gastos acima das entradas":status==="warn"?"Atenção aos gastos":"Dentro do planejado";
+    const next=state.bills.filter(b=>b.status!=="paid").slice(0,4);
+    return `<div class="grid g4">
+      <div class="card balance"><div class="label">Saldo atual <button class="eye" id="toggleBalance">${state.settings.show_balance===false?"Mostrar":"Ocultar"}</button></div><div class="money">${state.settings.show_balance===false?"••••••":money(c.balance)}</div><div class="muted">Saldo inicial: ${money(state.settings.initial_balance)}</div></div>
+      <div class="card stat"><div class="label">Entradas no mês</div><div class="value income">${money(c.mi)}</div></div>
+      <div class="card stat"><div class="label">Saídas no mês</div><div class="value expense">${money(c.me)}</div></div>
+      <div class="card stat"><div class="label">Contas pendentes</div><div class="value pending">${money(c.pending)}</div></div>
+      <div class="card stat"><div class="label">Status mensal</div><div class="value"><span class="status ${status}">${status==="ok"?"🟢":status==="warn"?"🟡":"🔴"} ${statusText}</span></div></div>
+      <div class="card" style="grid-column:span 2"><h3>Próximas contas</h3>${next.length?`<div class="list">${next.map(b=>`<div class="row"><div class="rowmain"><div class="rowtitle">${esc(b.name)}</div><div class="meta">Vence em ${dateBR(b.due_date)}</div></div><div class="right"><div class="amount pending">${money(b.amount)}</div><button class="primary" style="padding:7px 10px;margin-top:7px;font-size:12px" data-pay="${b.id}">Marcar como paga</button></div></div>`).join("")}</div><button class="ghost" data-nav="bills">Ver todas →</button>`:`<div class="empty">Nenhuma conta pendente.</div>`}</div>
+      <div class="card"><h3>Ações rápidas</h3><div class="actions"><button class="primary" id="newTx">＋ Nova movimentação</button><button class="secondary" id="newBill">＋ Adicionar conta</button><button class="secondary" id="newGoal">＋ Novo objetivo</button></div></div>
+    </div>`;
+  }
+
+  function transactionsPage(){
+    let list=state.transactions.filter(t=>t.description?.toLowerCase().includes(state.search.toLowerCase())||t.category?.toLowerCase().includes(state.search.toLowerCase()));
+    if(state.txFilter!=="all")list=list.filter(t=>t.type===state.txFilter);
+    return `<div class="card"><div class="toolbar"><button class="filter ${state.txFilter==="all"?"active":""}" data-txf="all">Todos</button><button class="filter ${state.txFilter==="income"?"active":""}" data-txf="income">Entradas</button><button class="filter ${state.txFilter==="expense"?"active":""}" data-txf="expense">Saídas</button><input class="filter" id="searchTx" placeholder="Buscar..." value="${esc(state.search)}"><button class="primary" id="newTx">＋ Nova movimentação</button></div>${list.length?`<div class="list">${list.map(t=>`<div class="row"><div class="rowmain"><div class="rowtitle">${esc(t.description)}</div><div class="meta">${dateBR(t.date)} • ${esc(t.category)} • ${esc(payLabel(t.payment_method))}</div></div><div class="right"><div class="amount ${t.type==="income"?"income":"expense"}">${fmtAmount(t)}</div><button class="danger" data-del-tx="${t.id}">Excluir</button></div></div>`).join("")}</div>`:`<div class="empty">Nenhuma movimentação encontrada.</div>`}</div>`;
+  }
+  const payLabel=k=>(payMethods.find(x=>x[0]===k)||["","—"])[1];
+
+  function billsPage(){
+    const overdue=state.bills.filter(b=>b.status!=="paid"&&b.due_date<today()), pending=state.bills.filter(b=>b.status!=="paid"&&b.due_date>=today()), paid=state.bills.filter(b=>b.status==="paid");
+    const group=(title,arr,cls)=>`<div class="sectionhead"><h2>${title}</h2><span class="muted">${arr.length}</span></div>${arr.length?`<div class="list">${arr.map(b=>`<div class="row"><div class="rowmain"><div class="rowtitle">${esc(b.name)}</div><div class="meta">${esc(b.category)} • ${typeLabel(b.type)} • vencimento ${dateBR(b.due_date)}${b.installment_current?` • parcela ${b.installment_current}/${b.installment_total}`:""}</div></div><div class="right"><div class="amount ${cls||""}">${money(b.amount)}</div>${b.status==="paid"?`<div class="meta income">Paga ${dateBR(b.paid_at?.slice(0,10))}</div>`:`<button class="primary" style="padding:7px 10px;margin-top:7px;font-size:12px" data-pay="${b.id}">Marcar como paga</button>`}<button class="danger" style="margin-left:5px" data-del-bill="${b.id}">Excluir</button></div></div>`).join("")}</div>`:`<div class="empty">Nenhuma conta aqui.</div>`;
+    return `<div class="card"><div class="sectionhead" style="margin-top:0"><h2>Contas</h2><button class="primary" id="newBill">＋ Adicionar conta</button></div>${group("Atrasadas",overdue,"expense")}${group("Pendentes",pending,"pending")}${group("Pagas",paid,"income")}</div>`;
+  }
+  const typeLabel=x=>({single:"Conta única",recurring:"Recorrente",installment:"Parcelada"}[x]||x);
+
+  function goalsPage(){
+    return `<div class="sectionhead" style="margin-top:0"><h2>Seus objetivos</h2><button class="primary" id="newGoal">＋ Novo objetivo</button></div><div class="grid g3">${state.goals.length?state.goals.map(g=>{const p=Math.min(100,Number(g.target_amount)?Number(g.current_amount)/Number(g.target_amount)*100:0);return `<div class="card"><div style="font-size:30px">${esc(g.icon||"🎯")}</div><h3>${esc(g.name)}</h3><div class="goalnum"><span>${money(g.current_amount)}</span><span>${money(g.target_amount)}</span></div><div class="goalbar"><span style="width:${p}%"></span></div><div class="goalnum"><span>${p.toFixed(1)}%</span><span>${g.completed||p>=100?"🎉 Objetivo concluído!":"Faltam "+money(Math.max(0,g.target_amount-g.current_amount))}</span></div>${g.deadline?`<div class="meta" style="margin-top:10px">Prazo: ${dateBR(g.deadline)}</div>`:""}<div class="actions" style="margin-top:15px"><button class="primary" data-goal-move="${g.id}" data-kind="deposit">＋ Adicionar</button><button class="secondary" data-goal-move="${g.id}" data-kind="withdraw">− Retirar</button><button class="danger" data-del-goal="${g.id}">Excluir</button></div></div>`}).join(""):`<div class="card" style="grid-column:1/-1"><div class="empty">Crie seu primeiro objetivo.</div></div>`}</div>`;
+  }
+
+  function reportsPage(){
+    const c=calc(), catsum={};state.transactions.filter(t=>t.type==="expense").forEach(t=>catsum[t.category]=(catsum[t.category]||0)+Number(t.amount));
+    const top=Object.entries(catsum).sort((a,b)=>b[1]-a[1]).slice(0,8), max=Math.max(...top.map(x=>x[1]),1);
+    const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const key=d.toISOString().slice(0,7);const val=state.transactions.filter(t=>t.date.startsWith(key));months.push({key,inc:val.filter(t=>t.type==="income").reduce((a,t)=>a+Number(t.amount),0),exp:val.filter(t=>t.type==="expense").reduce((a,t)=>a+Number(t.amount),0)});}
+    const maxm=Math.max(...months.flatMap(m=>[m.inc,m.exp]),1);
+    return `<div class="grid g4"><div class="card stat"><div class="label">Entradas</div><div class="value income">${money(c.income)}</div></div><div class="card stat"><div class="label">Saídas</div><div class="value expense">${money(c.expense)}</div></div><div class="card stat"><div class="label">Contas pagas</div><div class="value">${state.bills.filter(b=>b.status==="paid").length}</div></div><div class="card stat"><div class="label">Objetivos</div><div class="value">${money(state.goals.reduce((a,g)=>a+Number(g.current_amount),0))}</div></div></div>
+    <div class="grid g2" style="margin-top:18px"><div class="card"><h3>Evolução mensal</h3><div class="chart">${months.map(m=>`<div class="barwrap"><div class="barvalue">${money(m.exp).replace("R$ ","")}</div><div class="bar" style="height:${Math.max(3,m.exp/maxm*150)}px"></div><div class="barlabel">${m.key.slice(5)}</div></div>`).join("")}</div><div class="muted">Visualização das saídas dos últimos 6 meses.</div></div>
+    <div class="card"><h3>Gastos por categoria</h3>${top.length?top.map(([k,v])=>`<div style="margin:14px 0"><div class="goalnum"><span>${esc(k)}</span><span>${money(v)}</span></div><div class="goalbar"><span style="width:${v/max*100}%"></span></div></div>`).join(""):`<div class="empty">Sem gastos registrados.</div>`}</div></div>`;
+  }
+
+  function settingsPage(){
+    return `<div class="grid g2"><div class="card"><h3>Saldo inicial</h3><div class="field"><label>Valor</label><input type="number" step="0.01" id="initialBalance" value="${Number(state.settings.initial_balance||0)}"></div><button class="primary" id="saveSettings">Salvar</button></div><div class="card"><h3>Privacidade do saldo</h3><p class="muted">Controle se o saldo aparece no painel inicial.</p><button class="secondary" id="settingsToggle">${state.settings.show_balance===false?"Mostrar saldo":"Ocultar saldo"}</button></div><div class="card"><h3>Backup</h3><p class="muted">Baixe uma cópia JSON dos seus dados financeiros.</p><button class="secondary" id="backup">Exportar backup</button></div><div class="card"><h3>Dados</h3><p class="muted">Apaga movimentações, contas e objetivos desta conta.</p><button class="danger" id="clearData">Limpar dados</button></div><div class="card"><h3>Conta</h3><p class="muted">${esc(state.session.user.email)}</p><button class="danger" id="logout2">Sair</button></div></div>`;
+  }
+
+  function modal(title,body){
+    const m=document.getElementById("modal");m.className="modal";m.innerHTML=`<div class="modalbox"><div class="modalhead"><h2>${title}</h2><button class="ghost" id="closeModal">✕</button></div>${body}</div>`;document.getElementById("closeModal").onclick=()=>m.className="hidden";
+  }
+  function txModal(){
+    modal("Nova movimentação",`<form id="txForm"><div class="formgrid"><div class="field"><label>Tipo</label><select name="type"><option value="income">Entrada</option><option value="expense">Saída</option></select></div><div class="field"><label>Valor</label><input name="amount" type="number" step="0.01" min="0.01" required></div><div class="field"><label>Data</label><input name="date" type="date" value="${today()}" required></div><div class="field"><label>Categoria</label><select name="category">${cats.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field full"><label>Descrição</label><input name="description" required placeholder="Ex.: Mercado"></div><div class="field"><label>Forma de pagamento</label><select name="payment_method">${payMethods.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("")}</select></div></div><button class="primary" style="width:100%;margin-top:8px">Salvar movimentação</button></form>`);
+    document.getElementById("txForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const {error}=await supabase.from("transactions").insert({user_id:state.session.user.id,type:f.get("type"),amount:Number(f.get("amount")),date:f.get("date"),description:f.get("description"),category:f.get("category"),payment_method:f.get("payment_method")});if(error)return toast(error.message,true);document.getElementById("modal").className="hidden";toast("Movimentação adicionada.");await loadData();}
+  }
+  function billModal(){
+    modal("Adicionar conta",`<form id="billForm"><div class="formgrid"><div class="field full"><label>Nome</label><input name="name" required placeholder="Ex.: Internet"></div><div class="field"><label>Valor</label><input name="amount" type="number" step="0.01" min="0.01" required></div><div class="field"><label>Vencimento</label><input name="due_date" type="date" value="${today()}" required></div><div class="field"><label>Categoria</label><select name="category">${billCats.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Tipo</label><select name="type"><option value="single">Conta única</option><option value="recurring">Recorrente</option><option value="installment">Parcelada</option></select></div><div class="field"><label>Parcela atual</label><input name="installment_current" type="number" min="1" placeholder="Opcional"></div><div class="field"><label>Total de parcelas</label><input name="installment_total" type="number" min="1" placeholder="Opcional"></div></div><button class="primary" style="width:100%;margin-top:8px">Salvar conta</button></form>`);
+    document.getElementById("billForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const {error}=await supabase.from("bills").insert({user_id:state.session.user.id,name:f.get("name"),amount:Number(f.get("amount")),due_date:f.get("due_date"),category:f.get("category"),type:f.get("type"),status:"pending",installment_current:f.get("installment_current")?Number(f.get("installment_current")):null,installment_total:f.get("installment_total")?Number(f.get("installment_total")):null});if(error)return toast(error.message,true);document.getElementById("modal").className="hidden";toast("Conta adicionada.");await loadData();}
+  }
+  function goalModal(){
+    modal("Novo objetivo",`<form id="goalForm"><div class="field"><label>Nome</label><input name="name" required placeholder="Ex.: Viagem"></div><div class="formgrid"><div class="field"><label>Valor da meta</label><input name="target_amount" type="number" step="0.01" min="0.01" required></div><div class="field"><label>Prazo (opcional)</label><input name="deadline" type="date"></div><div class="field"><label>Ícone</label><select name="icon"><option>🎯</option><option>✈️</option><option>🚗</option><option>🏠</option><option>🛟</option><option>📚</option><option>🎁</option></select></div></div><button class="primary" style="width:100%;margin-top:8px">Criar objetivo</button></form>`);
+    document.getElementById("goalForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);const {error}=await supabase.from("goals").insert({user_id:state.session.user.id,name:f.get("name"),target_amount:Number(f.get("target_amount")),current_amount:0,deadline:f.get("deadline")||null,icon:f.get("icon"),completed:false});if(error)return toast(error.message,true);document.getElementById("modal").className="hidden";toast("Objetivo criado.");await loadData();}
+  }
+  function goalMoveModal(goalId,kind){
+    const g=state.goals.find(x=>x.id===goalId);modal(kind==="deposit"?"Adicionar dinheiro":"Retirar dinheiro",`<form id="gmForm"><p class="muted">${esc(g.name)} • atual ${money(g.current_amount)}</p><div class="field"><label>Valor</label><input name="amount" type="number" step="0.01" min="0.01" required></div><div class="field"><label>Descrição</label><input name="description" placeholder="${kind==="deposit"?"Ex.: Poupança":"Ex.: Resgate"}"></div><button class="primary" style="width:100%">Confirmar</button></form>`);
+    document.getElementById("gmForm").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),amount=Number(f.get("amount"));const {error}=await supabase.rpc("add_goal_movement",{p_goal_id:goalId,p_type:kind,p_amount:amount,p_description:f.get("description")||null});if(error)return toast(error.message,true);document.getElementById("modal").className="hidden";toast("Objetivo atualizado.");await loadData();}
+  }
+
+  async function payBill(id){
+    if(!sbReady)return;
+    const {error}=await supabase.rpc("pay_bill",{p_bill_id:id});
+    if(error)return toast(error.message,true);toast("Conta paga e saída registrada automaticamente.");await loadData();
+  }
+  async function del(table,id,msg){if(!confirm("Excluir este item?"))return;const {error}=await supabase.from(table).delete().eq("id",id);if(error)return toast(error.message,true);toast(msg);await loadData();}
+
+  function bindCommon(){
+    document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>nav(b.dataset.nav));
+    document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>payBill(b.dataset.pay));
+    document.querySelectorAll("[data-del-tx]").forEach(b=>b.onclick=()=>del("transactions",b.dataset.delTx,"Movimentação excluída."));
+    document.querySelectorAll("[data-del-bill]").forEach(b=>b.onclick=()=>del("bills",b.dataset.delBill,"Conta excluída."));
+    document.querySelectorAll("[data-del-goal]").forEach(b=>b.onclick=()=>del("goals",b.dataset.delGoal,"Objetivo excluído."));
+    document.querySelectorAll("[data-goal-move]").forEach(b=>b.onclick=()=>goalMoveModal(b.dataset.goalMove,b.dataset.kind));
+    document.querySelectorAll("[data-txf]").forEach(b=>b.onclick=()=>{state.txFilter=b.dataset.txf;render()});
+    const s=document.getElementById("searchTx");if(s)s.oninput=()=>{state.search=s.value;render()};
+    const nt=document.querySelectorAll("#newTx");nt.forEach(b=>b.onclick=txModal);
+    const nb=document.querySelectorAll("#newBill");nb.forEach(b=>b.onclick=billModal);
+    const ng=document.querySelectorAll("#newGoal");ng.forEach(b=>b.onclick=goalModal);
+    const q=document.getElementById("quick");if(q)q.onclick=txModal;
+    const tb=document.getElementById("toggleBalance");if(tb)tb.onclick=toggleBalance;
+    const st=document.getElementById("settingsToggle");if(st)st.onclick=toggleBalance;
+    const save=document.getElementById("saveSettings");if(save)save.onclick=saveSettings;
+    const back=document.getElementById("backup");if(back)back.onclick=backup;
+    const clear=document.getElementById("clearData");if(clear)clear.onclick=clearData;
+    ["logout","logout2"].forEach(id=>{const el=document.getElementById(id);if(el)el.onclick=logout});
+  }
+  async function toggleBalance(){const v=state.settings.show_balance===false;const {error}=await supabase.from("user_settings").upsert({user_id:state.session.user.id,show_balance:v},{onConflict:"user_id"});if(error)return toast(error.message,true);state.settings.show_balance=v;render();}
+  async function saveSettings(){const v=Number(document.getElementById("initialBalance").value||0);const {error}=await supabase.from("user_settings").upsert({user_id:state.session.user.id,initial_balance:v},{onConflict:"user_id"});if(error)return toast(error.message,true);state.settings.initial_balance=v;toast("Saldo inicial salvo.");render();}
+  function backup(){const data={exportedAt:new Date().toISOString(),transactions:state.transactions,bills:state.bills,goals:state.goals,goalTransactions:state.goalTx,settings:state.settings};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));a.download="thaty-financas-backup.json";a.click();}
+  async function clearData(){if(!confirm("Tem certeza? Isso apagará movimentações, contas e objetivos."))return;const uid=state.session.user.id;for(const t of ["goal_transactions","transactions","bills","goals"]){const {error}=await supabase.from(t).delete().eq("user_id",uid);if(error)return toast(error.message,true)}toast("Dados limpos.");await loadData();}
+  async function logout(){await supabase.auth.signOut();state.session=null;renderAuth();}
+
+  function renderAuth(){
+    document.getElementById("root").innerHTML=`<div class="auth"><div class="card authbox"><div class="brand"><div class="brandmark">₿</div><div>Thaty Finanças</div></div><h1>Controle seu dinheiro.</h1><p class="muted">Seu financeiro pessoal, simples e conectado.</p>${!sbReady?`<div class="notice" style="background:#3b3015;padding:12px;border-radius:12px;color:#ffd76b">Configure as duas constantes <b>SUPABASE_URL</b> e <b>SUPABASE_ANON_KEY</b> no início deste arquivo para ativar o login.</div>`:""}<form id="authForm" style="margin-top:20px"><div class="field"><label>E-mail</label><input name="email" type="email" required placeholder="voce@email.com"></div><div class="field"><label>Senha</label><input name="password" type="password" minlength="6" required placeholder="mínimo 6 caracteres"></div><div class="auth-actions"><button class="primary" name="action" value="login">Entrar</button><button class="secondary" name="action" value="signup">Criar minha conta</button></div></form><div class="notice">Os seus dados financeiros ficam separados por usuário usando as políticas RLS do Supabase.</div></div></div>`;
+    const f=document.getElementById("authForm");if(!f)return;f.onsubmit=async e=>{e.preventDefault();if(!sbReady)return toast("Primeiro configure o Supabase no arquivo.",true);const fd=new FormData(f),action=e.submitter.value;const fn=action==="login"?supabase.auth.signInWithPassword.bind(supabase.auth):supabase.auth.signUp.bind(supabase.auth);const {data,error}=await fn({email:fd.get("email"),password:fd.get("password")});if(error)return toast(error.message,true);if(action==="signup"&&!data.session)toast("Conta criada. Verifique seu e-mail se a confirmação estiver ativada.");};
+  }
+
+  auth();
+})();
+</script>
+</body>
+</html>
