@@ -4778,7 +4778,7 @@ function installmentHTML(
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=324.04+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeAfterBills").dataset.realValue=money(balance-totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeAfterBills").dataset.realValue=money(balance-totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -5503,7 +5503,7 @@ function renderReports(){
       );
 
   const currentBalance =
-    324.04 + income - expense;
+    database.balance + income - expense;
 
   const result =
     income - expense;
