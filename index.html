@@ -1163,6 +1163,28 @@ td button{
   color:var(--orange);
 }
 
+.tiktokReportTotal{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin:16px 0 12px;
+  padding:16px;
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+}
+
+.tiktokReportValue{
+  margin-top:5px;
+  color:var(--green);
+  font-size:28px;
+  font-weight:950;
+}
+
+.tiktokReportHistory{
+  margin-top:8px;
+}
+
 .reportItem{
   display:flex;
 
@@ -5485,6 +5507,80 @@ function renderGoals(){
    RELATÓRIOS
    ========================================================= */
 
+function isSalaryTransaction(transaction){
+  if(!transaction || transaction.type !== "income") return false;
+  const category = String(transaction.category || "")
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return category === "salario";
+}
+
+function getSalaryByMonth(){
+  const map = {};
+  database.transactions
+    .filter(isSalaryTransaction)
+    .forEach(t=>{
+      const key = monthKeyFromDate(t.date);
+      map[key] = (map[key] || 0) + Number(t.amount || 0);
+    });
+  return map;
+}
+
+function renderTikTokReport(){
+  const currentKey = currentMonthKey();
+  const salaryTransactions = database.transactions
+    .filter(isSalaryTransaction)
+    .sort((a,b)=>String(b.date || "").localeCompare(String(a.date || "")));
+
+  const currentTotal = salaryTransactions
+    .filter(t=>monthKeyFromDate(t.date) === currentKey)
+    .reduce((sum,t)=>sum + Number(t.amount || 0), 0);
+
+  const byMonth = getSalaryByMonth();
+  const monthKeys = Object.keys(byMonth).sort((a,b)=>b.localeCompare(a));
+
+  const history = monthKeys.length
+    ? monthKeys.map(key=>`
+        <div class="reportItem">
+          <div>
+            <div class="reportDescription">${escapeHtml(formatMonth(parseMonthInput(key)))}</div>
+            <div class="reportMeta">${salaryTransactions.filter(t=>monthKeyFromDate(t.date) === key).length} lançamento(s) · Categoria Salário</div>
+          </div>
+          <div class="reportAmount green">${money(byMonth[key])}</div>
+        </div>
+      `).join("")
+    : '<p class="muted">Nenhum recebimento do TikTok registrado ainda.</p>';
+
+  return `
+    <div class="card" style="margin-bottom:18px">
+      <div class="row">
+        <div>
+          <h3 style="margin-bottom:4px">🎵 TikTok</h3>
+          <div class="reportMeta">Entradas da categoria Salário</div>
+        </div>
+        <span class="badge paid">Este mês</span>
+      </div>
+
+      <div class="tiktokReportTotal">
+        <div>
+          <div class="reportMeta">${escapeHtml(formatMonth(parseMonthInput(currentKey)))}</div>
+          <div class="tiktokReportValue">${money(currentTotal)}</div>
+        </div>
+        <div class="reportMeta" style="text-align:right">
+          ${salaryTransactions.filter(t=>monthKeyFromDate(t.date) === currentKey).length} recebimento(s)
+        </div>
+      </div>
+
+      <div class="tiktokReportHistory">
+        <div class="reportDescription" style="margin-bottom:4px">Histórico por mês</div>
+        ${history}
+      </div>
+    </div>
+  `;
+}
+
 function renderReports(){
 
   const transactions =
@@ -5692,6 +5788,9 @@ function renderReports(){
       </div>
 
     </div>
+
+
+    ${renderTikTokReport()}
 
 
     <div class="card">
