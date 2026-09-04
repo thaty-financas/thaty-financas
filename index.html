@@ -5656,10 +5656,25 @@ function renderReports(){
       x=>x.paid
     );
 
+  /* Mostra como pendente apenas o que vence no mês atual e ainda não foi pago.
+     Para parcelas, meses futuros/passados não entram neste total. */
+  const currentMonth = currentMonthKey();
   const pendingBills =
-    database.bills.filter(
-      x=>!x.paid
-    );
+    database.bills.filter(b=>{
+      const data = getInstallmentData(b);
+
+      if(data.type === "installment"){
+        const start = parseMonthInput(data.start);
+        const end = getInstallmentEndDate(data);
+        const current = parseMonthInput(currentMonth);
+        if(!start || !end || !current) return false;
+        const startKey = monthInputValue(start);
+        const endKey = monthInputValue(end);
+        if(currentMonth < startKey || currentMonth > endKey) return false;
+      }
+
+      return !currentBillIsPaid(b);
+    });
 
   const paidBillsTotal =
     paidBills.reduce(
