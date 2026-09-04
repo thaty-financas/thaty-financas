@@ -971,7 +971,7 @@ td button{
   font-size:12px;
 }
 
-.installmentSchedule{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}.installmentScheduleTitle{font-weight:700;margin-bottom:8px}.installmentScheduleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;margin-top:6px;background:rgba(255,255,255,.035)}.installmentScheduleRow.current{border:1px solid rgba(255,255,255,.12)}.installmentScheduleRow>div:last-child{display:flex;align-items:center;gap:8px}.installmentScheduleRow .muted{display:block;font-size:12px;margin-top:2px}.installmentStatus{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}.installmentStatus.paid{background:rgba(0,200,140,.14);color:#00d89a}.installmentStatus.pending{background:rgba(255,170,0,.12);color:#ffb300}.installmentStatus.late{background:rgba(255,80,80,.12);color:#ff6b6b}
+.installmentSchedule{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}.installmentScheduleToggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 2px;border:0;background:transparent;color:inherit;cursor:pointer;text-align:left}.installmentScheduleTitle{font-weight:700}.installmentScheduleArrow{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.06);font-size:18px;line-height:1;transition:transform .2s ease}.installmentScheduleToggle[aria-expanded="true"] .installmentScheduleArrow{transform:rotate(180deg)}.installmentScheduleContent{padding-top:4px}.installmentScheduleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;margin-top:6px;background:rgba(255,255,255,.035)}.installmentScheduleRow.current{border:1px solid rgba(255,255,255,.12)}.installmentScheduleRow>div:last-child{display:flex;align-items:center;gap:8px}.installmentScheduleRow .muted{display:block;font-size:12px;margin-top:2px}.installmentStatus{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}.installmentStatus.paid{background:rgba(0,200,140,.14);color:#00d89a}.installmentStatus.pending{background:rgba(255,170,0,.12);color:#ffb300}.installmentStatus.late{background:rgba(255,80,80,.12);color:#ff6b6b}
 
 .installmentProgress{
   height:7px;
@@ -4764,8 +4764,25 @@ function installmentHTML(
       <div class="installmentDate">🏁 Termina em<strong>${formatMonth(end)}</strong></div>
       <div class="installmentDate">💰 Valor<strong>${money(bill.amount)}</strong></div>
     </div>
-    <div class="installmentSchedule"><div class="installmentScheduleTitle">📅 Parcelas por mês</div>${rows}</div>
+    <div class="installmentSchedule">
+      <button type="button" class="installmentScheduleToggle" onclick="toggleInstallmentSchedule(this)" aria-expanded="false">
+        <span class="installmentScheduleTitle">📅 Parcelas por mês</span>
+        <span class="installmentScheduleArrow">⌄</span>
+      </button>
+      <div class="installmentScheduleContent hidden">
+        ${rows}
+      </div>
+    </div>
   </div>`;
+}
+
+function toggleInstallmentSchedule(button){
+  const content = button.nextElementSibling;
+  if(!content) return;
+
+  const isOpen = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", String(!isOpen));
+  content.classList.toggle("hidden", isOpen);
 }
 
 /* =========================================================
