@@ -1771,6 +1771,8 @@ td button{
 /* V3 additions */
 .homeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:20px}.homeCard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;background:linear-gradient(145deg,#123555,#0a2039);box-shadow:var(--shadow)}.homeCard:nth-child(2){background:linear-gradient(145deg,#0d3040,#0b2438)}.homeCard:nth-child(3){background:linear-gradient(145deg,#2a1d33,#16223a)}.homeIcon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}.monthProgress{height:10px;background:#061425;border-radius:20px;overflow:hidden;margin-top:14px}.monthProgressBar{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:20px}
 
+.homeHeader{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:25px}.homeHeader h2{margin-bottom:0}.homeHeaderActions{display:flex;align-items:center;gap:10px;flex:none}.homeProfileAvatar{width:42px;height:42px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex:none;background:var(--surface-2,#25233b);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.15);transition:transform .18s ease,border-color .18s ease}.homeProfileAvatar:hover{transform:scale(1.05);border-color:var(--orange)}.homeProfileAvatar img{width:100%;height:100%;object-fit:cover}
+
 
 .profileSettingsCard{
   max-width:720px;
@@ -2082,8 +2084,13 @@ td button{
          =================================================== -->
 
     <section id="home" class="page">
+<div class="homeHeader">
 <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
-<button id="privacyToggle" class="valuePrivacyButton" type="button" aria-label="Ocultar valores">👁️</button>
+<div class="homeHeaderActions">
+<button id="homeProfileAvatar" class="homeProfileAvatar" type="button" aria-label="Abrir meu perfil" title="Meu perfil">T</button>
+<button id="privacyToggle" class="valuePrivacyButton" type="button" aria-label="Ocultar valores" title="Ocultar valores">👁️</button>
+</div>
+</div>
 <div class="homeGrid">
 <div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 0,00</div></div>
 <div class="homeCard"><div class="homeIcon">📅</div><div class="muted">Contas do mês</div><div id="homeMonthBills" class="value orange">R$ 0,00</div></div>
@@ -5836,6 +5843,19 @@ function renderReports(){
    CONFIGURAÇÕES
    ========================================================= */
 
+function renderHomeProfile(){
+  const avatar = $("homeProfileAvatar");
+  if(!avatar) return;
+  const photo = currentUser?.user_metadata?.avatar_url;
+  if(photo){
+    avatar.innerHTML = `<img src="${escapeHtml(photo)}" alt="Foto do perfil">`;
+    return;
+  }
+  const initial = getUserName().trim().charAt(0).toUpperCase() || "T";
+  avatar.textContent = initial;
+}
+
+
 function renderSettings(){
 
   const name =
@@ -7382,6 +7402,12 @@ $("saveGoalButton").onclick =
    PERFIL
    ========================================================= */
 
+$("homeProfileAvatar").onclick =
+  ()=>{
+    navigateToPage("settings");
+  };
+
+
 $("changeProfilePhotoButton").onclick =
   ()=>{
     $("profilePhotoInput").click();
@@ -7423,6 +7449,7 @@ $("profilePhotoInput").addEventListener(
 
       currentUser = r.data.user || currentUser;
       renderSettings();
+      renderHomeProfile();
 
       alert("Foto do perfil atualizada! 🧡");
 
