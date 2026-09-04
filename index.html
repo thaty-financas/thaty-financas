@@ -4939,7 +4939,7 @@ function renderTransactions(){
 
               <td>
                 <strong>
-                  ${x.source === "bill_payment" ? '<span class="transactionBillBadge">🏷️ Conta paga</span>' : ""}
+                  ${String(x.notes || "").startsWith("bill:") ? (String(x.notes || "").endsWith(":paid") ? '<span class="transactionBillBadge">🏷️ Conta paga</span>' : '<span class="transactionBillBadge">🏷️ Conta</span>') : ""}
                   ${escapeHtml(
                     x.description
                   )}
@@ -6560,7 +6560,6 @@ async function syncBillTransaction(bill){
     amount: Number(bill.amount || 0),
     date: new Date().toISOString().slice(0,10),
     category: "Contas",
-    source: bill.paid ? "bill_payment" : "bill",
     notes: `bill:${bill.id}`
   };
 
@@ -6573,9 +6572,9 @@ async function syncBillTransaction(bill){
   const existing = database.transactions.find(t => {
     const note = String(t.notes || "");
     if(bill.paid){
-      return note.startsWith(billPrefix) && t.source === "bill_payment";
+      return note === `${billPrefix}:paid`;
     }
-    return note === activeNote || (note === billPrefix && t.source !== "bill_payment");
+    return note === activeNote;
   });
 
   if(existing){
@@ -6605,8 +6604,7 @@ async function syncBillTransaction(bill){
       .from("transactions")
       .update({
         ...payload,
-        date: legacy.date || payload.date,
-        source: "bill_payment"
+        date: legacy.date || payload.date
       })
       .eq("id", legacy.id)
       .eq("user_id", currentUser.id);
@@ -6834,15 +6832,18 @@ window.markBillPaid =
 
       if(r.error) return alert(r.error.message);
 
+      const movementNote = data.type === "installment"
+      ? `bill:${id}:next:${data.current}`
+      : `bill:${id}`;
+
       const movement = database.transactions.find(t =>
-        String(t.notes || "") === `bill:${id}`
+        String(t.notes || "") === movementNote
       );
 
       if(movement){
         const tr = await supabaseClient
           .from("transactions")
           .update({
-            source:"bill_payment",
             date:new Date().toISOString().slice(0,10),
             notes:`bill:${id}:paid`
           })
@@ -6872,15 +6873,18 @@ window.markBillPaid =
         data.extra
       );
 
+      const movementNote = data.type === "installment"
+      ? `bill:${id}:next:${data.current}`
+      : `bill:${id}`;
+
       const movement = database.transactions.find(t =>
-        String(t.notes || "") === `bill:${id}`
+        String(t.notes || "") === movementNote
       );
 
       if(movement){
         const tr = await supabaseClient
           .from("transactions")
           .update({
-            source:"bill_payment",
             date:new Date().toISOString().slice(0,10),
             notes:`bill:${id}:paid`
           })
@@ -6911,7 +6915,6 @@ window.markBillPaid =
           amount:paymentAmount,
           date:new Date().toISOString().slice(0,10),
           category:"Contas",
-          source:"bill",
           notes:`bill:${id}:next:${next}`
         });
 
@@ -6950,7 +6953,6 @@ window.markBillPaid =
       const tr = await supabaseClient
         .from("transactions")
         .update({
-          source:"bill_payment",
           date:new Date().toISOString().slice(0,10),
           notes:`bill:${id}:paid`
         })
