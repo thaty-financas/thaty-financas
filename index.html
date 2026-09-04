@@ -1769,39 +1769,41 @@ td button{
 }
 
 /* V3 additions */
-.homeHeader{
+.homeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:20px}.homeCard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;background:linear-gradient(145deg,#123555,#0a2039);box-shadow:var(--shadow)}.homeCard:nth-child(2){background:linear-gradient(145deg,#0d3040,#0b2438)}.homeCard:nth-child(3){background:linear-gradient(145deg,#2a1d33,#16223a)}.homeIcon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}.monthProgress{height:10px;background:#061425;border-radius:20px;overflow:hidden;margin-top:14px}.monthProgressBar{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:20px}
+
+
+.profileSettingsCard{
+  max-width:720px;
+}
+
+.profileSettingsHeader{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  gap:16px;
   margin-bottom:18px;
 }
-.homeHeader h2{margin:0}
-.homeProfileButton{
-  width:38px;
-  height:38px;
-  min-width:38px;
-  padding:0;
-  border:1px solid var(--border);
+
+.profileAvatar{
+  width:84px;
+  height:84px;
   border-radius:50%;
-  background:var(--card);
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  cursor:pointer;
+  flex:none;
+  background:var(--surface-2,#25233b);
+  border:2px solid rgba(255,255,255,.12);
+  font-size:30px;
+  font-weight:800;
 }
-.homeProfilePhoto{
+
+.profileAvatar img{
   width:100%;
   height:100%;
   object-fit:cover;
-  display:block;
 }
-.homeProfileFallback{
-  font-size:18px;
-  line-height:1;
-}
-.homeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:20px}.homeCard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;background:linear-gradient(145deg,#123555,#0a2039);box-shadow:var(--shadow)}.homeCard:nth-child(2){background:linear-gradient(145deg,#0d3040,#0b2438)}.homeCard:nth-child(3){background:linear-gradient(145deg,#2a1d33,#16223a)}.homeIcon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}.monthProgress{height:10px;background:#061425;border-radius:20px;overflow:hidden;margin-top:14px}.monthProgressBar{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:20px}
+
 .transactionBillBadge{
   display:inline-flex;
   align-items:center;
@@ -1815,6 +1817,7 @@ td button{
   line-height:1.2;
   vertical-align:middle;
 }
+
 </style>
 
 </head>
@@ -2079,13 +2082,7 @@ td button{
          =================================================== -->
 
     <section id="home" class="page">
-<div class="homeHeader">
-  <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
-  <button id="homeProfileButton" class="homeProfileButton" type="button" aria-label="Abrir meu perfil">
-    <img id="homeProfilePhoto" class="homeProfilePhoto hidden" alt="Foto de perfil">
-    <span id="homeProfileFallback" class="homeProfileFallback">👤</span>
-  </button>
-</div>
+<h2 id="homeGreeting">Olá, Thaty! 👋</h2>
 <button id="privacyToggle" class="valuePrivacyButton" type="button" aria-label="Ocultar valores">👁️</button>
 <div class="homeGrid">
 <div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 0,00</div></div>
@@ -2737,7 +2734,7 @@ td button{
 
 
     <!-- ===================================================
-         CONFIGURAÇÕES
+         CONFIGURAÇÕES / MEU PERFIL
          =================================================== -->
 
     <section
@@ -2746,38 +2743,88 @@ td button{
     >
 
       <h2>
-        Configurações
+        Meu perfil
       </h2>
 
+      <div class="card profileSettingsCard">
 
-      <div class="card">
+        <div class="profileSettingsHeader">
+          <div
+            id="profileAvatar"
+            class="profileAvatar"
+            aria-label="Foto do perfil"
+          >
+            T
+          </div>
 
-        <label>
-          Saldo da conta atual
-        </label>
+          <div>
+            <h3 style="margin:0 0 4px">
+              Meu perfil
+            </h3>
+            <p class="muted" style="margin:0">
+              Personalize seu nome e sua foto.
+            </p>
+          </div>
+        </div>
 
         <input
-          id="balanceInput"
-          type="text"
-              inputmode="decimal"
+          id="profilePhotoInput"
+          type="file"
+          accept="image/*"
+          hidden
         >
-
 
         <button
-          id="saveBalanceButton"
-          class="primary"
+          id="changeProfilePhotoButton"
           type="button"
+          class="secondary"
           style="width:auto"
         >
-          Salvar saldo
+          📷 Alterar foto
         </button>
 
+        <div style="margin-top:20px">
+          <label for="profileNameInput">
+            Seu nome
+          </label>
+
+          <input
+            id="profileNameInput"
+            type="text"
+            maxlength="60"
+            autocomplete="name"
+            placeholder="Digite seu nome"
+          >
+        </div>
+
+        <button
+          id="saveProfileButton"
+          class="primary"
+          type="button"
+          style="width:auto;margin-top:14px"
+        >
+          Salvar alterações
+        </button>
+
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3 style="margin-top:0">
+          Conta
+        </h3>
 
         <p class="muted">
-          O saldo é o valor atual da sua conta
-          e fica salvo na nuvem.
+          Sair desta conta neste dispositivo.
         </p>
 
+        <button
+          id="profileLogoutButton"
+          type="button"
+          class="danger"
+          style="width:auto"
+        >
+          🚪 Sair da conta
+        </button>
       </div>
 
     </section>
@@ -4822,7 +4869,7 @@ function installmentHTML(
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -5789,28 +5836,48 @@ function renderReports(){
    CONFIGURAÇÕES
    ========================================================= */
 
-function renderHomeProfile(){
-  const photo = $("homeProfilePhoto");
-  const fallback = $("homeProfileFallback");
-  if(!photo || !fallback) return;
-
-  const profilePhoto = localStorage.getItem("thaty_profile_photo") || "";
-
-  if(profilePhoto){
-    photo.src = profilePhoto;
-    photo.classList.remove("hidden");
-    fallback.classList.add("hidden");
-  }else{
-    photo.removeAttribute("src");
-    photo.classList.add("hidden");
-    fallback.classList.remove("hidden");
-  }
-}
-
 function renderSettings(){
 
-  $("balanceInput").value =
-    database.balance;
+  const name =
+    getUserName();
+
+  const nameInput =
+    $("profileNameInput");
+
+  if(nameInput){
+    nameInput.value = name;
+  }
+
+  renderProfileAvatar();
+
+}
+
+
+function renderProfileAvatar(){
+
+  const avatar =
+    $("profileAvatar");
+
+  if(!avatar){
+    return;
+  }
+
+  const photo =
+    currentUser?.user_metadata?.avatar_url;
+
+  if(photo){
+    avatar.innerHTML =
+      `<img src="${escapeHtml(photo)}" alt="Foto do perfil">`;
+    return;
+  }
+
+  const name =
+    getUserName();
+
+  const initial =
+    name.trim().charAt(0).toUpperCase() || "T";
+
+  avatar.textContent = initial;
 
 }
 
@@ -6033,14 +6100,6 @@ $("mobileMenuOverlay")
     closeMobileMenu
   );
 
-
-const homeProfileButton = $("homeProfileButton");
-if(homeProfileButton){
-  homeProfileButton.addEventListener("click", ()=>{
-    const settingsButton = document.querySelector('[data-page="settings"]');
-    if(settingsButton) settingsButton.click();
-  });
-}
 
 /* =========================================================
    OLHINHO
@@ -6818,7 +6877,7 @@ window.markBillPaid =
           amount: paymentAmount,
           date: paymentDate,
           category: "Contas",
-            source: "bill_payment"
+           source: "bill_payment"
         });
 
     if(insertTransaction.error){
@@ -7320,81 +7379,169 @@ $("saveGoalButton").onclick =
 
 
 /* =========================================================
-   SALDO
+   PERFIL
    ========================================================= */
 
-$("saveBalanceButton").onclick =
-  async()=>{
+$("changeProfilePhotoButton").onclick =
+  ()=>{
+    $("profilePhotoInput").click();
+  };
+
+
+$("profilePhotoInput").addEventListener(
+  "change",
+  async event=>{
+
+    const file =
+      event.target.files?.[0];
+
+    if(!file){
+      return;
+    }
+
+    if(!file.type.startsWith("image/")){
+      alert("Escolha uma imagem válida.");
+      return;
+    }
 
     try{
 
-      if(!currentUser){
-
-        return alert(
-          "Sua sessão expirou. Entre novamente."
-        );
-
-      }
-
-
-      const balance =
-        numberValue(
-          $("balanceInput")
-            .value
-        );
-
+      const dataUrl =
+        await compressProfileImage(file);
 
       const r =
-        await supabaseClient
-          .from("account_settings")
-          .upsert({
-
-            user_id:
-              currentUser.id,
-
-            balance,
-
-            updated_at:
-              new Date()
-                .toISOString()
-
-          },{
-            onConflict:
-              "user_id"
-          });
-
+        await supabaseClient.auth.updateUser({
+          data:{
+            ...(currentUser?.user_metadata || {}),
+            avatar_url:dataUrl
+          }
+        });
 
       if(r.error){
         throw r.error;
       }
 
+      currentUser = r.data.user || currentUser;
+      renderSettings();
 
-      await loadCloudData(
-        false
-      );
-
-
-      renderEverything();
-
-
-      alert(
-        "Saldo salvo com sucesso! 🧡"
-      );
-
+      alert("Foto do perfil atualizada! 🧡");
 
     }catch(e){
 
       console.error(e);
 
+      alert(
+        e.message ||
+        "Não foi possível atualizar a foto."
+      );
+
+    }finally{
+      event.target.value = "";
+    }
+
+  }
+);
+
+
+$("saveProfileButton").onclick =
+  async()=>{
+
+    try{
+
+      if(!currentUser){
+        return alert(
+          "Sua sessão expirou. Entre novamente."
+        );
+      }
+
+      const name =
+        $("profileNameInput").value.trim();
+
+      if(!name){
+        return alert("Digite seu nome.");
+      }
+
+      const r =
+        await supabaseClient.auth.updateUser({
+          data:{
+            ...(currentUser.user_metadata || {}),
+            name
+          }
+        });
+
+      if(r.error){
+        throw r.error;
+      }
+
+      currentUser = r.data.user || currentUser;
+
+      renderUserGreeting();
+      renderSettings();
+
+      alert("Perfil atualizado com sucesso! 🧡");
+
+    }catch(e){
+
+      console.error(e);
 
       alert(
         e.message ||
-        "Não foi possível salvar o saldo."
+        "Não foi possível salvar o perfil."
       );
 
     }
 
   };
+
+
+async function compressProfileImage(file){
+
+  const source =
+    await new Promise((resolve,reject)=>{
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        ()=>resolve(reader.result);
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const image =
+    await new Promise((resolve,reject)=>{
+      const img = new Image();
+
+      img.onload = ()=>resolve(img);
+      img.onerror = reject;
+      img.src = source;
+    });
+
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+  const scale =
+    Math.max(size / image.width, size / image.height);
+
+  const width = image.width * scale;
+  const height = image.height * scale;
+  const x = (size - width) / 2;
+  const y = (size - height) / 2;
+
+  ctx.drawImage(image,x,y,width,height);
+
+  return canvas.toDataURL("image/jpeg",0.78);
+
+}
+
+
+$("profileLogoutButton").addEventListener(
+  "click",
+  logout
+);
 
 
 /* =========================================================
