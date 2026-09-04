@@ -4926,12 +4926,23 @@ function renderTransactions(){
 
               <td>
 
-                <button
-                  type="button"
-                  onclick="deleteTransaction('${x.id}')"
-                >
-                  Excluir
-                </button>
+                <div class="actions" style="gap:6px;justify-content:flex-end">
+
+                  <button
+                    type="button"
+                    onclick="editTransaction('${x.id}')"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    onclick="deleteTransaction('${x.id}')"
+                  >
+                    Excluir
+                  </button>
+
+                </div>
 
               </td>
 
@@ -6178,7 +6189,56 @@ $("privacyToggle")
    MOVIMENTAÇÕES
    ========================================================= */
 
+let editingTransactionId = null;
+
+function resetTransactionForm(){
+  editingTransactionId = null;
+  $("transactionType").value = "income";
+  $("transactionDescription").value = "";
+  $("transactionAmount").value = "";
+  $("transactionDate").value = new Date().toISOString().slice(0,10);
+  $("transactionCategory").value = "";
+  $("saveTransactionButton").textContent = "Salvar";
+}
+
+window.editTransaction = id=>{
+  const transaction = database.transactions.find(
+    x=>String(x.id) === String(id)
+  );
+
+  if(!transaction){
+    return alert("Movimentação não encontrada.");
+  }
+
+  const isBillLinked = String(transaction.notes || "").startsWith("bill:");
+
+  if(isBillLinked){
+    return alert("Esta movimentação está vinculada a uma conta. Edite a conta na seção Contas para manter tudo sincronizado.");
+  }
+
+  editingTransactionId = transaction.id;
+  $("transactionType").value = transaction.type || "expense";
+  $("transactionDescription").value = transaction.description || "";
+  $("transactionAmount").value = String(transaction.amount ?? "").replace(".", ",");
+  $("transactionDate").value = transaction.date || "";
+  $("transactionCategory").value = transaction.category || "";
+  $("saveTransactionButton").textContent = "Salvar alterações";
+  $("transactionForm").classList.remove("hidden");
+  $("transactionDescription").focus();
+};
+
 $("addTransactionButton").onclick =
+  ()=>{
+
+    resetTransactionForm();
+
+    $("transactionForm")
+      .classList
+      .remove("hidden");
+
+  };
+
+
   ()=>{
 
     $("transactionForm")
@@ -6190,6 +6250,8 @@ $("addTransactionButton").onclick =
 
 $("cancelTransactionButton").onclick =
   ()=>{
+
+    resetTransactionForm();
 
     $("transactionForm")
       .classList
@@ -6243,42 +6305,42 @@ $("saveTransactionButton").onclick =
       }
 
 
-      const r =
-        await supabaseClient
+      const payload = {
+        type:
+          $("transactionType").value,
+        description,
+        amount,
+        date:
+          $("transactionDate").value ||
+          new Date().toISOString().slice(0,10),
+        category:
+          $("transactionCategory").value || null
+      };
+
+      let r;
+
+      if(editingTransactionId){
+        r = await supabaseClient
+          .from("transactions")
+          .update(payload)
+          .eq("id", editingTransactionId)
+          .eq("user_id", currentUser.id);
+      }else{
+        r = await supabaseClient
           .from("transactions")
           .insert({
-
-            user_id:
-              currentUser.id,
-
-            type:
-              $("transactionType")
-                .value,
-
-            description,
-
-            amount,
-
-            date:
-              $("transactionDate")
-                .value ||
-
-              new Date()
-                .toISOString()
-                .slice(0,10),
-
-            category:
-              $("transactionCategory")
-                .value ||
-              null
-
+            user_id: currentUser.id,
+            ...payload
           });
+      }
 
 
       if(r.error){
         throw r.error;
       }
 
+
+      resetTransactionForm();
 
       $("transactionForm")
         .classList
