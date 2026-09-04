@@ -2118,6 +2118,7 @@ td button{
 <div class="homeGrid">
 <div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 0,00</div></div>
 <div class="homeCard"><div class="homeIcon">📅</div><div class="muted">Contas do mês</div><div id="homeMonthBills" class="value orange">R$ 0,00</div></div>
+<div class="homeCard"><div class="homeIcon">🎵</div><div class="muted">Receita TikTok</div><div id="homeTikTokIncome" class="value">R$ 0,00</div><div class="reportMeta" style="margin-top:6px">Categoria Salário</div></div>
 
 </div>
 <div class="card"><div class="row"><h3>Situação do mês</h3><span id="homeStatusBadge" class="badge due">Em andamento</span></div>
@@ -3895,7 +3896,9 @@ function applyPrivacyMode(){
 
   const ids = [
 
-    "dashboardBalance"
+    "dashboardBalance",
+
+    "homeTikTokIncome"
 
   ];
 
@@ -4816,7 +4819,7 @@ function toggleInstallmentSchedule(button){
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=database.transactions.filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
