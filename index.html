@@ -2037,9 +2037,9 @@ td button{
 <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
 <button id="privacyToggle" class="valuePrivacyButton" type="button" aria-label="Ocultar valores">👁️</button>
 <div class="homeGrid">
-<div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 324,04</div></div>
+<div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 0,00</div></div>
 <div class="homeCard"><div class="homeIcon">📅</div><div class="muted">Contas do mês</div><div id="homeMonthBills" class="value orange">R$ 0,00</div></div>
-<div class="homeCard"><div class="homeIcon">💳</div><div class="muted">Após pagar</div><div id="homeAfterBills" class="value">R$ 324,04</div></div>
+
 </div>
 <div class="card"><div class="row"><h3>Situação do mês</h3><span id="homeStatusBadge" class="badge due">Em andamento</span></div>
 <div class="grid" style="grid-template-columns:repeat(3,1fr)"><div><div class="muted">Contas</div><div id="homeBillsCount" class="value">0</div></div><div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div><div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
@@ -4778,7 +4778,7 @@ function installmentHTML(
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeAfterBills").dataset.realValue=money(balance-totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
