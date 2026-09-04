@@ -4815,6 +4815,10 @@ function toggleInstallmentSchedule(button){
   content.classList.toggle("hidden", isOpen);
 }
 
+// O botão é criado dinamicamente dentro dos cards.
+// Expondo a função no window, o onclick do botão consegue encontrá-la.
+window.toggleInstallmentSchedule = toggleInstallmentSchedule;
+
 /* =========================================================
    HOME
    ========================================================= */
