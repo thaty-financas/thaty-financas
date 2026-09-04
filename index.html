@@ -4319,6 +4319,13 @@ async function loadCloudData(
 
 
   /*
+    Toda conta cadastrada também precisa existir em
+    Movimentações como uma saída. Isso também corrige
+    contas antigas que foram cadastradas antes da sincronização.
+  */
+  await syncAllBillsToTransactions();
+
+  /*
     Importação do sistema antigo.
   */
 
@@ -6524,6 +6531,108 @@ window.editBill =
 
 
 /* =========================================================
+   SINCRONIZAÇÃO CONTAS → MOVIMENTAÇÕES
+   ========================================================= */
+
+function billTransactionDescription(billName, info){
+  const data = typeof info === "string"
+    ? parseBillInfo({info})
+    : (info || {});
+
+  return `Conta: ${billName || "Conta"}` +
+    (data.type === "installment"
+      ? ` — parcela ${data.current}/${data.total}`
+      : "");
+}
+
+async function syncBillTransaction(bill){
+  if(!currentUser || !bill?.id){
+    return;
+  }
+
+  const description =
+    billTransactionDescription(bill.name, bill.info);
+
+  const payload = {
+    user_id: currentUser.id,
+    type: "expense",
+    description,
+    amount: Number(bill.amount || 0),
+    date: new Date().toISOString().slice(0,10),
+    category: "Contas",
+    source: bill.paid ? "bill_payment" : "bill",
+    notes: `bill:${bill.id}`
+  };
+
+  const billPrefix = `bill:${bill.id}`;
+  const installmentData = parseBillInfo({info:bill.info});
+  const activeNote = installmentData.type === "installment"
+    ? `${billPrefix}:next:${installmentData.current}`
+    : billPrefix;
+
+  const existing = database.transactions.find(t => {
+    const note = String(t.notes || "");
+    if(bill.paid){
+      return note.startsWith(billPrefix) && t.source === "bill_payment";
+    }
+    return note === activeNote || (note === billPrefix && t.source !== "bill_payment");
+  });
+
+  if(existing){
+    const r = await supabaseClient
+      .from("transactions")
+      .update(payload)
+      .eq("id", existing.id)
+      .eq("user_id", currentUser.id);
+
+    if(r.error) throw r.error;
+    return;
+  }
+
+  /* Compatibilidade com pagamentos criados pela versão anterior. */
+  const legacyDescription =
+    `Conta paga: ${bill.name || "Conta"}`;
+
+  const legacy =
+    database.transactions.find(t =>
+      t.type === "expense" &&
+      String(t.description || "").startsWith(legacyDescription) &&
+      Number(t.amount || 0) === Number(bill.amount || 0)
+    );
+
+  if(legacy){
+    const r = await supabaseClient
+      .from("transactions")
+      .update({
+        ...payload,
+        date: legacy.date || payload.date,
+        source: "bill_payment"
+      })
+      .eq("id", legacy.id)
+      .eq("user_id", currentUser.id);
+
+    if(r.error) throw r.error;
+    return;
+  }
+
+  const r = await supabaseClient
+    .from("transactions")
+    .insert(payload);
+
+  if(r.error) throw r.error;
+}
+
+async function syncAllBillsToTransactions(){
+  if(!currentUser || !database.bills.length){
+    return;
+  }
+
+  for(const bill of database.bills){
+    await syncBillTransaction(bill);
+  }
+}
+
+/* =========================================================
    SALVAR / ATUALIZAR CONTA
    ========================================================= */
 
@@ -6533,143 +6642,61 @@ $("saveBillButton").onclick =
     try{
 
       if(!currentUser){
-
-        return alert(
-          "Sua sessão expirou. Entre novamente."
-        );
-
+        return alert("Sua sessão expirou. Entre novamente.");
       }
 
-
-      const name =
-        $("billName")
-          .value
-          .trim();
-
-
-      const amount =
-        numberValue(
-          $("billAmount")
-            .value
-        );
-
-
-      let totalDebt =
-        numberValue(
-          $("billTotalDebt")
-            .value
-        );
-
-
-      const type =
-        $("billType")
-          .value;
-
+      const name = $("billName").value.trim();
+      const amount = numberValue($("billAmount").value);
+      let totalDebt = numberValue($("billTotalDebt").value);
+      const type = $("billType").value;
 
       if(!name){
-
-        return alert(
-          "Digite o nome da conta."
-        );
-
+        return alert("Digite o nome da conta.");
       }
-
 
       if(amount <= 0){
-
-        return alert(
-          "Digite o valor da parcela/conta."
-        );
-
+        return alert("Digite o valor da parcela/conta.");
       }
 
-
-      const existingBill =
-        editingBillId
-          ? database.bills.find(b => String(b.id) === String(editingBillId))
-          : null;
+      const existingBill = editingBillId
+        ? database.bills.find(b => String(b.id) === String(editingBillId))
+        : null;
 
       if(totalDebt <= 0){
-
         totalDebt = existingBill
           ? Number(existingBill.total_debt)
           : amount;
-
       }
-
 
       let info;
 
+      if(type === "installment"){
+        const current = Math.max(
+          1,
+          Number($("billCurrentInstallment").value) || 1
+        );
 
-      if(
-        type ===
-        "installment"
-      ){
+        const total = Math.max(
+          current,
+          Number($("billTotalInstallments").value) || 1
+        );
 
-        const current =
-          Math.max(
-            1,
-            Number(
-              $("billCurrentInstallment")
-                .value
-            ) || 1
-          );
-
-
-        const total =
-          Math.max(
-            current,
-            Number(
-              $("billTotalInstallments")
-                .value
-            ) || 1
-          );
-
-
-        let start =
-          $("billStartMonth")
-            .value;
-
+        let start = $("billStartMonth").value;
 
         if(!start){
-
-          start =
-            monthInputValue(
-              addMonths(
-                new Date(
-                  new Date().getFullYear(),
-                  new Date().getMonth(),
-                  1
-                ),
-                -(current - 1)
-              )
-            );
-
+          start = monthInputValue(
+            addMonths(
+              new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+              -(current - 1)
+            )
+          );
         }
 
-
-        info =
-          createInstallmentInfo(
-
-            current,
-
-            total,
-
-            start,
-
-            ""
-
-          );
+        info = createInstallmentInfo(current, total, start, "");
 
       }else{
-
-        info =
-          createMonthlyInfo(
-            ""
-          );
-
+        info = createMonthlyInfo("");
       }
-
 
       /* ===================================================
          EDITAR
@@ -6677,150 +6704,89 @@ $("saveBillButton").onclick =
 
       if(editingBillId){
 
-        const r =
-          await supabaseClient
-            .from("bills")
-            .update({
+        const r = await supabaseClient
+          .from("bills")
+          .update({
+            name,
+            amount,
+            total_debt: totalDebt,
+            info,
+            due_day:10
+          })
+          .eq("id", editingBillId)
+          .eq("user_id", currentUser.id);
 
-              name,
+        if(r.error) throw r.error;
 
-              amount,
+        const updatedBill = {
+          ...(existingBill || {}),
+          id: editingBillId,
+          name,
+          amount,
+          total_debt: totalDebt,
+          info,
+          due_day:10
+        };
 
-              total_debt:
-                totalDebt,
+        /* Editar uma conta também atualiza sua saída em Movimentações. */
+        await syncBillTransaction(updatedBill);
 
-              info,
+        editingBillId = null;
+        $("billForm").classList.add("hidden");
+        $("saveBillButton").textContent = "Salvar";
+        $("billName").value = "";
+        $("billAmount").value = "";
+        $("billTotalDebt").value = "";
 
-              due_day:10
-
-            })
-            .eq(
-              "id",
-              editingBillId
-            )
-            .eq(
-              "user_id",
-              currentUser.id
-            );
-
-
-        if(r.error){
-          throw r.error;
-        }
-
-
-        editingBillId =
-          null;
-
-
-        $("billForm")
-          .classList
-          .add("hidden");
-
-
-        $("saveBillButton")
-          .textContent =
-          "Salvar";
-
-
-        $("billName").value =
-          "";
-
-
-        $("billAmount").value =
-          "";
-
-
-        $("billTotalDebt").value =
-          "";
-
-
-        await loadCloudData(
-          false
-        );
-
-
+        await loadCloudData(false);
         renderEverything();
 
-
-        alert(
-          "Conta atualizada com sucesso! 🧡"
-        );
-
-
+        alert("Conta atualizada com sucesso! 🧡");
         return;
-
       }
-
 
       /* ===================================================
          NOVA CONTA
          =================================================== */
 
-      const r =
-        await supabaseClient
-          .from("bills")
-          .insert({
+      const r = await supabaseClient
+        .from("bills")
+        .insert({
+          user_id: currentUser.id,
+          name,
+          amount,
+          total_debt: totalDebt,
+          info,
+          due_day:10,
+          paid:false
+        })
+        .select("id")
+        .single();
 
-            user_id:
-              currentUser.id,
+      if(r.error) throw r.error;
 
-            name,
+      /* Ao cadastrar a conta, ela já entra como SAÍDA em Movimentações. */
+      await syncBillTransaction({
+        id:r.data.id,
+        name,
+        amount,
+        total_debt:totalDebt,
+        info,
+        due_day:10,
+        paid:false
+      });
 
-            amount,
+      $("billForm").classList.add("hidden");
+      $("billName").value = "";
+      $("billAmount").value = "";
+      $("billTotalDebt").value = "";
 
-            total_debt:
-              totalDebt,
-
-            info,
-
-            due_day:10,
-
-            paid:false
-
-          });
-
-
-      if(r.error){
-        throw r.error;
-      }
-
-
-      $("billForm")
-        .classList
-        .add("hidden");
-
-
-      $("billName").value =
-        "";
-
-
-      $("billAmount").value =
-        "";
-
-
-      $("billTotalDebt").value =
-        "";
-
-
-      await loadCloudData(
-        false
-      );
-
-
+      await loadCloudData(false);
       renderEverything();
 
-
     }catch(e){
-
       console.error(e);
-
-
-      alert(
-        e.message ||
-        "Não foi possível salvar a conta."
-      );
-
+      alert(e.message || "Não foi possível salvar a conta.");
     }
 
   };
@@ -6833,127 +6799,57 @@ $("saveBillButton").onclick =
 window.markBillPaid =
   async id=>{
 
-    const bill =
-      database.bills.find(
-        x=>
-          String(x.id) ===
-          String(id)
-      );
+    const bill = database.bills.find(
+      x=>String(x.id) === String(id)
+    );
 
-    if(!bill){
-      return;
-    }
+    if(!bill) return;
 
     if(!currentUser){
-      return alert(
-        "Sua sessão expirou. Entre novamente."
-      );
+      return alert("Sua sessão expirou. Entre novamente.");
     }
 
-    if(bill.paid){
-      return;
-    }
+    if(bill.paid) return;
 
-    const data =
-      getInstallmentData(
-        bill
-      );
-
-    const paymentAmount =
-      Number(bill.amount || 0);
+    const data = getInstallmentData(bill);
+    const paymentAmount = Number(bill.amount || 0);
 
     if(paymentAmount <= 0){
-      return alert(
-        "Esta conta não possui um valor válido para registrar o pagamento."
-      );
+      return alert("Esta conta não possui um valor válido para registrar o pagamento.");
     }
 
     /*
-      Regra financeira:
-      ao marcar uma conta como paga, o valor também é
-      registrado automaticamente como uma saída em
-      Movimentações. Assim o saldo e os relatórios
-      permanecem consistentes sem precisar lançar a
-      mesma despesa manualmente.
+      A conta já foi registrada como saída no momento em que foi cadastrada.
+      Marcar como paga NÃO cria uma segunda saída: apenas atualiza a mesma
+      movimentação para indicar que o pagamento foi concluído.
     */
-    const paymentDate =
-      new Date()
-        .toISOString()
-        .slice(0,10);
 
-    const transactionDescription =
-      `Conta paga: ${bill.name || "Conta"}` +
-      (data.type === "installment"
-        ? ` — parcela ${data.current}/${data.total}`
-        : "");
-
-    const insertTransaction =
-      await supabaseClient
-        .from("transactions")
-        .insert({
-          user_id: currentUser.id,
-          type: "expense",
-          description: transactionDescription,
-          amount: paymentAmount,
-          date: paymentDate,
-          category: "Contas",
-           source: "bill_payment"
-        });
-
-    if(insertTransaction.error){
-      return alert(
-        insertTransaction.error.message ||
-        "Não foi possível registrar o pagamento nas movimentações."
-      );
-    }
-
-    /*
-      Conta mensal: fica marcada como paga.
-      Se a atualização falhar, desfazemos a saída
-      recém-criada para não deixar o financeiro
-      inconsistente.
-    */
     if(data.type === "monthly"){
 
-      const r =
-        await supabaseClient
-          .from("bills")
-          .update({
-            paid:true
-          })
-          .eq(
-            "id",
-            id
-          )
-          .eq(
-            "user_id",
-            currentUser.id
-          );
+      const r = await supabaseClient
+        .from("bills")
+        .update({paid:true})
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
 
-      if(r.error){
-        await supabaseClient
+      if(r.error) return alert(r.error.message);
+
+      const movement = database.transactions.find(t =>
+        String(t.notes || "") === `bill:${id}`
+      );
+
+      if(movement){
+        const tr = await supabaseClient
           .from("transactions")
-          .delete()
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .eq(
-            "description",
-            transactionDescription
-          )
-          .eq(
-            "amount",
-            paymentAmount
-          )
-          .eq(
-            "date",
-            paymentDate
-          );
+          .update({
+            source:"bill_payment",
+            date:new Date().toISOString().slice(0,10),
+            notes:`bill:${id}:paid`
+          })
+          .eq("id", movement.id)
+          .eq("user_id", currentUser.id);
 
-        return alert(
-          r.error.message
-        );
+        if(tr.error) return alert(tr.error.message);
       }
 
       await loadCloudData(false);
@@ -6962,155 +6858,106 @@ window.markBillPaid =
     }
 
     /*
-      Conta parcelada: se ainda não for a última,
-      avança para a próxima parcela.
+      Parcelada: a parcela atual já possui sua saída.
+      Depois do pagamento, criamos a saída da próxima parcela para que
+      a nova conta corrente também fique refletida em Movimentações.
     */
     if(data.current < data.total){
 
-      const next =
-        data.current + 1;
+      const next = data.current + 1;
+      const newInfo = createInstallmentInfo(
+        next,
+        data.total,
+        data.start,
+        data.extra
+      );
 
-      const newInfo =
-        createInstallmentInfo(
-          next,
-          data.total,
-          data.start,
-          data.extra
-        );
+      const movement = database.transactions.find(t =>
+        String(t.notes || "") === `bill:${id}`
+      );
 
-      const r =
-        await supabaseClient
-          .from("bills")
-          .update({
-            info:newInfo,
-            paid:false
-          })
-          .eq(
-            "id",
-            id
-          )
-          .eq(
-            "user_id",
-            currentUser.id
-          );
-
-      if(r.error){
-        await supabaseClient
+      if(movement){
+        const tr = await supabaseClient
           .from("transactions")
-          .delete()
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .eq(
-            "description",
-            transactionDescription
-          )
-          .eq(
-            "amount",
-            paymentAmount
-          )
-          .eq(
-            "date",
-            paymentDate
-          );
+          .update({
+            source:"bill_payment",
+            date:new Date().toISOString().slice(0,10),
+            notes:`bill:${id}:paid`
+          })
+          .eq("id", movement.id)
+          .eq("user_id", currentUser.id);
 
-        return alert(
-          r.error.message
-        );
+        if(tr.error) return alert(tr.error.message);
       }
+
+      const r = await supabaseClient
+        .from("bills")
+        .update({
+          info:newInfo,
+          paid:false
+        })
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
+
+      if(r.error) return alert(r.error.message);
+
+      /* A próxima parcela passa a ter sua própria saída. */
+      await supabaseClient
+        .from("transactions")
+        .insert({
+          user_id:currentUser.id,
+          type:"expense",
+          description:billTransactionDescription(bill.name, newInfo),
+          amount:paymentAmount,
+          date:new Date().toISOString().slice(0,10),
+          category:"Contas",
+          source:"bill",
+          notes:`bill:${id}:next:${next}`
+        });
 
       await loadCloudData(false);
       renderEverything();
 
       alert(
         "Parcela paga! 🧡\n\n" +
-        "A saída foi registrada automaticamente.\n\n" +
-        "Agora a conta está na " +
-        next +
-        "ª de " +
-        data.total +
-        " parcelas."
+        "A saída da parcela foi mantida nas Movimentações.\n\n" +
+        "Agora a conta está na " + next + "ª de " + data.total + " parcelas."
       );
-
       return;
     }
 
-    /*
-      Última parcela: confirma antes de quitar a conta.
-      A saída já foi criada acima; se o usuário cancelar,
-      ela precisa ser removida para não registrar um
-      pagamento que não aconteceu.
-    */
-    const confirmed =
-      confirm(
-        "Esta é a última parcela.\n\n" +
-        "Ao confirmar, a conta será marcada como quitada e a saída será registrada.\n\n" +
-        "Deseja continuar?"
-      );
+    const confirmed = confirm(
+      "Esta é a última parcela.\n\n" +
+      "A conta será marcada como quitada e a saída já registrada será mantida nas Movimentações.\n\n" +
+      "Deseja continuar?"
+    );
 
-    if(!confirmed){
-      await supabaseClient
+    if(!confirmed) return;
+
+    const r = await supabaseClient
+      .from("bills")
+      .update({paid:true})
+      .eq("id", id)
+      .eq("user_id", currentUser.id);
+
+    if(r.error) return alert(r.error.message);
+
+    const movement = database.transactions.find(t =>
+      String(t.notes || "") === `bill:${id}`
+    );
+
+    if(movement){
+      const tr = await supabaseClient
         .from("transactions")
-        .delete()
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .eq(
-          "description",
-          transactionDescription
-        )
-        .eq(
-          "amount",
-          paymentAmount
-        )
-        .eq(
-          "date",
-          paymentDate
-        );
-      return;
-    }
-
-    const r =
-      await supabaseClient
-        .from("bills")
         .update({
-          paid:true
+          source:"bill_payment",
+          date:new Date().toISOString().slice(0,10),
+          notes:`bill:${id}:paid`
         })
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
+        .eq("id", movement.id)
+        .eq("user_id", currentUser.id);
 
-    if(r.error){
-      await supabaseClient
-        .from("transactions")
-        .delete()
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .eq(
-          "description",
-          transactionDescription
-        )
-        .eq(
-          "amount",
-          paymentAmount
-        )
-        .eq(
-          "date",
-          paymentDate
-        );
-
-      return alert(
-        r.error.message
-      );
+      if(tr.error) return alert(tr.error.message);
     }
 
     await loadCloudData(false);
@@ -7118,7 +6965,7 @@ window.markBillPaid =
 
     alert(
       "🎉 Última parcela paga!\n\n" +
-      "A saída foi registrada automaticamente.\n\n" +
+      "A saída já estava registrada em Movimentações.\n\n" +
       "Dívida quitada com sucesso."
     );
   };
@@ -7629,58 +7476,33 @@ window.deleteTransaction =
 window.deleteBill =
   async id=>{
 
-    if(
-      !confirm(
-        "Excluir esta conta?"
-      )
-    ){
-
+    if(!confirm("Excluir esta conta?")){
       return;
-
     }
 
-
-    const r =
-      await supabaseClient
-        .from("bills")
-        .delete()
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
-
+    const r = await supabaseClient
+      .from("bills")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", currentUser.id);
 
     if(r.error){
-
-      return alert(
-        r.error.message
-      );
-
+      return alert(r.error.message);
     }
 
+    /* A conta excluída também deixa de existir como saída vinculada. */
+    await supabaseClient
+      .from("transactions")
+      .delete()
+      .eq("user_id", currentUser.id)
+      .like("notes", `bill:${id}%`);
 
-    if(
-      String(editingBillId) ===
-      String(id)
-    ){
-
-      editingBillId =
-        null;
-
+    if(String(editingBillId) === String(id)){
+      editingBillId = null;
     }
 
-
-    await loadCloudData(
-      false
-    );
-
-
+    await loadCloudData(false);
     renderEverything();
-
   };
 
 
