@@ -1802,6 +1802,19 @@ td button{
   line-height:1;
 }
 .homeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:20px}.homeCard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;background:linear-gradient(145deg,#123555,#0a2039);box-shadow:var(--shadow)}.homeCard:nth-child(2){background:linear-gradient(145deg,#0d3040,#0b2438)}.homeCard:nth-child(3){background:linear-gradient(145deg,#2a1d33,#16223a)}.homeIcon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}.monthProgress{height:10px;background:#061425;border-radius:20px;overflow:hidden;margin-top:14px}.monthProgressBar{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:20px}
+.transactionBillBadge{
+  display:inline-flex;
+  align-items:center;
+  margin-right:7px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  vertical-align:middle;
+}
 </style>
 
 </head>
@@ -4865,6 +4878,7 @@ function renderTransactions(){
 
               <td>
                 <strong>
+                  ${x.source === "bill_payment" ? '<span class="transactionBillBadge">🏷️ Conta paga</span>' : ""}
                   ${escapeHtml(
                     x.description
                   )}
@@ -6803,7 +6817,8 @@ window.markBillPaid =
           description: transactionDescription,
           amount: paymentAmount,
           date: paymentDate,
-          category: "Contas"
+          category: "Contas",
+            source: "bill_payment"
         });
 
     if(insertTransaction.error){
