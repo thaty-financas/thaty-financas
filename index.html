@@ -2053,6 +2053,7 @@ td button{
 
       <div class="grid">
         <div class="card">
+          <div id="homeSummary" class="muted" style="margin-top:16px"></div>
           <div class="muted">
             Saldo atual
           </div>
@@ -2295,8 +2296,8 @@ td button{
 
             <input
               id="billAmount"
-              type="number"
-              step="0.01"
+              type="text"
+              inputmode="decimal"
               placeholder="0,00"
             >
 
@@ -2311,8 +2312,8 @@ td button{
 
             <input
               id="billTotalDebt"
-              type="number"
-              step="0.01"
+              type="text"
+              inputmode="decimal"
               placeholder="0,00"
             >
 
@@ -4790,6 +4791,13 @@ function renderHome(){
     money(database.balance);
 
   applyPrivacyMode();
+
+  const paid = database.bills.filter(x=>x.paid).length;
+  const pending = database.bills.filter(x=>!x.paid).length;
+  const el = $("homeSummary");
+  if(el){
+    el.innerHTML = `<p>✅ Você pagou <strong>${paid}</strong> conta(s).</p><p>📌 Restam <strong>${pending}</strong> conta(s).</p>`;
+  }
 
 }
 
