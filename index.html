@@ -971,6 +971,8 @@ td button{
   font-size:12px;
 }
 
+.installmentSchedule{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}.installmentScheduleTitle{font-weight:700;margin-bottom:8px}.installmentScheduleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;margin-top:6px;background:rgba(255,255,255,.035)}.installmentScheduleRow.current{border:1px solid rgba(255,255,255,.12)}.installmentScheduleRow>div:last-child{display:flex;align-items:center;gap:8px}.installmentScheduleRow .muted{display:block;font-size:12px;margin-top:2px}.installmentStatus{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}.installmentStatus.paid{background:rgba(0,200,140,.14);color:#00d89a}.installmentStatus.pending{background:rgba(255,170,0,.12);color:#ffb300}.installmentStatus.late{background:rgba(255,80,80,.12);color:#ff6b6b}
+
 .installmentProgress{
   height:7px;
 
@@ -3616,6 +3618,68 @@ function getRemainingInstallments(
 
 
 /* =========================================================
+   CONTROLE POR MÊS DAS CONTAS
+   ========================================================= */
+
+function currentMonthKey(){
+  return monthInputValue(new Date());
+}
+
+function monthKeyFromDate(date){
+  const d = date instanceof Date ? date : new Date(date);
+  if(Number.isNaN(d.getTime())) return currentMonthKey();
+  return monthInputValue(new Date(d.getFullYear(), d.getMonth(), 1));
+}
+
+function installmentNumberForMonth(data, monthKey){
+  if(!data || data.type !== "installment") return 1;
+  const start = parseMonthInput(data.start);
+  const month = parseMonthInput(monthKey);
+  if(!start || !month) return data.current || 1;
+  const diff = (month.getFullYear() - start.getFullYear()) * 12 + (month.getMonth() - start.getMonth());
+  return Math.min(data.total, Math.max(1, diff + 1));
+}
+
+function billMovementNote(bill, monthKey, installmentNumber){
+  const key = monthKey || currentMonthKey();
+  if(installmentNumber){
+    return `bill:${bill.id}:installment:${installmentNumber}:month:${key}`;
+  }
+  return `bill:${bill.id}:month:${key}`;
+}
+
+function billMovementCandidates(bill, monthKey, installmentNumber){
+  const note = billMovementNote(bill, monthKey, installmentNumber);
+  return database.transactions.filter(t => String(t.notes || "") === note || String(t.notes || "") === `${note}:paid`);
+}
+
+function billMovementForMonth(bill, monthKey, installmentNumber){
+  return billMovementCandidates(bill, monthKey, installmentNumber)[0] || null;
+}
+
+function billMovementIsPaid(movement){
+  return !!movement && String(movement.notes || "").endsWith(":paid");
+}
+
+function currentBillPeriod(bill){
+  const data = getInstallmentData(bill);
+  const monthKey = currentMonthKey();
+  if(data.type === "installment") return {data, monthKey, installment:installmentNumberForMonth(data, monthKey)};
+  return {data, monthKey, installment:null};
+}
+
+function currentBillIsPaid(bill){
+  const period = currentBillPeriod(bill);
+  return billMovementIsPaid(billMovementForMonth(bill, period.monthKey, period.installment));
+}
+
+function isPendingBillMovement(transaction){
+  const notes = String(transaction?.notes || "");
+  return notes.startsWith("bill:") && !notes.endsWith(":paid");
+}
+
+
+/* =========================================================
    MOSTRAR / ESCONDER CAMPOS DE PARCELAMENTO
    ========================================================= */
 
@@ -4645,62 +4709,13 @@ async function importOldData(
 function getBillStatus(
   bill
 ){
-
-  if(bill.paid){
-
-    return{
-
-      text:"Paga",
-
-      className:"paid"
-
-    };
-
-  }
-
-
-  const now =
-    new Date();
-
-
-  const due =
-    new Date(
-
-      now.getFullYear(),
-
-      now.getMonth(),
-
-      10,
-
-      23,
-
-      59,
-
-      59
-
-    );
-
-
+  if(currentBillIsPaid(bill)) return {text:"Paga", className:"paid"};
+  const now = new Date();
+  const due = new Date(now.getFullYear(), now.getMonth(), 10, 23,59,59);
   return now > due
-
-    ? {
-
-        text:"Atrasada",
-
-        className:"late"
-
-      }
-
-    : {
-
-        text:"Vencimento dia 10",
-
-        className:"due"
-
-      };
-
+    ? {text:"Atrasada", className:"late"}
+    : {text:"Vencimento dia 10", className:"due"};
 }
-
 
 /* =========================================================
    HTML DO PARCELAMENTO
@@ -4709,181 +4724,55 @@ function getBillStatus(
 function installmentHTML(
   bill
 ){
+  const data = getInstallmentData(bill);
 
-  const data =
-    getInstallmentData(
-      bill
-    );
-
-
-  if(
-    data.type !==
-    "installment"
-  ){
-
-    return `
-
-      <div class="monthBadge">
-        🔄 Conta mensal / recorrente
-      </div>
-
-    `;
-
+  if(data.type !== "installment"){
+    const paid = currentBillIsPaid(bill);
+    return `<div class="monthBadge">🔄 Conta mensal / recorrente · ${paid ? "🟢 Paga este mês" : "🟡 Pendente este mês"}</div>`;
   }
 
+  const startDate = parseMonthInput(data.start);
+  const end = getInstallmentEndDate(data);
+  const nowMonth = currentMonthKey();
+  const currentInstallment = installmentNumberForMonth(data, nowMonth);
+  const remaining = Math.max(0, data.total - currentInstallment);
 
-  const end =
-    getInstallmentEndDate(
-      data
-    );
+  const rows = Array.from({length:data.total}, (_,i)=>{
+    const n = i + 1;
+    const monthDate = addMonths(startDate, i);
+    const monthKey = monthInputValue(monthDate);
+    const movement = billMovementForMonth(bill, monthKey, n);
+    const paid = billMovementIsPaid(movement);
+    const isCurrent = monthKey === nowMonth;
+    const isPast = monthKey < nowMonth;
+    const status = paid
+      ? '<span class="installmentStatus paid">✓ Paga</span>'
+      : (isPast ? '<span class="installmentStatus late">! Em atraso</span>' : '<span class="installmentStatus pending">Pendente</span>');
+    return `<div class="installmentScheduleRow ${isCurrent ? "current" : ""}">
+      <div><strong>${n}ª parcela</strong><span class="muted">${formatMonth(monthDate)}</span></div>
+      <div><strong>${money(bill.amount)}</strong>${status}</div>
+    </div>`;
+  }).join("");
 
-
-  const currentDate =
-    getCurrentInstallmentDate(
-      data
-    );
-
-
-  const remaining =
-    getRemainingInstallments(
-      data
-    );
-
-
-  const pct =
-    getInstallmentPercent(
-      data
-    );
-
-
-  let remainingText;
-
-
-  if(remaining === 0){
-
-    remainingText =
-      "Última parcela";
-
-  }else{
-
-    remainingText =
-      remaining +
-      (
-        remaining === 1
-          ? " parcela restante"
-          : " parcelas restantes"
-      );
-
-  }
-
-
-  return `
-
-    <div class="installmentBox">
-
-      <div class="installmentMain">
-
-        <div>
-
-          <div class="muted">
-            Parcelamento
-          </div>
-
-          <div class="installmentNumber">
-
-            <span>
-              ${data.current}ª
-            </span>
-
-            de
-            ${data.total}
-            parcelas
-
-          </div>
-
-        </div>
-
-
-        <div class="installmentRemaining">
-
-          ${remainingText}
-
-        </div>
-
-      </div>
-
-
-      <div class="installmentDates">
-
-
-        <div class="installmentDate">
-
-          📅 Mês atual
-
-          <strong>
-
-            ${formatMonth(
-              currentDate
-            )}
-
-          </strong>
-
-        </div>
-
-
-        <div class="installmentDate">
-
-          🏁 Termina em
-
-          <strong>
-
-            ${formatMonth(
-              end
-            )}
-
-          </strong>
-
-        </div>
-
-
-        <div class="installmentDate">
-
-          💰 Valor
-
-          <strong>
-
-            ${money(
-              bill.amount
-            )}
-
-          </strong>
-
-        </div>
-
-      </div>
-
-
-      <div class="installmentProgress">
-
-        <div
-          class="installmentProgressBar"
-          style="width:${pct}%"
-        ></div>
-
-      </div>
-
+  return `<div class="installmentBox">
+    <div class="installmentMain">
+      <div><div class="muted">Parcelamento</div><div class="installmentNumber"><span>${currentInstallment}ª</span> de ${data.total} parcelas</div></div>
+      <div class="installmentRemaining">${remaining} ${remaining === 1 ? "parcela restante" : "parcelas restantes"}</div>
     </div>
-
-  `;
-
+    <div class="installmentDates">
+      <div class="installmentDate">📅 Mês atual<strong>${formatMonth(new Date())}</strong></div>
+      <div class="installmentDate">🏁 Termina em<strong>${formatMonth(end)}</strong></div>
+      <div class="installmentDate">💰 Valor<strong>${money(bill.amount)}</strong></div>
+    </div>
+    <div class="installmentSchedule"><div class="installmentScheduleTitle">📅 Parcelas por mês</div>${rows}</div>
+  </div>`;
 }
-
 
 /* =========================================================
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!b.paid);const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeMonthBills").dataset.realValue=money(totalMonth);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -5032,6 +4921,8 @@ function renderBills(){
       const st =
         getBillStatus(b);
 
+      const currentPaid = currentBillIsPaid(b);
+
 
       const data =
         getInstallmentData(b);
@@ -5136,7 +5027,7 @@ function renderBills(){
 
 
             ${
-              !b.paid
+              !currentPaid
 
                 ? `
 
@@ -5599,7 +5490,7 @@ function renderReports(){
   const expense =
     transactions
       .filter(
-        x=>x.type === "expense"
+        x=>x.type === "expense" && !isPendingBillMovement(x)
       )
       .reduce(
         (s,x)=>
@@ -6534,121 +6425,82 @@ window.editBill =
    SINCRONIZAÇÃO CONTAS → MOVIMENTAÇÕES
    ========================================================= */
 
-function billTransactionDescription(billName, info){
-  const data = typeof info === "string"
-    ? parseBillInfo({info})
-    : (info || {});
-
-  return `Conta: ${billName || "Conta"}` +
-    (data.type === "installment"
-      ? ` — parcela ${data.current}/${data.total}`
-      : "");
+function billTransactionDescription(billName, info, installmentNumber, monthKey){
+  const data = typeof info === "string" ? parseBillInfo({info}) : (info || {});
+  if(data.type === "installment") return `Conta: ${billName || "Conta"} — parcela ${installmentNumber || data.current}/${data.total} — ${formatMonth(parseMonthInput(monthKey || data.start))}`;
+  return `Conta: ${billName || "Conta"} — ${formatMonth(parseMonthInput(monthKey || currentMonthKey()))}`;
 }
 
 async function syncBillTransaction(bill){
-  if(!currentUser || !bill?.id){
-    return;
-  }
+  if(!currentUser || !bill?.id) return;
+  const period = currentBillPeriod(bill);
+  const note = billMovementNote(bill, period.monthKey, period.installment);
+  const paidNote = `${note}:paid`;
+  let candidates = database.transactions.filter(t => String(t.notes || "") === note || String(t.notes || "") === paidNote);
 
-  const description =
-    billTransactionDescription(bill.name, bill.info);
-
-  const payload = {
-    user_id: currentUser.id,
-    type: "expense",
-    description,
-    amount: Number(bill.amount || 0),
-    date: new Date().toISOString().slice(0,10),
-    category: "Contas"
-  };
-
-  const billPrefix = `bill:${bill.id}`;
-  const installmentData = parseBillInfo({info:bill.info});
-  const activeNote = installmentData.type === "installment"
-    ? `${billPrefix}:next:${installmentData.current}`
-    : billPrefix;
-
-  /*
-    Uma conta deve ter UMA única movimentação ativa.
-    Se uma versão anterior do app criou duplicatas, mantemos a primeira
-    e removemos somente as duplicatas da mesma movimentação.
-  */
-  const candidates = database.transactions.filter(t =>
-    String(t.notes || "") === activeNote
-  );
-
-  if(candidates.length){
-    const keep = candidates[0];
-
-    const r = await supabaseClient
-      .from("transactions")
-      .update({
-        ...payload,
-        notes: activeNote
-      })
-      .eq("id", keep.id)
-      .eq("user_id", currentUser.id);
-
-    if(r.error) throw r.error;
-
-    for(const duplicate of candidates.slice(1)){
-      const d = await supabaseClient
-        .from("transactions")
-        .delete()
-        .eq("id", duplicate.id)
-        .eq("user_id", currentUser.id);
-
-      if(d.error) throw d.error;
-    }
-
-    return;
-  }
-
-  /* Compatibilidade com pagamentos criados pela versão anterior. */
-  const legacyDescription =
-    `Conta paga: ${bill.name || "Conta"}`;
-
-  const legacy =
-    database.transactions.find(t =>
-      t.type === "expense" &&
-      String(t.description || "").startsWith(legacyDescription) &&
-      Number(t.amount || 0) === Number(bill.amount || 0) &&
-      !String(t.notes || "").startsWith("bill:")
-    );
-
-  if(legacy){
-    const r = await supabaseClient
-      .from("transactions")
-      .update({
-        ...payload,
-        notes: activeNote,
-        date: legacy.date || payload.date
-      })
-      .eq("id", legacy.id)
-      .eq("user_id", currentUser.id);
-
-    if(r.error) throw r.error;
-    return;
-  }
-
-  const r = await supabaseClient
-    .from("transactions")
-    .insert({
-      ...payload,
-      notes: activeNote
+  /* Migra lançamentos automáticos antigos do mês atual sem apagar históricos. */
+  if(!candidates.length){
+    const legacy = database.transactions.filter(t => {
+      const n=String(t.notes || "");
+      if(!n.startsWith(`bill:${bill.id}`)) return false;
+      if(n.includes(":installment:") || n.includes(":month:")) return false;
+      if(t.type !== "expense") return false;
+      if(Number(t.amount || 0) !== Number(bill.amount || 0)) return false;
+      return monthKeyFromDate(t.date) === period.monthKey;
     });
 
-  if(r.error) throw r.error;
+    if(legacy.length){
+      const keep=legacy[0];
+      const wasPaid=legacy.some(t => String(t.notes || "").endsWith(":paid"));
+      const mr=await supabaseClient.from("transactions").update({
+        user_id:currentUser.id,
+        type:"expense",
+        description:billTransactionDescription(bill.name,bill.info,period.installment,period.monthKey),
+        amount:Number(bill.amount || 0),
+        date:keep.date || `${period.monthKey}-01`,
+        category:"Contas",
+        notes:wasPaid ? paidNote : note
+      }).eq("id",keep.id).eq("user_id",currentUser.id);
+      if(mr.error) throw mr.error;
+      for(const duplicate of legacy.slice(1)){
+        const dr=await supabaseClient.from("transactions").delete().eq("id",duplicate.id).eq("user_id",currentUser.id);
+        if(dr.error) throw dr.error;
+      }
+      candidates=[{...keep,notes:wasPaid ? paidNote : note}];
+    }
+  }
+
+  const paid = candidates.some(t => billMovementIsPaid(t));
+  const payload = {
+    user_id:currentUser.id, type:"expense",
+    description:billTransactionDescription(bill.name,bill.info,period.installment,period.monthKey),
+    amount:Number(bill.amount || 0), date:`${period.monthKey}-01`, category:"Contas",
+    notes:paid ? paidNote : note
+  };
+
+  if(candidates.length){
+    const keep=candidates[0];
+    const r=await supabaseClient.from("transactions").update(payload).eq("id",keep.id).eq("user_id",currentUser.id);
+    if(r.error) throw r.error;
+    for(const duplicate of candidates.slice(1)){
+      const d=await supabaseClient.from("transactions").delete().eq("id",duplicate.id).eq("user_id",currentUser.id);
+      if(d.error) throw d.error;
+    }
+  }else{
+    const r=await supabaseClient.from("transactions").insert(payload);
+    if(r.error) throw r.error;
+  }
+
+  const billPaid = period.data.type === "installment"
+    ? (period.installment === period.data.total && paid)
+    : paid;
+  const br=await supabaseClient.from("bills").update({paid:billPaid}).eq("id",bill.id).eq("user_id",currentUser.id);
+  if(br.error) throw br.error;
 }
 
 async function syncAllBillsToTransactions(){
-  if(!currentUser || !database.bills.length){
-    return;
-  }
-
-  for(const bill of database.bills){
-    await syncBillTransaction(bill);
-  }
+  if(!currentUser || !database.bills.length) return;
+  for(const bill of database.bills) await syncBillTransaction(bill);
 }
 
 /* =========================================================
@@ -6817,180 +6669,40 @@ $("saveBillButton").onclick =
 
 window.markBillPaid =
   async id=>{
+    try{
+      const bill=database.bills.find(x=>String(x.id)===String(id));
+      if(!bill) return;
+      if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
 
-    const bill = database.bills.find(
-      x=>String(x.id) === String(id)
-    );
+      const period=currentBillPeriod(bill);
+      const note=billMovementNote(bill,period.monthKey,period.installment);
+      let movement=billMovementForMonth(bill,period.monthKey,period.installment);
 
-    if(!bill) return;
-
-    if(!currentUser){
-      return alert("Sua sessão expirou. Entre novamente.");
-    }
-
-    if(bill.paid) return;
-
-    const data = getInstallmentData(bill);
-    const paymentAmount = Number(bill.amount || 0);
-
-    if(paymentAmount <= 0){
-      return alert("Esta conta não possui um valor válido para registrar o pagamento.");
-    }
-
-    /*
-      A conta já foi registrada como saída no momento em que foi cadastrada.
-      Marcar como paga NÃO cria uma segunda saída: apenas atualiza a mesma
-      movimentação para indicar que o pagamento foi concluído.
-    */
-
-    if(data.type === "monthly"){
-
-      const r = await supabaseClient
-        .from("bills")
-        .update({paid:true})
-        .eq("id", id)
-        .eq("user_id", currentUser.id);
-
-      if(r.error) return alert(r.error.message);
-
-      const movementNote = data.type === "installment"
-      ? `bill:${id}:next:${data.current}`
-      : `bill:${id}`;
-
-      const movement = database.transactions.find(t =>
-        String(t.notes || "") === movementNote
-      );
-
-      if(movement){
-        const tr = await supabaseClient
-          .from("transactions")
-          .update({
-            date:new Date().toISOString().slice(0,10),
-            notes:`bill:${id}:paid`
-          })
-          .eq("id", movement.id)
-          .eq("user_id", currentUser.id);
-
-        if(tr.error) return alert(tr.error.message);
+      if(!movement){
+        await syncBillTransaction(bill);
+        await loadCloudData(false);
+        movement=billMovementForMonth(bill,period.monthKey,period.installment);
       }
+      if(!movement) return alert("Não foi possível localizar a movimentação desta conta.");
+      if(billMovementIsPaid(movement)) return alert("Esta parcela já está marcada como paga. 🧡");
+
+      const r=await supabaseClient.from("transactions").update({notes:`${note}:paid`,date:new Date().toISOString().slice(0,10)}).eq("id",movement.id).eq("user_id",currentUser.id);
+      if(r.error) throw r.error;
+
+      const isLast=period.data.type==="installment" && period.installment===period.data.total;
+      const br=await supabaseClient.from("bills").update({paid:isLast || period.data.type==="monthly"}).eq("id",id).eq("user_id",currentUser.id);
+      if(br.error) throw br.error;
 
       await loadCloudData(false);
-      renderEverything();
-      return;
-    }
-
-    /*
-      Parcelada: a parcela atual já possui sua saída.
-      Depois do pagamento, criamos a saída da próxima parcela para que
-      a nova conta corrente também fique refletida em Movimentações.
-    */
-    if(data.current < data.total){
-
-      const next = data.current + 1;
-      const newInfo = createInstallmentInfo(
-        next,
-        data.total,
-        data.start,
-        data.extra
-      );
-
-      const movementNote = data.type === "installment"
-      ? `bill:${id}:next:${data.current}`
-      : `bill:${id}`;
-
-      const movement = database.transactions.find(t =>
-        String(t.notes || "") === movementNote
-      );
-
-      if(movement){
-        const tr = await supabaseClient
-          .from("transactions")
-          .update({
-            date:new Date().toISOString().slice(0,10),
-            notes:`bill:${id}:paid`
-          })
-          .eq("id", movement.id)
-          .eq("user_id", currentUser.id);
-
-        if(tr.error) return alert(tr.error.message);
-      }
-
-      const r = await supabaseClient
-        .from("bills")
-        .update({
-          info:newInfo,
-          paid:false
-        })
-        .eq("id", id)
-        .eq("user_id", currentUser.id);
-
-      if(r.error) return alert(r.error.message);
-
-      /* A próxima parcela passa a ter sua própria saída. */
-      await supabaseClient
-        .from("transactions")
-        .insert({
-          user_id:currentUser.id,
-          type:"expense",
-          description:billTransactionDescription(bill.name, newInfo),
-          amount:paymentAmount,
-          date:new Date().toISOString().slice(0,10),
-          category:"Contas",
-          notes:`bill:${id}:next:${next}`
-        });
-
+      await syncAllBillsToTransactions();
       await loadCloudData(false);
       renderEverything();
 
-      alert(
-        "Parcela paga! 🧡\n\n" +
-        "A saída da parcela foi mantida nas Movimentações.\n\n" +
-        "Agora a conta está na " + next + "ª de " + data.total + " parcelas."
-      );
-      return;
+      alert(isLast ? "🎉 Última parcela paga! O histórico mensal foi mantido." : "Parcela paga! 🧡 Ela continua registrada no mês correspondente.");
+    }catch(e){
+      console.error(e);
+      alert(e.message || "Não foi possível marcar a conta como paga.");
     }
-
-    const confirmed = confirm(
-      "Esta é a última parcela.\n\n" +
-      "A conta será marcada como quitada e a saída já registrada será mantida nas Movimentações.\n\n" +
-      "Deseja continuar?"
-    );
-
-    if(!confirmed) return;
-
-    const r = await supabaseClient
-      .from("bills")
-      .update({paid:true})
-      .eq("id", id)
-      .eq("user_id", currentUser.id);
-
-    if(r.error) return alert(r.error.message);
-
-    const movement = database.transactions.find(t =>
-      String(t.notes || "") === `bill:${id}`
-    );
-
-    if(movement){
-      const tr = await supabaseClient
-        .from("transactions")
-        .update({
-          date:new Date().toISOString().slice(0,10),
-          notes:`bill:${id}:paid`
-        })
-        .eq("id", movement.id)
-        .eq("user_id", currentUser.id);
-
-      if(tr.error) return alert(tr.error.message);
-    }
-
-    await loadCloudData(false);
-    renderEverything();
-
-    alert(
-      "🎉 Última parcela paga!\n\n" +
-      "A saída já estava registrada em Movimentações.\n\n" +
-      "Dívida quitada com sucesso."
-    );
   };
 
 
