@@ -4309,7 +4309,8 @@ function showLogin(){
    ========================================================= */
 
 async function loadCloudData(
-  allowImport
+  allowImport,
+  syncBills = true
 ){
 
   if(!currentUser){
@@ -4412,7 +4413,9 @@ async function loadCloudData(
     Movimentações como uma saída. Isso também corrige
     contas antigas que foram cadastradas antes da sincronização.
   */
-  await syncAllBillsToTransactions();
+  if(syncBills){
+    await syncAllBillsToTransactions();
+  }
 
   /*
     Importação do sistema antigo.
@@ -6814,7 +6817,7 @@ $("saveBillButton").onclick =
         $("billAmount").value = "";
         $("billTotalDebt").value = "";
 
-        await loadCloudData(false);
+        await loadCloudData(false, false);
         renderEverything();
 
         alert("Conta atualizada com sucesso! 🧡");
@@ -6842,7 +6845,7 @@ $("saveBillButton").onclick =
       if(r.error) throw r.error;
 
       /* Ao cadastrar a conta, ela já entra como SAÍDA em Movimentações. */
-      await syncBillTransaction({
+      const newBill = {
         id:r.data.id,
         name,
         amount,
@@ -6850,15 +6853,29 @@ $("saveBillButton").onclick =
         info,
         due_day:10,
         paid:false
-      });
+      };
 
+      /*
+         No celular, não vamos prender o salvamento esperando a
+         sincronização da conta com Movimentações. A conta é salva
+         primeiro e a saída é sincronizada em segundo plano.
+      */
       $("billForm").classList.add("hidden");
       $("billName").value = "";
       $("billAmount").value = "";
       $("billTotalDebt").value = "";
 
-      await loadCloudData(false);
+      await loadCloudData(false, false);
       renderEverything();
+
+      syncBillTransaction(newBill)
+        .then(async()=>{
+          await loadCloudData(false, false);
+          renderEverything();
+        })
+        .catch(e=>{
+          console.error("Erro ao sincronizar a conta com Movimentações:", e);
+        });
 
     }catch(e){
       console.error(e);
