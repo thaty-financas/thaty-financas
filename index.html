@@ -2053,7 +2053,6 @@ td button{
 
       <div class="grid">
         <div class="card">
-          <div id="homeSummary" class="muted" style="margin-top:16px"></div>
           <div class="muted">
             Saldo atual
           </div>
@@ -2148,8 +2147,8 @@ td button{
 
             <input
               id="transactionAmount"
-              type="number"
-              step="0.01"
+              type="text"
+              inputmode="decimal"
             >
 
           </div>
@@ -2582,8 +2581,8 @@ td button{
 
             <input
               id="goalTarget"
-              type="number"
-              step="0.01"
+              type="text"
+              inputmode="decimal"
             >
 
           </div>
@@ -2597,8 +2596,8 @@ td button{
 
             <input
               id="goalSaved"
-              type="number"
-              step="0.01"
+              type="text"
+              inputmode="decimal"
               value="0"
             >
 
@@ -2735,8 +2734,8 @@ td button{
 
         <input
           id="balanceInput"
-          type="number"
-          step="0.01"
+          type="text"
+              inputmode="decimal"
         >
 
 
@@ -2874,22 +2873,38 @@ function money(v){
 }
 
 
-function numberValue(v){
-
-  if(typeof v === "number"){
-    return v;
-  }
-
-  let t =
-    String(v || "")
-      .replace(/[^\d,.-]/g,"")
-      .replace(/\./g,"")
-      .replace(",", ".");
-
-  return Number(t) || 0;
-
+function formatInputMoney(value){
+  return Number(value || 0).toLocaleString("pt-BR",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
 }
 
+function numberValue(value){
+
+  if(typeof value === "number") return value;
+
+  let text = String(value || "").trim();
+  if(!text) return 0;
+
+  text = text.replace(/\s/g,"");
+
+  const hasComma = text.includes(",");
+  const hasDot = text.includes(".");
+
+  if(hasComma && hasDot){
+    if(text.lastIndexOf(",") > text.lastIndexOf(".")){
+      text = text.replace(/\./g,"");
+      text = text.replace(",",".");
+    }else{
+      text = text.replace(/,/g,"");
+    }
+  }else if(hasComma){
+    text = text.replace(",",".");
+  }
+
+  return Number(text) || 0;
+}
 
 function escapeHtml(v){
 
@@ -4792,13 +4807,6 @@ function renderHome(){
 
   applyPrivacyMode();
 
-  const paid = database.bills.filter(x=>x.paid).length;
-  const pending = database.bills.filter(x=>!x.paid).length;
-  const el = $("homeSummary");
-  if(el){
-    el.innerHTML = `<p>✅ Você pagou <strong>${paid}</strong> conta(s).</p><p>📌 Restam <strong>${pending}</strong> conta(s).</p>`;
-  }
-
 }
 
 
@@ -6320,16 +6328,10 @@ window.editBill =
       bill.name || "";
 
 
-    $("billAmount").value =
-      Number(
-        bill.amount || 0
-      );
+    $("billAmount").value = formatInputMoney(bill.amount);
 
 
-    $("billTotalDebt").value =
-      Number(
-        bill.total_debt || 0
-      );
+    $("billTotalDebt").value = formatInputMoney(bill.total_debt);
 
 
     if(
@@ -6465,10 +6467,16 @@ $("saveBillButton").onclick =
       }
 
 
+      const existingBill =
+        editingBillId
+          ? database.bills.find(b => String(b.id) === String(editingBillId))
+          : null;
+
       if(totalDebt <= 0){
 
-        totalDebt =
-          amount;
+        totalDebt = existingBill
+          ? Number(existingBill.total_debt)
+          : amount;
 
       }
 
