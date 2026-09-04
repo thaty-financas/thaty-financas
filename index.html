@@ -6559,8 +6559,7 @@ async function syncBillTransaction(bill){
     description,
     amount: Number(bill.amount || 0),
     date: new Date().toISOString().slice(0,10),
-    category: "Contas",
-    notes: `bill:${bill.id}`
+    category: "Contas"
   };
 
   const billPrefix = `bill:${bill.id}`;
@@ -6569,22 +6568,39 @@ async function syncBillTransaction(bill){
     ? `${billPrefix}:next:${installmentData.current}`
     : billPrefix;
 
-  const existing = database.transactions.find(t => {
-    const note = String(t.notes || "");
-    if(bill.paid){
-      return note === `${billPrefix}:paid`;
-    }
-    return note === activeNote;
-  });
+  /*
+    Uma conta deve ter UMA única movimentação ativa.
+    Se uma versão anterior do app criou duplicatas, mantemos a primeira
+    e removemos somente as duplicatas da mesma movimentação.
+  */
+  const candidates = database.transactions.filter(t =>
+    String(t.notes || "") === activeNote
+  );
 
-  if(existing){
+  if(candidates.length){
+    const keep = candidates[0];
+
     const r = await supabaseClient
       .from("transactions")
-      .update(payload)
-      .eq("id", existing.id)
+      .update({
+        ...payload,
+        notes: activeNote
+      })
+      .eq("id", keep.id)
       .eq("user_id", currentUser.id);
 
     if(r.error) throw r.error;
+
+    for(const duplicate of candidates.slice(1)){
+      const d = await supabaseClient
+        .from("transactions")
+        .delete()
+        .eq("id", duplicate.id)
+        .eq("user_id", currentUser.id);
+
+      if(d.error) throw d.error;
+    }
+
     return;
   }
 
@@ -6596,7 +6612,8 @@ async function syncBillTransaction(bill){
     database.transactions.find(t =>
       t.type === "expense" &&
       String(t.description || "").startsWith(legacyDescription) &&
-      Number(t.amount || 0) === Number(bill.amount || 0)
+      Number(t.amount || 0) === Number(bill.amount || 0) &&
+      !String(t.notes || "").startsWith("bill:")
     );
 
   if(legacy){
@@ -6604,6 +6621,7 @@ async function syncBillTransaction(bill){
       .from("transactions")
       .update({
         ...payload,
+        notes: activeNote,
         date: legacy.date || payload.date
       })
       .eq("id", legacy.id)
@@ -6615,7 +6633,10 @@ async function syncBillTransaction(bill){
 
   const r = await supabaseClient
     .from("transactions")
-    .insert(payload);
+    .insert({
+      ...payload,
+      notes: activeNote
+    });
 
   if(r.error) throw r.error;
 }
