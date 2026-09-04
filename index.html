@@ -3691,7 +3691,12 @@ function currentBillPeriod(bill){
   return {data, monthKey, installment:null};
 }
 
+function isBillQuitada(bill){
+  return String(bill?.info || "").includes("|QUITADA=1");
+}
+
 function currentBillIsPaid(bill){
+  if(isBillQuitada(bill)) return true;
   const period = currentBillPeriod(bill);
   return billMovementIsPaid(billMovementForMonth(bill, period.monthKey, period.installment));
 }
@@ -4763,7 +4768,7 @@ function installmentHTML(
   const end = getInstallmentEndDate(data);
   const nowMonth = currentMonthKey();
   const currentInstallment = installmentNumberForMonth(data, nowMonth);
-  const remaining = Math.max(0, data.total - currentInstallment);
+  const remaining = isBillQuitada(bill) ? 0 : Math.max(0, data.total - currentInstallment);
 
   const rows = Array.from({length:data.total}, (_,i)=>{
     const n = i + 1;
@@ -4773,9 +4778,11 @@ function installmentHTML(
     const paid = billMovementIsPaid(movement);
     const isCurrent = monthKey === nowMonth;
     const isPast = monthKey < nowMonth;
-    const status = paid
-      ? '<span class="installmentStatus paid">✓ Paga</span>'
-      : (isPast ? '<span class="installmentStatus late">! Em atraso</span>' : '<span class="installmentStatus pending">Pendente</span>');
+    const status = isBillQuitada(bill)
+      ? '<span class="installmentStatus paid">✓ Quitada</span>'
+      : (paid
+        ? '<span class="installmentStatus paid">✓ Paga</span>'
+        : (isPast ? '<span class="installmentStatus late">! Em atraso</span>' : '<span class="installmentStatus pending">Pendente</span>'));
     return `<div class="installmentScheduleRow ${isCurrent ? "current" : ""}">
       <div><strong>${n}ª parcela</strong><span class="muted">${formatMonth(monthDate)}</span></div>
       <div><strong>${money(bill.amount)}</strong>${status}</div>
@@ -5110,6 +5117,20 @@ function renderBills(){
                 : ""
             }
 
+            ${
+              data.type === "installment" && !isBillQuitada(b)
+                ? `
+                  <button
+                    type="button"
+                    class="quitButton"
+                    onclick="quitDebt('${b.id}')"
+                  >
+                    💰 Quitar parcelas
+                  </button>
+                `
+                : ""
+            }
+
 
             <button
               type="button"
@@ -5298,7 +5319,7 @@ function renderDebts(){
 
 
             ${
-              !x.paid
+              !isBillQuitada(x)
 
                 ? `
 
@@ -5307,7 +5328,7 @@ function renderDebts(){
                     class="quitButton"
                     onclick="quitDebt('${x.id}')"
                   >
-                    💰 Quitar dívida
+                    💰 ${getInstallmentData(x).type === "installment" ? "Quitar parcelas" : "Quitar conta"}
                   </button>
 
                 `
@@ -5318,7 +5339,7 @@ function renderDebts(){
                     type="button"
                     disabled
                   >
-                    ✓ Dívida quitada
+                    ✓ ${getInstallmentData(x).type === "installment" ? "Parcelas quitadas" : "Conta quitada"}
                   </button>
 
                 `
@@ -6641,6 +6662,7 @@ function billTransactionDescription(billName, info, installmentNumber, monthKey)
 
 async function syncBillTransaction(bill){
   if(!currentUser || !bill?.id) return;
+  if(isBillQuitada(bill)) return;
   const period = currentBillPeriod(bill);
   const note = billMovementNote(bill, period.monthKey, period.installment);
   const paidNote = `${note}:paid`;
@@ -6934,94 +6956,75 @@ window.markBillPaid =
 
 window.quitDebt =
   async id=>{
+    try{
+      const bill = database.bills.find(x=>String(x.id)===String(id));
+      if(!bill || !currentUser) return;
+      if(isBillQuitada(bill)) return alert("Esta conta já foi quitada. 💜");
 
-    const bill =
-      database.bills.find(
-        x=>
-          String(x.id) ===
-          String(id)
+      const data = getInstallmentData(bill);
+      const period = currentBillPeriod(bill);
+      const currentMovement = data.type === "installment"
+        ? billMovementForMonth(bill, period.monthKey, period.installment)
+        : billMovementForMonth(bill, period.monthKey, null);
+      const currentPaid = billMovementIsPaid(currentMovement);
+
+      let remainingCount = 1;
+      if(data.type === "installment") {
+        remainingCount = Math.max(0, data.total - period.installment + (currentPaid ? 0 : 1));
+      }
+
+      if(remainingCount <= 0){
+        return alert("Não há parcelas restantes para quitar. 💜");
+      }
+
+      const totalToQuit = Number(bill.amount || 0) * remainingCount;
+      const label = data.type === "installment"
+        ? `${remainingCount} ${remainingCount === 1 ? "parcela restante" : "parcelas restantes"}`
+        : "esta conta";
+
+      const confirmed = confirm(
+        `Deseja quitar ${label} agora?\n\n` +
+        `Valor da quitação: ${money(totalToQuit)}\n\n` +
+        `O aplicativo vai registrar a quitação nas Movimentações e encerrar as parcelas futuras.`
       );
 
+      if(!confirmed) return;
 
-    if(!bill){
-      return;
+      const quitNote = `bill:${bill.id}:quitado:${new Date().toISOString().slice(0,10)}`;
+      const existingQuit = database.transactions.find(t=>String(t.notes || "").startsWith(`bill:${bill.id}:quitado:`));
+
+      if(!existingQuit){
+        const tr = await supabaseClient.from("transactions").insert({
+          user_id:currentUser.id,
+          type:"expense",
+          description:`Quitação: ${bill.name}`,
+          amount:totalToQuit,
+          date:new Date().toISOString().slice(0,10),
+          category:"Contas",
+          notes:quitNote
+        });
+        if(tr.error) throw tr.error;
+      }
+
+      const newInfo = String(bill.info || "").includes("|QUITADA=1")
+        ? String(bill.info || "")
+        : `${String(bill.info || "")}|QUITADA=1`;
+
+      const r = await supabaseClient.from("bills").update({
+        paid:true,
+        info:newInfo
+      }).eq("id",id).eq("user_id",currentUser.id);
+
+      if(r.error) throw r.error;
+
+      await loadCloudData(false, false);
+      renderEverything();
+      alert("Dívida quitada com sucesso! 🎉 As parcelas futuras foram encerradas.");
+    }catch(e){
+      console.error(e);
+      alert(e.message || "Não foi possível quitar as parcelas.");
     }
-
-
-    const total =
-      Number(
-        bill.total_debt ||
-        bill.amount ||
-        0
-      );
-
-
-    const confirmed =
-      confirm(
-
-        "Deseja realmente quitar esta dívida?\n\n" +
-
-        "Dívida: " +
-        bill.name +
-
-        "\n" +
-
-        "Valor registrado: " +
-        money(total) +
-
-        "\n\n" +
-
-        "A dívida será marcada como quitada."
-
-      );
-
-
-    if(!confirmed){
-      return;
-    }
-
-
-    const r =
-      await supabaseClient
-        .from("bills")
-        .update({
-
-          paid:true
-
-        })
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
-
-
-    if(r.error){
-
-      return alert(
-        r.error.message
-      );
-
-    }
-
-
-    await loadCloudData(
-      false
-    );
-
-
-    renderEverything();
-
-
-    alert(
-      "Dívida quitada com sucesso! 🎉"
-    );
-
   };
-
 
 /* =========================================================
    OBJETIVOS
