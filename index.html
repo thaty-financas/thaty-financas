@@ -1769,6 +1769,38 @@ td button{
 }
 
 /* V3 additions */
+.homeHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+}
+.homeHeader h2{margin:0}
+.homeProfileButton{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  padding:0;
+  border:1px solid var(--border);
+  border-radius:50%;
+  background:var(--card);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  cursor:pointer;
+}
+.homeProfilePhoto{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.homeProfileFallback{
+  font-size:18px;
+  line-height:1;
+}
 .homeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:20px}.homeCard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;background:linear-gradient(145deg,#123555,#0a2039);box-shadow:var(--shadow)}.homeCard:nth-child(2){background:linear-gradient(145deg,#0d3040,#0b2438)}.homeCard:nth-child(3){background:linear-gradient(145deg,#2a1d33,#16223a)}.homeIcon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}.monthProgress{height:10px;background:#061425;border-radius:20px;overflow:hidden;margin-top:14px}.monthProgressBar{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:20px}
 </style>
 
@@ -2034,7 +2066,13 @@ td button{
          =================================================== -->
 
     <section id="home" class="page">
-<h2 id="homeGreeting">Olá, Thaty! 👋</h2>
+<div class="homeHeader">
+  <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
+  <button id="homeProfileButton" class="homeProfileButton" type="button" aria-label="Abrir meu perfil">
+    <img id="homeProfilePhoto" class="homeProfilePhoto hidden" alt="Foto de perfil">
+    <span id="homeProfileFallback" class="homeProfileFallback">👤</span>
+  </button>
+</div>
 <button id="privacyToggle" class="valuePrivacyButton" type="button" aria-label="Ocultar valores">👁️</button>
 <div class="homeGrid">
 <div class="homeCard"><div class="homeIcon">💰</div><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 0,00</div></div>
@@ -5737,6 +5775,24 @@ function renderReports(){
    CONFIGURAÇÕES
    ========================================================= */
 
+function renderHomeProfile(){
+  const photo = $("homeProfilePhoto");
+  const fallback = $("homeProfileFallback");
+  if(!photo || !fallback) return;
+
+  const profilePhoto = localStorage.getItem("thaty_profile_photo") || "";
+
+  if(profilePhoto){
+    photo.src = profilePhoto;
+    photo.classList.remove("hidden");
+    fallback.classList.add("hidden");
+  }else{
+    photo.removeAttribute("src");
+    photo.classList.add("hidden");
+    fallback.classList.remove("hidden");
+  }
+}
+
 function renderSettings(){
 
   $("balanceInput").value =
@@ -5963,6 +6019,14 @@ $("mobileMenuOverlay")
     closeMobileMenu
   );
 
+
+const homeProfileButton = $("homeProfileButton");
+if(homeProfileButton){
+  homeProfileButton.addEventListener("click", ()=>{
+    const settingsButton = document.querySelector('[data-page="settings"]');
+    if(settingsButton) settingsButton.click();
+  });
+}
 
 /* =========================================================
    OLHINHO
