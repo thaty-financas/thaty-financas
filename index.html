@@ -2031,42 +2031,21 @@ td button{
          INÍCIO
          =================================================== -->
 
-    <section
-      id="home"
-      class="page"
-    >
-
-      <h2 id="homeGreeting">
-        Olá, Thaty! 👋
-      </h2>
-
-      <button
-        id="privacyToggle"
-        class="valuePrivacyButton"
-        type="button"
-        aria-label="Ocultar valores"
-        aria-pressed="false"
-        title="Ocultar valores"
-      >
-        👁️
-      </button>
-
-      <div class="grid">
-        <div class="card">
-          <div class="muted">
-            Saldo atual
-          </div>
-
-          <div
-            id="dashboardBalance"
-            class="value"
-          >
-            R$ 0,00
-          </div>
-        </div>
-      </div>
-
-    </section>
+    <section id="home" class="page">
+<h2 id="homeGreeting">Olá, Thaty! 👋</h2>
+<button id="privacyToggle" class="valuePrivacyButton" type="button">👁️</button>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-bottom:20px">
+<div class="card"><div class="muted">Saldo disponível</div><div id="dashboardBalance" class="value">R$ 324,04</div></div>
+<div class="card"><div class="muted">Total das contas do mês</div><div id="homeMonthBills" class="value orange">R$ 0,00</div></div>
+<div class="card"><div class="muted">Falta para concluir</div><div id="homeGoalsRemaining" class="value">R$ 0,00</div></div></div>
+<div class="card"><div class="row"><h3>Situação do mês</h3><span id="homeStatusBadge" class="badge due">Em andamento</span></div>
+<div class="grid" style="grid-template-columns:repeat(3,1fr)">
+<div><div class="muted">Contas</div><div id="homeBillsCount" class="value">0</div></div>
+<div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div>
+<div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
+<div class="progress"><div id="monthProgressBar" class="progressBar" style="width:0%"></div></div>
+<p id="homeStatusMessage" class="muted" style="margin-top:15px">Cadastre suas contas para acompanhar o mês.</p></div>
+<div class="card"><h3>Como usar o Thaty Finanças</h3><div id="homeSummary"><p>💳 Cadastre contas fixas e parceladas.</p><p>✅ Marque uma conta como paga.</p><p>🎯 Atualize seus objetivos.</p><p>📊 Consulte os Relatórios para ver os detalhes.</p></div></div></section>
 
 
     <!-- ===================================================
@@ -2733,9 +2712,7 @@ td button{
         </label>
 
         <input
-          id="balanceInput"
-          type="text"
-              inputmode="decimal"
+          id="balanceInput" type="text" inputmode="decimal" value="324,04"
         >
 
 
@@ -4799,14 +4776,26 @@ function installmentHTML(
    ========================================================= */
 
 function renderHome(){
-
-  renderUserGreeting();
-
-  $("dashboardBalance").dataset.realValue =
-    money(database.balance);
-
-  applyPrivacyMode();
-
+renderUserGreeting();
+const entradas=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);
+const saidas=database.transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);
+const saldo=(Number(database.balance||324.04)+entradas-saidas);
+const abertas=database.bills.filter(b=>!b.paid);
+const totalMes=abertas.reduce((s,b)=>s+Number(b.amount||0),0);
+const falta=Math.max(0,database.goals.reduce((s,g)=>s+(Number(g.target||0)-Number(g.saved||0)),0));
+const pagas=database.bills.length-abertas.length;
+const perc=database.bills.length?Math.round((pagas/database.bills.length)*100):0;
+$('dashboardBalance').dataset.realValue=money(saldo);
+$('homeMonthBills').dataset.realValue=money(totalMes);
+$('homeGoalsRemaining').dataset.realValue=money(falta);
+$('homeBillsCount').textContent=database.bills.length;
+$('homeDueToday').textContent=new Date().getDate()===10?abertas.length:0;
+$('homeLateCount').textContent=new Date().getDate()>10?abertas.length:0;
+$('monthProgressBar').style.width=perc+'%';
+const badge=$('homeStatusBadge'),msg=$('homeStatusMessage');
+if(!abertas.length){badge.className='badge paid';badge.textContent='Tudo pago';msg.textContent='Parabéns! Todas as contas deste mês estão quitadas.';}
+else{badge.className=new Date().getDate()>10?'badge late':'badge due';badge.textContent=new Date().getDate()>10?'Atrasadas':'Em andamento';msg.textContent=`Você já pagou ${perc}% das contas. Faltam ${abertas.length} conta(s) (${money(totalMes)}).`;}
+applyPrivacyMode();
 }
 
 
