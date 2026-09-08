@@ -4173,13 +4173,16 @@ async function authAction(){
       );
 
 
-      await loadCloudData(true);
+      await loadCloudData(true, false);
 
 
       renderEverything();
 
 
       hideLoading();
+
+      /* Não bloqueia o celular com a sincronização das contas. */
+      syncBillsInBackground();
 
     }catch(dataError){
 
@@ -4315,7 +4318,7 @@ function showLogin(){
 
 async function loadCloudData(
   allowImport,
-  syncBills = true
+  syncBills = false
 ){
 
   if(!currentUser){
@@ -4414,9 +4417,11 @@ async function loadCloudData(
 
 
   /*
-    Toda conta cadastrada também precisa existir em
-    Movimentações como uma saída. Isso também corrige
-    contas antigas que foram cadastradas antes da sincronização.
+    A sincronização das contas com Movimentações não bloqueia mais
+    a abertura do aplicativo. No celular, essa rotina pode envolver
+    várias leituras/escritas no Supabase e deixar a tela presa em
+    "Carregando". Quando syncBills for solicitado explicitamente,
+    ela ainda pode ser executada normalmente.
   */
   if(syncBills){
     await syncAllBillsToTransactions();
@@ -6728,9 +6733,36 @@ async function syncBillTransaction(bill){
   if(br.error) throw br.error;
 }
 
+let billSyncInProgress = false;
+
 async function syncAllBillsToTransactions(){
-  if(!currentUser || !database.bills.length) return;
-  for(const bill of database.bills) await syncBillTransaction(bill);
+  if(!currentUser || !database.bills.length || billSyncInProgress) return;
+  billSyncInProgress = true;
+  try{
+    for(const bill of [...database.bills]){
+      try{
+        await syncBillTransaction(bill);
+      }catch(e){
+        console.error("Erro ao sincronizar conta:", bill?.name, e);
+      }
+    }
+  }finally{
+    billSyncInProgress = false;
+  }
+}
+
+function syncBillsInBackground(){
+  if(!currentUser || billSyncInProgress) return;
+  syncAllBillsToTransactions()
+    .then(async()=>{
+      try{
+        await loadCloudData(false, false);
+        renderEverything();
+      }catch(e){
+        console.error("Erro ao atualizar dados após sincronização:", e);
+      }
+    })
+    .catch(e=>console.error("Erro na sincronização em segundo plano:", e));
 }
 
 /* =========================================================
@@ -6924,7 +6956,7 @@ window.markBillPaid =
 
       if(!movement){
         await syncBillTransaction(bill);
-        await loadCloudData(false);
+        await loadCloudData(false, false);
         movement=billMovementForMonth(bill,period.monthKey,period.installment);
       }
       if(!movement) return alert("Não foi possível localizar a movimentação desta conta.");
@@ -6937,10 +6969,9 @@ window.markBillPaid =
       const br=await supabaseClient.from("bills").update({paid:isLast || period.data.type==="monthly"}).eq("id",id).eq("user_id",currentUser.id);
       if(br.error) throw br.error;
 
-      await loadCloudData(false);
-      await syncAllBillsToTransactions();
-      await loadCloudData(false);
+      await loadCloudData(false, false);
       renderEverything();
+      syncBillsInBackground();
 
       alert(isLast ? "🎉 Última parcela paga! O histórico mensal foi mantido." : "Parcela paga! 🧡 Ela continua registrada no mês correspondente.");
     }catch(e){
@@ -7790,7 +7821,8 @@ async function initialize(){
 
 
         await loadCloudData(
-          true
+          true,
+          false
         );
 
 
@@ -7798,6 +7830,9 @@ async function initialize(){
 
 
         hideLoading();
+
+        /* Sincroniza contas depois que a tela já abriu. */
+        syncBillsInBackground();
 
       }catch(dataError){
 
@@ -7884,7 +7919,10 @@ if("serviceWorker" in navigator){
 
       navigator.serviceWorker
         .register("/sw.js")
-        .then(()=>{
+        .then(registration=>{
+
+          /* Pede ao navegador para verificar uma versão nova do SW. */
+          registration.update().catch(()=>{});
 
           console.log(
             "Thaty Finanças PWA ativo!"
