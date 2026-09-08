@@ -1886,6 +1886,10 @@ td button{
       placeholder="Sua senha"
     >
 
+    <div id="biometricLoginHint" class="muted" style="font-size:13px;line-height:1.45;margin:8px 0 12px">
+      📱 No celular, toque no campo de senha. Se o aparelho oferecer reconhecimento facial ou biometria, confirme para preencher a senha e depois toque em <strong>Entrar</strong>.
+    </div>
+
     <button
       id="loginButton"
       class="primary"
@@ -7688,46 +7692,57 @@ async function logout(){
 
   closeMobileMenu();
 
+  const logoutButtons = [
+    $("profileLogoutButton"),
+    $("mobileLogoutButton"),
+    $("logoutButton")
+  ].filter(Boolean);
+
+  logoutButtons.forEach(button=>{
+    button.disabled = true;
+  });
 
   try{
 
     if(supabaseClient){
 
-      await supabaseClient
-        .auth
-        .signOut();
+      /* Logout local: não depende da internet para encerrar a sessão no aparelho. */
+      const result = await supabaseClient.auth.signOut({ scope:"local" });
+
+      if(result?.error){
+        console.error("Erro ao sair localmente:", result.error);
+      }
 
     }
 
   }catch(e){
 
-    console.error(
-      "Erro ao sair:",
-      e
-    );
+    console.error("Erro ao sair:", e);
 
   }
 
-
-  currentUser =
-    null;
-
+  currentUser = null;
 
   database = {
-
     transactions:[],
     bills:[],
     goals:[],
     balance:0
-
   };
 
-
-  editingBillId =
-    null;
-
+  editingBillId = null;
+  $("password").value = "";
 
   showLogin();
+
+  showAuthMessage(
+    "Você saiu da conta. Para entrar novamente, confirme sua biometria, se o celular solicitar, e toque em Entrar.",
+    "success"
+  );
+
+  logoutButtons.forEach(button=>{
+    button.disabled = false;
+  });
 
 }
 
@@ -7805,62 +7820,24 @@ async function initialize(){
 
     if(r.data?.session){
 
-      currentUser =
-        r.data.session.user;
+      /* Não abre o aplicativo automaticamente só porque existe uma sessão salva.
+         O usuário precisa confirmar a biometria/senha e tocar em Entrar. */
+      currentUser = null;
 
+      const savedEmail = r.data.session.user?.email || "";
 
-      showApplication();
-
-
-      try{
-
-        showLoading(
-          "Carregando seus dados..."
-        );
-
-
-        await loadCloudData(
-          true,
-          false
-        );
-
-
-        renderEverything();
-
-
-        hideLoading();
-
-        /* Sincroniza contas depois que a tela já abriu. */
-        syncBillsInBackground();
-
-      }catch(dataError){
-
-        console.error(
-          "Erro ao carregar dados:",
-          dataError
-        );
-
-
-        hideLoading();
-
-
-        alert(
-
-          "Seu login está ativo, " +
-          "mas houve um problema ao carregar os dados.\n\n" +
-
-          "O aplicativo foi aberto mesmo assim.\n\n" +
-
-          "Erro: " +
-
-          (
-            dataError.message ||
-            dataError
-          )
-
-        );
-
+      if(savedEmail){
+        $("email").value = savedEmail;
       }
+
+      $("password").value = "";
+
+      showLogin();
+
+      showAuthMessage(
+        "Sua sessão foi encontrada. Confirme sua biometria, se o celular solicitar, e toque em Entrar.",
+        "success"
+      );
 
     }else{
 
