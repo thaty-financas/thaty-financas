@@ -4158,59 +4158,40 @@ async function authAction(){
       result.data.user;
 
 
-    /*
-      Abre o app imediatamente.
-    */
-
+    /* Abre o app imediatamente. Não deixa o celular preso esperando o banco. */
     showApplication();
+    hideLoading();
+    renderEverything();
 
+    showAuthMessage(
+      "Entrou! Atualizando seus dados...",
+      "success"
+    );
 
     /*
-      Carrega os dados depois.
+      Atualização em segundo plano: o usuário já consegue navegar enquanto
+      o Supabase carrega os dados. Se a rede estiver lenta, o app continua
+      aberto em vez de ficar travado no "Carregando seus dados...".
     */
-
-    try{
-
-      showLoading(
-        "Carregando seus dados..."
-      );
-
-
-      await loadCloudData(true, false);
-
-
-      renderEverything();
-
-
-      hideLoading();
-
-      /* Não bloqueia o celular com a sincronização das contas. */
-      syncBillsInBackground();
-
-    }catch(dataError){
-
-      console.error(
-        "Erro ao carregar dados:",
-        dataError
-      );
-
-
-      hideLoading();
-
-
-      alert(
-        "Você entrou com sucesso! 🧡\n\n" +
-        "Porém, não foi possível carregar alguns dados do banco.\n\n" +
-        "O aplicativo foi aberto mesmo assim.\n\n" +
-        "Erro: " +
-        (
-          dataError.message ||
+    loadCloudData(true, false)
+      .then(()=>{
+        renderEverything();
+        showAuthMessage(
+          "Dados atualizados.",
+          "success"
+        );
+        syncBillsInBackground();
+      })
+      .catch(dataError=>{
+        console.error(
+          "Erro ao carregar dados em segundo plano:",
           dataError
-        )
-      );
-
-    }
-
+        );
+        showAuthMessage(
+          "A conexão está lenta. Seus dados serão atualizados quando a conexão responder.",
+          "warning"
+        );
+      });
 
   }catch(error){
 
@@ -4319,6 +4300,17 @@ function showLogin(){
    CARREGAR DADOS
    ========================================================= */
 
+function withTimeout(promise, ms=12000){
+  return Promise.race([
+    promise,
+    new Promise((_, reject)=>{
+      setTimeout(()=>{
+        reject(new Error("A conexão com o banco demorou mais que o esperado."));
+      }, ms);
+    })
+  ]);
+}
+
 async function loadCloudData(
   allowImport,
   syncBills = false
@@ -4334,7 +4326,8 @@ async function loadCloudData(
 
 
   const results =
-    await Promise.all([
+    await withTimeout(
+      Promise.all([
 
       supabaseClient
         .from("transactions")
@@ -4387,7 +4380,9 @@ async function loadCloudData(
         )
         .maybeSingle()
 
-    ]);
+      ]),
+      12000
+    );
 
 
   results.forEach(r=>{
