@@ -2071,6 +2071,53 @@ td button{
     .contasTab{min-height:48px;padding:10px 7px}
   }
 </style>
+
+<style id="finny-style">
+.finny-card{
+  margin:18px 0;
+  padding:18px;
+  border-radius:20px;
+  border:1px solid var(--border,rgba(255,255,255,.10));
+  background:var(--card,rgba(255,255,255,.045));
+  box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+.finny-head{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.finny-avatar{
+  width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:25px;background:rgba(255,170,0,.13);
+}
+.finny-title{font-weight:900;font-size:17px}
+.finny-subtitle{font-size:12px;opacity:.68;margin-top:2px}
+.finny-message{
+  padding:14px;border-radius:15px;background:rgba(127,127,127,.08);
+  line-height:1.5;font-size:13px;
+}
+.finny-message strong{font-weight:900}
+.finny-status{
+  display:inline-flex;align-items:center;gap:6px;font-weight:900;
+  margin-bottom:8px;
+}
+.finny-metrics{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;
+}
+.finny-metric{
+  padding:11px;border-radius:13px;background:rgba(127,127,127,.07);
+}
+.finny-metric-label{font-size:10px;opacity:.65}
+.finny-metric-value{font-size:14px;font-weight:900;margin-top:4px}
+.finny-priority{
+  margin-top:12px;padding:12px;border-radius:13px;
+  border-left:3px solid currentColor;background:rgba(127,127,127,.06);
+  font-size:12px;line-height:1.45;
+}
+.finny-refresh{margin-top:10px;font-size:10px;opacity:.5}
+@media(max-width:600px){
+  .finny-card{padding:14px;border-radius:17px}
+  .finny-metrics{grid-template-columns:1fr 1fr}
+  .finny-metric:last-child{grid-column:1/-1}
+}
+</style>
+
 </head>
 
 <body>
@@ -2963,6 +3010,33 @@ td button{
       <h2>
         Relatórios
       </h2>
+<div id="finny-agent" class="finny-card">
+  <div class="finny-head">
+    <div class="finny-avatar">🤖</div>
+    <div>
+      <div class="finny-title">Finny — seu agente financeiro</div>
+      <div class="finny-subtitle">Análise inteligente da sua situação atual</div>
+    </div>
+  </div>
+  <div class="finny-message" id="finnyMessage">Analisando seu mês...</div>
+  <div class="finny-metrics">
+    <div class="finny-metric">
+      <div class="finny-metric-label">Saldo disponível</div>
+      <div class="finny-metric-value" id="finnySaldo">R$ 0,00</div>
+    </div>
+    <div class="finny-metric">
+      <div class="finny-metric-label">Contas a pagar</div>
+      <div class="finny-metric-value" id="finnyContas">R$ 0,00</div>
+    </div>
+    <div class="finny-metric">
+      <div class="finny-metric-label">Ainda precisa receber</div>
+      <div class="finny-metric-value" id="finnyPrecisa">R$ 0,00</div>
+    </div>
+  </div>
+  <div class="finny-priority" id="finnyPriority">💡 Preparando sua recomendação...</div>
+  <div class="finny-refresh" id="finnyUpdated">Atualizado conforme seus lançamentos.</div>
+</div>
+
 
 
       <div class="reportSummary">
@@ -8235,6 +8309,116 @@ if("serviceWorker" in navigator){
 
 }
 
+</script>
+
+
+<script id="finny-script">
+(function(){
+  function fMoney(v){
+    if(typeof window.money==="function") return window.money(Number(v||0));
+    return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
+  }
+  function paidBill(b){
+    return !!(b && (b.paid===true || b.status==="paid" || b.is_paid===true));
+  }
+  function pendingMovement(t){
+    return typeof window.isPendingBillMovement==="function" ? window.isPendingBillMovement(t) : false;
+  }
+  function analyzeFinny(){
+    const box=document.getElementById("finny-agent");
+    if(!box) return;
+
+    const db=window.database || {};
+    const tx=Array.isArray(db.transactions)?db.transactions:[];
+    const bills=Array.isArray(db.bills)?db.bills:[];
+
+    const income=tx.filter(t=>t.type==="income")
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+
+    const expense=tx.filter(t=>t.type==="expense" && !pendingMovement(t))
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+
+    // Same available-balance logic already used by the app.
+    const saldo=Number(db.balance||0)+income-expense;
+
+    const now=new Date();
+    const ym=now.toISOString().slice(0,7);
+    const monthBills=bills.filter(b=>{
+      const d=String(b.due_date||b.date||b.created_at||"").slice(0,10);
+      return !d || d.slice(0,7)===ym;
+    });
+
+    const unpaid=monthBills.filter(b=>!paidBill(b));
+    const unpaidValue=unpaid.reduce((s,b)=>s+Number(b.amount||0),0);
+    const totalBills=monthBills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const paidValue=totalBills-unpaidValue;
+
+    // Amount still needed to cover all unpaid bills.
+    const precisa=Math.max(0,unpaidValue-saldo);
+    const coverage=unpaidValue>0 ? Math.min(100,(saldo/unpaidValue)*100) : 100;
+
+    let status="🟢";
+    let headline="";
+    let advice="";
+
+    if(unpaidValue===0){
+      headline="<strong>Você está muito bem!</strong> Não há contas pendentes previstas para este mês.";
+      advice="💡 Como suas contas estão cobertas, você pode avaliar quanto consegue guardar em um objetivo sem comprometer o próximo mês.";
+    }else if(saldo>=unpaidValue){
+      headline=`<strong>Ótimo! Suas contas estão cobertas.</strong> Você tem ${fMoney(saldo)} disponíveis e precisa de ${fMoney(unpaidValue)} para quitar as contas que ainda faltam.`;
+      advice=`💡 Depois de pagar tudo, sua sobra estimada é de <strong>${fMoney(saldo-unpaidValue)}</strong>. Evite comprometer essa sobra antes dos próximos recebimentos.`;
+    }else if(saldo>0){
+      status="🟡";
+      headline=`<strong>Vamos ficar de olho.</strong> Suas contas pendentes somam ${fMoney(unpaidValue)} e seu saldo disponível é ${fMoney(saldo)}.`;
+      advice=`💡 Você precisa receber mais <strong>${fMoney(precisa)}</strong> para conseguir cobrir todas as contas pendentes. Priorize as que vencem primeiro.`;
+    }else{
+      status="🔴";
+      headline=`<strong>Atenção ao seu mês.</strong> Neste momento, o saldo disponível não cobre as contas pendentes de ${fMoney(unpaidValue)}.`;
+      advice=`💡 Você precisa receber pelo menos <strong>${fMoney(precisa)}</strong> para cobrir as contas que ainda faltam. Evite novos gastos até os próximos recebimentos.`;
+    }
+
+    const first=unpaid
+      .map(b=>({b,date:String(b.due_date||b.date||"").slice(0,10)}))
+      .filter(x=>x.date)
+      .sort((a,b)=>a.date.localeCompare(b.date))[0];
+
+    if(first){
+      const name=first.b.name||first.b.description||first.b.title||"próxima conta";
+      advice += `<br>📅 Próxima prioridade: <strong>${String(name).replace(/[<>]/g,"")}</strong>${first.date ? ` (${first.date.split("-").reverse().join("/")})`:""}.`;
+    }
+
+    const msg=document.getElementById("finnyMessage");
+    const sal=document.getElementById("finnySaldo");
+    const cb=document.getElementById("finnyContas");
+    const pr=document.getElementById("finnyPrecisa");
+    const priority=document.getElementById("finnyPriority");
+
+    if(msg) msg.innerHTML=`<div class="finny-status">${status} Análise do momento</div><br>${headline}`;
+    if(sal) sal.textContent=fMoney(saldo);
+    if(cb) cb.textContent=fMoney(unpaidValue);
+    if(pr) pr.textContent=fMoney(precisa);
+    if(priority) priority.innerHTML=advice;
+  }
+
+  window.analyzeFinny=analyzeFinny;
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    setTimeout(analyzeFinny,300);
+    setTimeout(analyzeFinny,1200);
+  });
+
+  const oldRender=window.renderEverything;
+  if(typeof oldRender==="function" && !oldRender.__finnyWrapped){
+    window.renderEverything=function(){
+      const r=oldRender.apply(this,arguments);
+      setTimeout(analyzeFinny,0);
+      return r;
+    };
+    window.renderEverything.__finnyWrapped=true;
+  }
+
+  window.addEventListener("pageshow",()=>setTimeout(analyzeFinny,150));
+})();
 </script>
 
 </body>
