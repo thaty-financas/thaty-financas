@@ -2046,6 +2046,63 @@ td button{
 
 </style>
 
+
+<style id="thaty-contas-abas-style">
+/* Organização da área Contas: Pagas x A Pagar */
+.contas-month-progress{
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  border-radius: 16px;
+  background: var(--card, rgba(255,255,255,.04));
+}
+.contas-month-progress .cmp-top{
+  display:flex;justify-content:space-between;gap:12px;align-items:flex-end;
+  margin-bottom:10px;
+}
+.contas-month-progress .cmp-title{font-weight:800;font-size:14px}
+.contas-month-progress .cmp-percent{font-weight:900;font-size:18px}
+.contas-month-progress .cmp-track{
+  height:10px;border-radius:999px;overflow:hidden;
+  background:rgba(127,127,127,.18);
+}
+.contas-month-progress .cmp-fill{
+  height:100%;width:0;border-radius:999px;
+  transition:width .35s ease;
+}
+.contas-month-progress .cmp-values{
+  display:flex;justify-content:space-between;gap:12px;
+  margin-top:8px;font-size:12px;opacity:.82;
+}
+.contas-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin:0 0 14px;
+}
+.contas-tab{
+  appearance:none;border:1px solid var(--border, rgba(255,255,255,.10));
+  background:transparent;color:inherit;border-radius:12px;
+  padding:11px 10px;font:inherit;font-weight:800;cursor:pointer;
+  transition:.2s ease;
+}
+.contas-tab.active{
+  background:rgba(127,127,127,.14);
+  border-color:currentColor;
+}
+.contas-tab .tab-count{
+  display:inline-flex;min-width:22px;height:22px;padding:0 6px;
+  align-items:center;justify-content:center;border-radius:999px;
+  margin-left:5px;font-size:11px;background:rgba(127,127,127,.16);
+}
+.contas-tab-panel{display:none}
+.contas-tab-panel.active{display:block}
+@media(max-width:600px){
+  .contas-month-progress{padding:14px;border-radius:14px}
+  .contas-month-progress .cmp-values{font-size:11px}
+  .contas-tabs{position:sticky;top:8px;z-index:5;background:var(--bg, inherit);padding:4px 0}
+  .contas-tab{min-height:46px}
+}
+</style>
+
 </head>
 
 <body>
@@ -2325,7 +2382,37 @@ td button{
 
 </div>
 <div class="card"><div class="row"><h3>Situação do mês</h3><span id="homeStatusBadge" class="badge due">Em andamento</span></div>
-<div class="grid" style="grid-template-columns:repeat(3,1fr)"><div><div class="muted">Contas</div><div id="homeBillsCount" class="value">0</div></div><div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div><div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
+<div class="grid" style="grid-template-columns:repeat(3,1fr)"><div><div class="muted">Contas</div>
+<div id="thaty-contas-abas-block" class="thaty-contas-organizer">
+  <div class="contas-month-progress">
+    <div class="cmp-top">
+      <div class="cmp-title">Pagamento das contas do mês</div>
+      <div class="cmp-percent" id="contasPagoPercent">0%</div>
+    </div>
+    <div class="cmp-track"><div class="cmp-fill" id="contasPagoFill"></div></div>
+    <div class="cmp-values">
+      <span id="contasPagoValor">Pago: R$ 0,00</span>
+      <span id="contasFaltaValor">Falta: R$ 0,00</span>
+    </div>
+  </div>
+
+  <div class="contas-tabs" role="tablist" aria-label="Contas">
+    <button type="button" class="contas-tab active" data-contas-tab="pagas">
+      Contas pagas <span class="tab-count" id="contasPagasCount">0</span>
+    </button>
+    <button type="button" class="contas-tab" data-contas-tab="pagar">
+      Contas a pagar <span class="tab-count" id="contasPagarCount">0</span>
+    </button>
+  </div>
+
+  <div class="contas-tab-panel active" data-contas-panel="pagas" id="contasPagasPanel">
+    <div id="contasPagasLista"></div>
+  </div>
+  <div class="contas-tab-panel" data-contas-panel="pagar" id="contasPagarPanel">
+    <div id="contasPagarLista"></div>
+  </div>
+</div>
+<div id="homeBillsCount" class="value">0</div></div><div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div><div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
 <div class="monthProgress"><div id="monthProgressBar" class="monthProgressBar"></div></div>
 <p id="homeStatusMessage" class="muted">Cadastre suas contas para acompanhar o mês.</p></div>
 <div class="card"><h3>Como usar o Thaty Finanças</h3><div id="homeSummary"><p>💳 Cadastre contas fixas e parceladas.</p><p>✅ Marque contas como pagas.</p><p>🎯 Atualize seus objetivos.</p><p>📊 Consulte os relatórios.</p></div></div>
@@ -8236,6 +8323,110 @@ if("serviceWorker" in navigator){
 
 }
 
+</script>
+
+
+<script id="thaty-contas-abas-script">
+(function(){
+  function contasMoney(v){
+    if(typeof window.money === "function") return window.money(Number(v||0));
+    return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
+  }
+  function contasIsPaid(b){
+    return !!(b && (b.paid === true || b.status === "paid" || b.is_paid === true));
+  }
+  function contasDateKey(b){
+    return String(b?.due_date || b?.date || b?.created_at || "").slice(0,10);
+  }
+  function contasCurrentMonthBills(){
+    const bills = Array.isArray(window.database?.bills) ? window.database.bills : [];
+    const now = new Date();
+    const ym = now.toISOString().slice(0,7);
+    // Keep bills for the current month. If a bill has no date, keep it so
+    // it remains visible instead of disappearing.
+    return bills.filter(b=>{
+      const d = contasDateKey(b);
+      return !d || d.slice(0,7) === ym;
+    });
+  }
+  function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  }
+  function renderContasOrganizador(){
+    const root = document.getElementById("thaty-contas-abas-block");
+    if(!root) return;
+    const bills = contasCurrentMonthBills();
+
+    const paid = bills.filter(contasIsPaid);
+    const unpaid = bills.filter(b=>!contasIsPaid(b));
+    const total = bills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const paidValue = paid.reduce((s,b)=>s+Number(b.amount||0),0);
+    const remaining = Math.max(0,total-paidValue);
+    const pct = total > 0 ? Math.min(100,(paidValue/total)*100) : 0;
+
+    const pctEl=document.getElementById("contasPagoPercent");
+    const fill=document.getElementById("contasPagoFill");
+    const pv=document.getElementById("contasPagoValor");
+    const rv=document.getElementById("contasFaltaValor");
+    if(pctEl) pctEl.textContent = `${Math.round(pct)}%`;
+    if(fill) fill.style.width = `${pct}%`;
+    if(pv) pv.textContent = `Pago: ${contasMoney(paidValue)}`;
+    if(rv) rv.textContent = `Falta: ${contasMoney(remaining)}`;
+
+    const pc=document.getElementById("contasPagasCount");
+    const uc=document.getElementById("contasPagarCount");
+    if(pc) pc.textContent=paid.length;
+    if(uc) uc.textContent=unpaid.length;
+
+    function list(items, empty){
+      if(!items.length) return `<div style="padding:16px;text-align:center;opacity:.65">${empty}</div>`;
+      return items.map(b=>{
+        const name=b.name || b.description || b.title || "Conta";
+        const amount=Number(b.amount||0);
+        const date=contasDateKey(b);
+        return `<div class="bill-card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+            <div style="min-width:0">
+              <div style="font-weight:800">${esc(name)}</div>
+              ${date ? `<div style="font-size:11px;opacity:.65;margin-top:3px">${esc(date.split("-").reverse().join("/"))}</div>` : ""}
+            </div>
+            <div style="font-weight:900;white-space:nowrap">${contasMoney(amount)}</div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+    const paidList=document.getElementById("contasPagasLista");
+    const unpaidList=document.getElementById("contasPagarLista");
+    if(paidList) paidList.innerHTML=list(paid,"Nenhuma conta paga neste mês.");
+    if(unpaidList) unpaidList.innerHTML=list(unpaid,"Você não tem contas a pagar neste mês.");
+
+    root.querySelectorAll(".contas-tab").forEach(btn=>{
+      btn.onclick=()=>{
+        const target=btn.dataset.contasTab;
+        root.querySelectorAll(".contas-tab").forEach(x=>x.classList.toggle("active",x===btn));
+        root.querySelectorAll(".contas-tab-panel").forEach(p=>p.classList.toggle("active",p.dataset.contasPanel===target));
+      };
+    });
+  }
+
+  window.renderContasOrganizador = renderContasOrganizador;
+
+  // Re-render after the app's normal rendering/loading settles.
+  document.addEventListener("DOMContentLoaded",()=>{
+    setTimeout(renderContasOrganizador,250);
+    setTimeout(renderContasOrganizador,1000);
+  });
+  const oldRender = window.renderEverything;
+  if(typeof oldRender==="function" && !oldRender.__contasWrapped){
+    window.renderEverything = function(){
+      const r=oldRender.apply(this,arguments);
+      setTimeout(renderContasOrganizador,0);
+      return r;
+    };
+    window.renderEverything.__contasWrapped=true;
+  }
+  window.addEventListener("pageshow",()=>setTimeout(renderContasOrganizador,100));
+})();
 </script>
 
 </body>
