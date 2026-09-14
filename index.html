@@ -2987,6 +2987,8 @@ td button{
         <div class="finnyMetrics">
           <div class="finnyMetric"><span>Saldo disponível</span><strong id="finnySaldo">R$ 0,00</strong></div>
           <div class="finnyMetric"><span>Contas a pagar</span><strong id="finnyContas">R$ 0,00</strong></div>
+          <div class="finnyMetric"><span>Contas já pagas</span><strong id="finnyPagas">R$ 0,00</strong></div>
+          <div class="finnyMetric"><span>TikTok recebido no mês</span><strong id="finnyTikTok">R$ 0,00</strong></div>
           <div class="finnyMetric"><span>Ainda precisa receber</span><strong id="finnyPrecisa">R$ 0,00</strong></div>
         </div>
         <div class="finnyPriority" id="finnyPriority">💡 Finny está preparando sua análise.</div>
@@ -8224,38 +8226,47 @@ initialize();
     const n=Number(v||0);
     return typeof window.money==="function" ? window.money(n) : new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n);
   }
-  function key(v){
+  function monthKey(v){
     if(!v) return null;
     const s=String(v);
-    const x=s.match(/^(\d{4})-(\d{2})/);
-    if(x) return x[1]+"-"+x[2];
+    const iso=s.match(/^(\d{4})-(\d{2})/);
+    if(iso) return iso[1]+"-"+iso[2];
     const d=new Date(v);
-    return Number.isNaN(d.getTime())?null:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+    if(Number.isNaN(d.getTime())) return null;
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
   }
-  function nowKey(){
+  function currentMonth(){
     const d=new Date();
     return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
   }
-  function billInfo(b){
-    // getInstallmentData fica dentro da aplicação principal; usamos os dados
-    // serializados da conta como fallback para não depender de escopo interno.
-    const raw=String(b?.info||b?.notes||"");
-    const type=/installment|parcelad/i.test(raw)?"installment":"monthly";
-    const start=(raw.match(/(?:start|inicio|início)=([0-9]{4}-[0-9]{2})/i)||[])[1]||b?.start_date||b?.start||"";
-    const total=Number((raw.match(/(?:total|parcelas)=([0-9]+)/i)||[])[1]||b?.installments||b?.total_installments||b?.total||1);
-    return {type,start,total};
+  function transactionMonth(t){
+    return monthKey(t?.date || t?.created_at || t?.createdAt);
   }
-  function applies(b,month){
-    const d=billInfo(b);
-    if(d.type!=="installment" || !d.start) return true;
-    const a=key(d.start);
-    if(!a) return true;
-    const [ay,am]=a.split("-").map(Number), [by,bm]=month.split("-").map(Number);
-    const diff=(by-ay)*12+(bm-am);
-    return diff>=0 && diff<Math.max(1,d.total);
+  function getBillsForCurrentMonth(db, month){
+    const all=Array.isArray(db.bills)?db.bills:[];
+    return all.filter(b=>{
+      try{
+        if(typeof window.getInstallmentData==="function" && typeof window.installmentNumberForMonth==="function"){
+          const data=window.getInstallmentData(b);
+          if(data?.type==="installment"){
+            const start=typeof window.parseMonthInput==="function" ? window.parseMonthInput(data.start) : null;
+            if(start){
+              const [y,mo]=month.split("-").map(Number);
+              const diff=(y-start.getFullYear())*12+(mo-(start.getMonth()+1));
+              return diff>=0 && diff<Math.max(1,Number(data.total||1));
+            }
+          }
+        }
+        return true;
+      }catch(e){
+        return true;
+      }
+    });
   }
-  function paid(b,month){
-    if(String(b?.info||"").includes("|QUITADA=1")) return true;
+  function billPaid(b,month){
+    try{
+      if(typeof window.currentBillIsPaid==="function") return !!window.currentBillIsPaid(b);
+    }catch(e){}
     if(b?.paid===true || b?.status==="paid" || b?.is_paid===true) return true;
     const id=String(b?.id||"");
     return (window.thatyDatabase?.transactions||[]).some(t=>{
@@ -8263,47 +8274,83 @@ initialize();
       return n.startsWith("bill:"+id+":") && n.includes(":month:"+month) && n.endsWith(":paid");
     });
   }
+  function billDueDay(b){
+    return Math.min(31,Math.max(1,Number(b?.due_day ?? b?.dueDay ?? 10)||10));
+  }
+  function billDueDate(b){
+    const d=new Date();
+    const day=Math.min(billDueDay(b),new Date(d.getFullYear(),d.getMonth()+1,0).getDate());
+    return new Date(d.getFullYear(),d.getMonth(),day,23,59,59);
+  }
   function analyzeFinny(){
     const db=window.thatyDatabase;
-    if(!db || !Array.isArray(db.bills) || !Array.isArray(db.transactions)) return;
-    const month=nowKey();
-    const bills=db.bills.filter(b=>applies(b,month));
-    const paidBills=bills.filter(b=>paid(b,month));
-    const pendingBills=bills.filter(b=>!paid(b,month));
-    const paidValue=paidBills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const els={
+      msg:document.getElementById("finnyMessage"),
+      saldo:document.getElementById("finnySaldo"),
+      contas:document.getElementById("finnyContas"),
+      pagas:document.getElementById("finnyPagas"),
+      tiktok:document.getElementById("finnyTikTok"),
+      precisa:document.getElementById("finnyPrecisa"),
+      priority:document.getElementById("finnyPriority"),
+      updated:document.getElementById("finnyUpdated")
+    };
+    if(!db || !Array.isArray(db.bills) || !Array.isArray(db.transactions) || !els.msg) return;
+
+    const month=currentMonth();
+    const bills=getBillsForCurrentMonth(db,month);
+    const pendingBills=bills.filter(b=>!billPaid(b,month));
+    const paidBills=bills.filter(b=>billPaid(b,month));
     const pendingValue=pendingBills.reduce((s,b)=>s+Number(b.amount||0),0);
-    const income=db.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);
-    const expense=db.transactions.filter(t=>{
-      if(t.type!=="expense") return false;
-      const n=String(t?.notes||"");
-      return !(n.startsWith("bill:") && !n.endsWith(":paid"));
-    }).reduce((s,t)=>s+Number(t.amount||0),0);
+    const paidValue=paidBills.reduce((s,b)=>s+Number(b.amount||0),0);
+
+    // O saldo segue exatamente a mesma fórmula usada no aplicativo.
+    const income=db.transactions.filter(t=>t.type==="income")
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+    const expense=db.transactions.filter(t=>t.type==="expense" && !(typeof window.isPendingBillMovement==="function" && window.isPendingBillMovement(t)))
+      .reduce((s,t)=>s+Number(t.amount||0),0);
     const saldo=Number(db.balance||0)+income-expense;
+
+    const monthIncome=db.transactions.filter(t=>t.type==="income" && transactionMonth(t)===month)
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+    const monthTikTok=db.transactions.filter(t=>t.type==="income" && transactionMonth(t)===month &&
+      (typeof window.isSalaryTransaction==="function" ? window.isSalaryTransaction(t) : String(t.category||"").toLowerCase()==="salário"))
+      .reduce((s,t)=>s+Number(t.amount||0),0);
     const precisa=Math.max(0,pendingValue-saldo);
-    const cobertura=pendingValue>0?Math.max(0,Math.min(100,saldo/pendingValue*100)):100;
-    const e=id=>document.getElementById(id);
-    if(!e("finnyMessage")) return;
-    e("finnySaldo").textContent=m(saldo);
-    e("finnyContas").textContent=m(pendingValue);
-    e("finnyPrecisa").textContent=m(precisa);
-    if(!bills.length){
-      e("finnyMessage").innerHTML=`<strong>🟡 Finny está acompanhando seu mês.</strong> Não encontrei contas válidas para o mês ${month}. Foram carregadas ${db.bills.length} conta(s) no total.`;
+    const depoisDasContas=saldo-pendingValue;
+
+    els.saldo.textContent=m(saldo);
+    els.contas.textContent=m(pendingValue);
+    if(els.pagas) els.pagas.textContent=m(paidValue);
+    if(els.tiktok) els.tiktok.textContent=m(monthTikTok);
+    els.precisa.textContent=m(precisa);
+
+    const sorted=pendingBills.slice().sort((a,b)=>billDueDate(a)-billDueDate(b));
+    const next=sorted[0];
+    const today=new Date();
+    const daysLeft=next ? Math.ceil((billDueDate(next)-today)/86400000) : null;
+    const count=bills.length;
+
+    if(!count){
+      els.msg.innerHTML=`<strong>🟡 Finny está começando a leitura do seu mês.</strong> Não há contas cadastradas para o período atual. Assim que você lançar uma conta, eu vou incluí-la automaticamente na análise.`;
+      els.priority.textContent=`💡 Saldo disponível: ${m(saldo)}. Receitas deste mês: ${m(monthIncome)}. Finny continuará acompanhando seus lançamentos.`;
     }else if(!pendingBills.length){
-      e("finnyMessage").innerHTML=`<strong>🎉 Excelente!</strong> As ${bills.length} conta(s) deste mês estão pagas. Seu saldo disponível é ${m(saldo)}.`;
+      els.msg.innerHTML=`<strong>🎉 Seu mês está muito bem encaminhado!</strong> Todas as ${count} conta(s) consideradas para este mês já estão pagas. Seu saldo disponível é ${m(saldo)}.`;
+      els.priority.textContent=`💡 Você recebeu ${m(monthIncome)} em receitas neste mês${monthTikTok>0?`, sendo ${m(monthTikTok)} do TikTok`:""}. Se quiser, este é um bom momento para reforçar seus objetivos.`;
     }else if(saldo>=pendingValue){
-      e("finnyMessage").innerHTML=`<strong>🟢 Seu mês está coberto.</strong> Há ${m(saldo)} disponíveis para ${m(pendingValue)} em contas a pagar. Depois delas, a previsão é sobrar ${m(saldo-pendingValue)}.`;
+      els.msg.innerHTML=`<strong>🟢 Finny diz: seu mês está coberto.</strong> Você tem ${m(saldo)} disponíveis para ${m(pendingValue)} em contas a pagar. Depois de quitar todas, a previsão é sobrar ${m(depoisDasContas)}.`;
+      els.priority.textContent=`💡 Próxima prioridade: ${next.name||"Conta"} — vencimento dia ${billDueDay(next)}${daysLeft!==null ? ` (${daysLeft<=0?"vencimento hoje":daysLeft===1?"amanhã":`em ${daysLeft} dias`})` : ""}.`;
     }else if(saldo>0){
-      e("finnyMessage").innerHTML=`<strong>🟡 Atenção, mas está sob controle.</strong> Você tem ${m(saldo)} disponíveis e ${m(pendingValue)} em contas a pagar. Ainda precisa receber <strong>${m(precisa)}</strong>.`;
+      els.msg.innerHTML=`<strong>🟡 Vamos ficar de olho neste mês.</strong> Você tem ${m(saldo)} disponíveis e ${m(pendingValue)} em contas a pagar. Ainda precisa receber <strong>${m(precisa)}</strong> para cobrir tudo.`;
+      els.priority.textContent=`💡 Prioridade: ${next.name||"Conta"} — vencimento dia ${billDueDay(next)}. Evite gastos não essenciais até entrar mais dinheiro.`;
     }else{
-      e("finnyMessage").innerHTML=`<strong>🔴 Precisamos cuidar deste mês.</strong> Há ${m(pendingValue)} em contas a pagar e seu saldo disponível é ${m(saldo)}. Ainda precisa receber <strong>${m(precisa)}</strong>.`;
+      els.msg.innerHTML=`<strong>🔴 Atenção ao seu mês.</strong> As contas a pagar somam ${m(pendingValue)} e o saldo disponível está em ${m(saldo)}. Ainda precisa receber <strong>${m(precisa)}</strong> para cobrir as contas.`;
+      els.priority.textContent=`🚨 Primeira prioridade: ${next.name||"Conta"} — vencimento dia ${billDueDay(next)}. Finny recomenda priorizar esse pagamento e acompanhar as próximas entradas.`;
     }
-    const next=pendingBills.slice().sort((a,b)=>Number(a.due_day||a.dueDay||10)-Number(b.due_day||b.dueDay||10))[0];
-    e("finnyPriority").textContent=next?`💡 Próxima prioridade: ${next.name||"Conta"} — vencimento dia ${Number(next.due_day||next.dueDay||10)}. ${cobertura.toFixed(0)}% das contas pendentes estão cobertas pelo saldo.`:"💡 Finny continuará acompanhando seus próximos lançamentos.";
-    e("finnyUpdated").textContent=`Sincronizado agora · ${db.bills.length} conta(s) cadastrada(s) · ${db.transactions.length} movimentação(ões).`;
+    els.updated.textContent=`Mês analisado: ${month} · ${count} conta(s) · ${paidBills.length} paga(s) · ${pendingBills.length} pendente(s) · ${db.transactions.length} movimentação(ões).`;
   }
   window.analyzeFinny=analyzeFinny;
-  document.addEventListener("DOMContentLoaded",()=>setTimeout(analyzeFinny,100));
-  window.addEventListener("pageshow",()=>setTimeout(analyzeFinny,100));
+  document.addEventListener("DOMContentLoaded",()=>setTimeout(analyzeFinny,150));
+  window.addEventListener("pageshow",()=>setTimeout(analyzeFinny,150));
   setInterval(()=>{if(document.visibilityState!=="hidden") analyzeFinny();},3000);
 })();
 </script>\n
