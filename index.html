@@ -8332,52 +8332,87 @@ if("serviceWorker" in navigator){
     const tx=Array.isArray(db.transactions)?db.transactions:[];
     const bills=Array.isArray(db.bills)?db.bills:[];
 
+    // Usa exatamente a mesma regra de saldo disponível do app.
     const income=tx.filter(t=>t.type==="income")
       .reduce((s,t)=>s+Number(t.amount||0),0);
-
     const expense=tx.filter(t=>t.type==="expense" && !pendingMovement(t))
       .reduce((s,t)=>s+Number(t.amount||0),0);
-
-    // Same available-balance logic already used by the app.
     const saldo=Number(db.balance||0)+income-expense;
 
-    const now=new Date();
-    const ym=now.toISOString().slice(0,7);
+    // Sincroniza as contas com a mesma lógica da tela "Contas":
+    // mensais entram no mês atual e parceladas entram somente se
+    // houver parcela correspondente ao mês atual.
+    const currentMonth = typeof window.currentMonthKey === "function"
+      ? window.currentMonthKey()
+      : new Date().toISOString().slice(0,7);
+
     const monthBills=bills.filter(b=>{
-      const d=String(b.due_date||b.date||b.created_at||"").slice(0,10);
-      return !d || d.slice(0,7)===ym;
+      const data=typeof window.getInstallmentData === "function"
+        ? window.getInstallmentData(b)
+        : null;
+
+      if(data && data.type === "installment"){
+        const start=typeof window.parseMonthInput === "function"
+          ? window.parseMonthInput(data.start)
+          : null;
+        const endDate=typeof window.getInstallmentEndDate === "function"
+          ? window.getInstallmentEndDate(data)
+          : null;
+
+        if(start && endDate){
+          const startKey=typeof window.monthInputValue === "function"
+            ? window.monthInputValue(start)
+            : start.toISOString().slice(0,7);
+          const endKey=typeof window.monthInputValue === "function"
+            ? window.monthInputValue(endDate)
+            : endDate.toISOString().slice(0,7);
+
+          if(currentMonth < startKey || currentMonth > endKey) return false;
+        }
+      }
+
+      return true;
     });
 
-    const unpaid=monthBills.filter(b=>!paidBill(b));
-    const unpaidValue=unpaid.reduce((s,b)=>s+Number(b.amount||0),0);
-    const totalBills=monthBills.reduce((s,b)=>s+Number(b.amount||0),0);
-    const paidValue=totalBills-unpaidValue;
+    const isPaid = b => typeof window.currentBillIsPaid === "function"
+      ? window.currentBillIsPaid(b)
+      : paidBill(b);
 
-    // Amount still needed to cover all unpaid bills.
+    const paidBills=monthBills.filter(isPaid);
+    const pendingBills=monthBills.filter(b=>!isPaid(b));
+
+    const paidValue=paidBills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const unpaidValue=pendingBills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const totalBills=paidValue+unpaidValue;
+
+    // Quanto ainda precisa entrar para o saldo cobrir todas as contas em aberto.
     const precisa=Math.max(0,unpaidValue-saldo);
-    const coverage=unpaidValue>0 ? Math.min(100,(saldo/unpaidValue)*100) : 100;
+    const coverage=unpaidValue>0 ? Math.min(100,Math.max(0,(saldo/unpaidValue)*100)) : 100;
 
     let status="🟢";
     let headline="";
     let advice="";
 
-    if(unpaidValue===0){
-      headline="<strong>Você está muito bem!</strong> Não há contas pendentes previstas para este mês.";
-      advice="💡 Como suas contas estão cobertas, você pode avaliar quanto consegue guardar em um objetivo sem comprometer o próximo mês.";
+    if(totalBills===0){
+      headline="<strong>Finny está acompanhando seu mês.</strong> Ainda não há contas cadastradas para este mês.";
+      advice="💡 Quando você adicionar suas contas, eu vou cruzar automaticamente os valores com o saldo disponível.";
+    }else if(unpaidValue===0){
+      headline=`<strong>Mandou muito bem! 🎉</strong> As ${paidBills.length} conta(s) cadastrada(s) deste mês já estão pagas, totalizando ${fMoney(paidValue)}.`;
+      advice=`💡 Seu mês está 100% coberto. Se quiser, posso usar essa sobra para orientar quanto guardar nos seus objetivos.`;
     }else if(saldo>=unpaidValue){
-      headline=`<strong>Ótimo! Suas contas estão cobertas.</strong> Você tem ${fMoney(saldo)} disponíveis e precisa de ${fMoney(unpaidValue)} para quitar as contas que ainda faltam.`;
-      advice=`💡 Depois de pagar tudo, sua sobra estimada é de <strong>${fMoney(saldo-unpaidValue)}</strong>. Evite comprometer essa sobra antes dos próximos recebimentos.`;
+      headline=`<strong>Ótimo! Suas contas estão cobertas.</strong> Das ${monthBills.length} conta(s) deste mês, ${paidBills.length} já estão pagas e ${pendingBills.length} ainda faltam. As pendentes somam ${fMoney(unpaidValue)} e seu saldo disponível é ${fMoney(saldo)}.`;
+      advice=`💡 Depois de pagar as contas pendentes, sua sobra estimada será de <strong>${fMoney(saldo-unpaidValue)}</strong>.`;
     }else if(saldo>0){
       status="🟡";
-      headline=`<strong>Vamos ficar de olho.</strong> Suas contas pendentes somam ${fMoney(unpaidValue)} e seu saldo disponível é ${fMoney(saldo)}.`;
-      advice=`💡 Você precisa receber mais <strong>${fMoney(precisa)}</strong> para conseguir cobrir todas as contas pendentes. Priorize as que vencem primeiro.`;
+      headline=`<strong>Vamos ficar de olho.</strong> Você já pagou ${fMoney(paidValue)} em contas neste mês, mas ainda existem ${pendingBills.length} conta(s) em aberto, somando ${fMoney(unpaidValue)}. Seu saldo disponível é ${fMoney(saldo)}.`;
+      advice=`💡 Você precisa receber mais <strong>${fMoney(precisa)}</strong> para cobrir todas as contas que faltam. Priorize as que vencem primeiro.`;
     }else{
       status="🔴";
-      headline=`<strong>Atenção ao seu mês.</strong> Neste momento, o saldo disponível não cobre as contas pendentes de ${fMoney(unpaidValue)}.`;
-      advice=`💡 Você precisa receber pelo menos <strong>${fMoney(precisa)}</strong> para cobrir as contas que ainda faltam. Evite novos gastos até os próximos recebimentos.`;
+      headline=`<strong>Atenção ao seu mês.</strong> Você tem ${pendingBills.length} conta(s) em aberto, totalizando ${fMoney(unpaidValue)}, enquanto o saldo disponível está em ${fMoney(saldo)}.`;
+      advice=`💡 Você precisa receber pelo menos <strong>${fMoney(precisa)}</strong> para cobrir as contas pendentes. Evite novos gastos até os próximos recebimentos.`;
     }
 
-    const first=unpaid
+    const first=pendingBills
       .map(b=>({b,date:String(b.due_date||b.date||"").slice(0,10)}))
       .filter(x=>x.date)
       .sort((a,b)=>a.date.localeCompare(b.date))[0];
@@ -8393,7 +8428,7 @@ if("serviceWorker" in navigator){
     const pr=document.getElementById("finnyPrecisa");
     const priority=document.getElementById("finnyPriority");
 
-    if(msg) msg.innerHTML=`<div class="finny-status">${status} Análise do momento</div><br>${headline}`;
+    if(msg) msg.innerHTML=`<div class="finny-status">${status} Análise do momento · ${Math.round(coverage)}% das contas pendentes cobertas pelo saldo</div><br>${headline}`;
     if(sal) sal.textContent=fMoney(saldo);
     if(cb) cb.textContent=fMoney(unpaidValue);
     if(pr) pr.textContent=fMoney(precisa);
