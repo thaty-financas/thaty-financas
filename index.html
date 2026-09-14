@@ -4158,40 +4158,59 @@ async function authAction(){
       result.data.user;
 
 
-    /* Abre o app imediatamente. Não deixa o celular preso esperando o banco. */
-    showApplication();
-    hideLoading();
-    renderEverything();
+    /*
+      Abre o app imediatamente.
+    */
 
-    showAuthMessage(
-      "Entrou! Atualizando seus dados...",
-      "success"
-    );
+    showApplication();
+
 
     /*
-      Atualização em segundo plano: o usuário já consegue navegar enquanto
-      o Supabase carrega os dados. Se a rede estiver lenta, o app continua
-      aberto em vez de ficar travado no "Carregando seus dados...".
+      Carrega os dados depois.
     */
-    loadCloudData(true, false)
-      .then(()=>{
-        renderEverything();
-        showAuthMessage(
-          "Dados atualizados.",
-          "success"
-        );
-        syncBillsInBackground();
-      })
-      .catch(dataError=>{
-        console.error(
-          "Erro ao carregar dados em segundo plano:",
+
+    try{
+
+      showLoading(
+        "Carregando seus dados..."
+      );
+
+
+      await loadCloudData(true, false);
+
+
+      renderEverything();
+
+
+      hideLoading();
+
+      /* Não bloqueia o celular com a sincronização das contas. */
+      syncBillsInBackground();
+
+    }catch(dataError){
+
+      console.error(
+        "Erro ao carregar dados:",
+        dataError
+      );
+
+
+      hideLoading();
+
+
+      alert(
+        "Você entrou com sucesso! 🧡\n\n" +
+        "Porém, não foi possível carregar alguns dados do banco.\n\n" +
+        "O aplicativo foi aberto mesmo assim.\n\n" +
+        "Erro: " +
+        (
+          dataError.message ||
           dataError
-        );
-        showAuthMessage(
-          "A conexão está lenta. Seus dados serão atualizados quando a conexão responder.",
-          "warning"
-        );
-      });
+        )
+      );
+
+    }
+
 
   }catch(error){
 
@@ -4300,17 +4319,6 @@ function showLogin(){
    CARREGAR DADOS
    ========================================================= */
 
-function withTimeout(promise, ms=12000){
-  return Promise.race([
-    promise,
-    new Promise((_, reject)=>{
-      setTimeout(()=>{
-        reject(new Error("A conexão com o banco demorou mais que o esperado."));
-      }, ms);
-    })
-  ]);
-}
-
 async function loadCloudData(
   allowImport,
   syncBills = false
@@ -4326,8 +4334,7 @@ async function loadCloudData(
 
 
   const results =
-    await withTimeout(
-      Promise.all([
+    await Promise.all([
 
       supabaseClient
         .from("transactions")
@@ -4380,9 +4387,7 @@ async function loadCloudData(
         )
         .maybeSingle()
 
-      ]),
-      12000
-    );
+    ]);
 
 
   results.forEach(r=>{
@@ -7638,42 +7643,66 @@ window.addMoneyToGoal =
     }
 
 
-    const r =
-      await supabaseClient
-        .from("goals")
-        .update({
+    const currentIncome = database.transactions
+      .filter(t => t.type === "income")
+      .reduce((s,t) => s + Number(t.amount || 0), 0);
 
-          saved:
-            Number(
-              goal.saved || 0
-            ) +
-            amount
+    const currentExpense = database.transactions
+      .filter(t => t.type === "expense" && !isPendingBillMovement(t))
+      .reduce((s,t) => s + Number(t.amount || 0), 0);
 
-        })
-        .eq(
-          "id",
-          id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        );
+    const availableBalance = Number(database.balance || 0) + currentIncome - currentExpense;
 
-
-    if(r.error){
-
+    if(amount > availableBalance){
       return alert(
-        r.error.message
+        `Você não tem saldo disponível suficiente. Saldo atual: ${money(availableBalance)}.`
       );
-
     }
 
+    /*
+       Guardar na poupança é tratado como uma saída da conta principal.
+       Assim, o valor deixa o saldo disponível e passa a compor o objetivo.
+    */
+    const transactionPayload = {
+      user_id: currentUser.id,
+      type: "expense",
+      description: `Poupança: ${goal.name || "Objetivo"}`,
+      amount,
+      date: new Date().toISOString().slice(0,10),
+      category: "Poupança",
+      notes: `goal:${goal.id}:deposit`
+    };
 
-    await loadCloudData(
-      false
-    );
+    const transactionResult = await supabaseClient
+      .from("transactions")
+      .insert(transactionPayload)
+      .select()
+      .single();
 
+    if(transactionResult.error){
+      return alert(transactionResult.error.message);
+    }
 
+    const goalResult = await supabaseClient
+      .from("goals")
+      .update({
+        saved: Number(goal.saved || 0) + amount
+      })
+      .eq("id", id)
+      .eq("user_id", currentUser.id);
+
+    if(goalResult.error){
+      /* Se o objetivo falhar, remove a saída para não deixar o saldo incorreto. */
+      await supabaseClient
+        .from("transactions")
+        .delete()
+        .eq("id", transactionResult.data.id)
+        .eq("user_id", currentUser.id);
+
+      return alert(goalResult.error.message);
+    }
+
+    await loadCloudData(false);
     renderEverything();
 
   };
