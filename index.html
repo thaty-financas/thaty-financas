@@ -8328,7 +8328,12 @@ if("serviceWorker" in navigator){
     const box=document.getElementById("finny-agent");
     if(!box) return;
 
-    const db=window.database || {};
+    // `database` foi declarado com `let` no app, então ele não aparece
+    // em `window.database`. O Finny precisa ler o mesmo estado global
+    // usado por Home, Contas e Relatórios.
+    const db = (typeof database !== "undefined" && database)
+      ? database
+      : (window.database || {});
     const tx=Array.isArray(db.transactions)?db.transactions:[];
     const bills=Array.isArray(db.bills)?db.bills:[];
 
@@ -8381,8 +8386,14 @@ if("serviceWorker" in navigator){
     const paidBills=monthBills.filter(isPaid);
     const pendingBills=monthBills.filter(b=>!isPaid(b));
 
-    const paidValue=paidBills.reduce((s,b)=>s+Number(b.amount||0),0);
-    const unpaidValue=pendingBills.reduce((s,b)=>s+Number(b.amount||0),0);
+    const billValue = b => Number(
+      b?.amount ??
+      b?.installment_amount ??
+      b?.installmentAmount ??
+      0
+    ) || 0;
+    const paidValue=paidBills.reduce((s,b)=>s+billValue(b),0);
+    const unpaidValue=pendingBills.reduce((s,b)=>s+billValue(b),0);
     const totalBills=paidValue+unpaidValue;
 
     // Quanto ainda precisa entrar para o saldo cobrir todas as contas em aberto.
