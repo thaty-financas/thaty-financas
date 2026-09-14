@@ -4159,16 +4159,10 @@ async function authAction(){
 
 
     /*
-      Abre o app imediatamente.
+      No celular, não mostramos a tela principal antes dos dados.
+      Primeiro sincronizamos com o Supabase; depois abrimos o app.
+      Isso evita a impressão de que a conta está zerada.
     */
-
-    showApplication();
-
-
-    /*
-      Carrega os dados depois.
-    */
-
     try{
 
       showLoading(
@@ -4179,6 +4173,7 @@ async function authAction(){
       await loadCloudData(true, false);
 
 
+      showApplication();
       renderEverything();
 
 
@@ -4198,15 +4193,10 @@ async function authAction(){
       hideLoading();
 
 
-      alert(
-        "Você entrou com sucesso! 🧡\n\n" +
-        "Porém, não foi possível carregar alguns dados do banco.\n\n" +
-        "O aplicativo foi aberto mesmo assim.\n\n" +
-        "Erro: " +
-        (
-          dataError.message ||
-          dataError
-        )
+      showLogin();
+      showAuthMessage(
+        "Login realizado, mas a conexão com seus dados demorou. Toque em Entrar novamente para tentar sincronizar.",
+        "warning"
       );
 
     }
@@ -4319,6 +4309,23 @@ function showLogin(){
    CARREGAR DADOS
    ========================================================= */
 
+/*
+   Rede móvel pode demorar ou acordar o navegador depois de alguns segundos.
+   Em vez de deixar o app com arrays vazios, damos tempo para o Supabase
+   responder e repetimos a leitura automaticamente.
+*/
+function withTimeout(promise, ms = 15000){
+  return Promise.race([
+    promise,
+    new Promise((_, reject)=>
+      setTimeout(()=>
+        reject(new Error("A conexão demorou demais para responder.")),
+        ms
+      )
+    )
+  ]);
+}
+
 async function loadCloudData(
   allowImport,
   syncBills = false
@@ -4333,72 +4340,95 @@ async function loadCloudData(
     currentUser.id;
 
 
-  const results =
-    await Promise.all([
+  let results = null;
+  let lastError = null;
 
-      supabaseClient
-        .from("transactions")
-        .select("*")
-        .eq(
-          "user_id",
-          uid
-        )
-        .order(
-          "date",
-          {
-            ascending:false
-          }
-        ),
+  for(let attempt = 1; attempt <= 3; attempt++){
+    try{
+      results = await withTimeout(
+        Promise.all([
 
-      supabaseClient
-        .from("bills")
-        .select("*")
-        .eq(
-          "user_id",
-          uid
-        )
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        ),
+          supabaseClient
+            .from("transactions")
+            .select("*")
+            .eq(
+              "user_id",
+              uid
+            )
+            .order(
+              "date",
+              {
+                ascending:false
+              }
+            ),
 
-      supabaseClient
-        .from("goals")
-        .select("*")
-        .eq(
-          "user_id",
-          uid
-        )
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        ),
+          supabaseClient
+            .from("bills")
+            .select("*")
+            .eq(
+              "user_id",
+              uid
+            )
+            .order(
+              "created_at",
+              {
+                ascending:false
+              }
+            ),
 
-      supabaseClient
-        .from("account_settings")
-        .select("*")
-        .eq(
-          "user_id",
-          uid
-        )
-        .maybeSingle()
+          supabaseClient
+            .from("goals")
+            .select("*")
+            .eq(
+              "user_id",
+              uid
+            )
+            .order(
+              "created_at",
+              {
+                ascending:false
+              }
+            ),
 
-    ]);
+          supabaseClient
+            .from("account_settings")
+            .select("*")
+            .eq(
+              "user_id",
+              uid
+            )
+            .maybeSingle()
 
+        ]),
+        15000
+      );
 
-  results.forEach(r=>{
+      const failed = results.find(r => r.error);
+      if(failed){
+        throw failed.error;
+      }
 
-    if(r.error){
+      break;
 
-      throw r.error;
+    }catch(error){
+      lastError = error;
+      console.warn(
+        `Tentativa ${attempt}/3 para carregar dados falhou:`,
+        error
+      );
 
+      if(attempt < 3){
+        await new Promise(resolve =>
+          setTimeout(resolve, 700 * attempt)
+        );
+      }
     }
+  }
 
-  });
+  if(!results){
+    throw lastError ||
+      new Error("Não foi possível carregar seus dados.");
+  }
 
 
   database.transactions =
@@ -7894,6 +7924,43 @@ async function initialize(){
 
 
 /* =========================================================
+   RECUPERAR DADOS AO VOLTAR PARA O CELULAR
+   ========================================================= */
+
+let lastMobileRefresh = 0;
+
+async function refreshWhenVisible(){
+  if(!currentUser){
+    return;
+  }
+
+  const now = Date.now();
+  if(now - lastMobileRefresh < 5000){
+    return;
+  }
+
+  lastMobileRefresh = now;
+
+  try{
+    await loadCloudData(false, false);
+    renderEverything();
+  }catch(error){
+    console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
+  }
+}
+
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible"){
+    refreshWhenVisible();
+  }
+});
+
+window.addEventListener("pageshow", ()=>{
+  refreshWhenVisible();
+});
+
+
+/* =========================================================
    INICIAR
    ========================================================= */
 
@@ -7915,13 +7982,39 @@ if("serviceWorker" in navigator){
 
   window.addEventListener(
     "load",
-    ()=>{
+    async ()=>{
+
+      /*
+        O celular pode estar segurando uma versão antiga do PWA.
+        Nesta atualização fazemos uma limpeza UMA vez por versão,
+        para o próximo carregamento vir do servidor. Depois o SW é
+        registrado novamente normalmente.
+      */
+      const swRefreshKey =
+        "thaty_financas_sw_refresh_2026_09_14_2";
+
+      try{
+        if(!localStorage.getItem(swRefreshKey)){
+          localStorage.setItem(swRefreshKey, "1");
+
+          const oldRegistration =
+            await navigator.serviceWorker.getRegistration();
+
+          if(oldRegistration){
+            await oldRegistration.unregister();
+            console.log("Cache antigo do PWA limpo. Recarregando...");
+            location.reload();
+            return;
+          }
+        }
+      }catch(error){
+        console.warn("Não foi possível atualizar o cache do PWA:", error);
+      }
 
       navigator.serviceWorker
         .register("/sw.js")
         .then(registration=>{
 
-          /* Pede ao navegador para verificar uma versão nova do SW. */
           registration.update().catch(()=>{});
 
           console.log(
