@@ -8527,24 +8527,79 @@ function nuClassify(item, imported){
   return "new";
 }
 async function readNubankOFX(file){
-  if(!file) return;
-  const raw=await file.text();
-  nubankOfxLedgerBalance=nuParseLedgerBalance(raw);
-  const imported=nuImportedFitids();
-  const blocks=raw.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/gi) || [];
-  nubankImportItems=blocks.map((b,i)=>{
-    const amount=Number(nuText(b,"TRNAMT").replace(",",".")||0);
-    const memo=nuText(b,"MEMO") || nuText(b,"NAME") || "Movimentação Nubank";
-    const fitid=nuText(b,"FITID") || `fallback-${nuDate(nuText(b,"DTPOSTED"))}-${amount}-${i}`;
-    const item={fitid,date:nuDate(nuText(b,"DTPOSTED")),amount,memo,index:i,selected:true,billId:""};
-    item.status=nuClassify(item,imported);
-    if(item.status==="duplicate") item.selected=false;
-    if(item.status==="bill") item.selected=false; // require explicit decision
-    return item;
-  });
-  document.getElementById("nuImportContent").style.display="";
-  renderNubankImport();
-  updateNubankReconciliation();
+  const content=document.getElementById("nuImportContent");
+  const rows=document.getElementById("nuRows");
+
+  try{
+    if(!file) return;
+
+    if(content) content.style.display="";
+    if(rows) rows.innerHTML=`<div style="padding:22px;text-align:center"><strong>⏳ Lendo extrato...</strong><br><small style="opacity:.65">Aguarde alguns segundos.</small></div>`;
+
+    let raw=await file.text();
+    if(!raw || !/<OFX/i.test(raw)) throw new Error("O arquivo selecionado não parece ser um OFX válido.");
+
+    /* OFX bancário pode vir em SGML (sem tags de fechamento em STMTTRN).
+       Em vez de depender de </STMTTRN>, quebramos pelo início de cada transação. */
+    const upper=raw.toUpperCase();
+    const starts=[];
+    let pos=0;
+    while((pos=upper.indexOf("<STMTTRN>",pos))!==-1){
+      starts.push(pos);
+      pos+=10;
+    }
+
+    if(!starts.length) throw new Error("Não encontrei movimentações <STMTTRN> neste extrato.");
+
+    const blocks=[];
+    for(let i=0;i<starts.length;i++){
+      const from=starts[i];
+      const to=i+1<starts.length ? starts[i+1] : raw.length;
+      let block=raw.slice(from,to);
+      const close=block.toUpperCase().indexOf("</STMTTRN>");
+      if(close>=0) block=block.slice(0,close+11);
+      blocks.push(block);
+    }
+
+    nubankOfxLedgerBalance=nuParseLedgerBalance(raw);
+    const imported=nuImportedFitids();
+
+    nubankImportItems=blocks.map((b,i)=>{
+      const amountRaw=nuText(b,"TRNAMT");
+      const amount=Number(String(amountRaw).replace(",",".")||0);
+      const memo=nuText(b,"MEMO") || nuText(b,"NAME") || "Movimentação Nubank";
+      const date=nuDate(nuText(b,"DTPOSTED"));
+      const fitid=nuText(b,"FITID") || `fallback-${date}-${amount}-${i}`;
+
+      if(!date || !Number.isFinite(amount)) return null;
+
+      const item={
+        fitid,date,amount,memo,index:i,
+        selected:true,billId:""
+      };
+      item.status=nuClassify(item,imported);
+
+      if(item.status==="duplicate") item.selected=false;
+      if(item.status==="bill") item.selected=false;
+      return item;
+    }).filter(Boolean);
+
+    if(!nubankImportItems.length)
+      throw new Error("O OFX foi aberto, mas nenhuma movimentação válida pôde ser lida.");
+
+    renderNubankImport();
+    updateNubankReconciliation();
+
+  }catch(e){
+    console.error("Erro ao ler OFX Nubank:",e);
+    nubankImportItems=[];
+    if(content) content.style.display="";
+    if(rows) rows.innerHTML=`
+      <div style="padding:18px;border-radius:12px;background:rgba(255,80,80,.08)">
+        <strong>⚠️ Não consegui ler o extrato.</strong>
+        <div style="margin-top:6px;font-size:12px;opacity:.8">${escNu(e.message||"Erro desconhecido ao abrir o OFX.")}</div>
+      </div>`;
+  }
 }
 function setNuFilter(filter,btn){
   nubankImportFilter=filter;
@@ -8656,6 +8711,18 @@ window.addEventListener("pageshow",()=>setTimeout(()=>{
   updateCurrentMonthLabels();
   if(typeof updateReportBreakdown==="function") updateReportBreakdown();
 },400));
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const ofxInput=document.getElementById("nubankOfxFile");
+  if(ofxInput && !ofxInput.dataset.listenerReady){
+    ofxInput.dataset.listenerReady="1";
+    ofxInput.addEventListener("change",function(){
+      const file=this.files && this.files[0];
+      if(file) readNubankOFX(file);
+    });
+  }
+});
 </script>
 
 <!-- =====================================================
@@ -8777,7 +8844,7 @@ setInterval(()=>{
       <div><div class="nu-title">📥 Importar extrato Nubank</div><div style="font-size:11px;opacity:.65">OFX • revise antes de salvar</div></div>
       <button class="nu-close" onclick="closeNubankImporter()">×</button>
     </div>
-    <input id="nubankOfxFile" type="file" accept=".ofx,application/x-ofx" onchange="readNubankOFX(this.files[0])">
+    <input id="nubankOfxFile" type="file" accept=".ofx,application/x-ofx">
     <div id="nuImportContent" style="display:none">
       <div class="nu-bank-balance">
         <strong>🏦 Conciliação Nubank</strong>
