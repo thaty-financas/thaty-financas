@@ -4421,43 +4421,45 @@ async function authAction(){
 
 
     /*
-      No celular, não mostramos a tela principal antes dos dados.
-      Primeiro sincronizamos com o Supabase; depois abrimos o app.
-      Isso evita a impressão de que a conta está zerada.
+      IMPORTANTE PARA CELULAR:
+      não deixamos a interface presa esperando o Supabase. O app abre
+      primeiro e a sincronização acontece logo depois. Se a rede móvel
+      estiver lenta, o aplicativo continua acessível e tenta atualizar
+      novamente quando voltar para a tela.
     */
     try{
 
-      showLoading(
-        "Carregando seus dados..."
-      );
-
-
-      await loadCloudData(true, false);
-
-
       showApplication();
       renderEverything();
-
-
       hideLoading();
 
-      /* Não bloqueia o celular com a sincronização das contas. */
+      try{
+        showAuthMessage("Sincronizando seus dados...", "success");
+        await withTimeout(loadCloudData(true, false), 10000);
+        renderEverything();
+        showAuthMessage("Dados sincronizados.", "success");
+      }catch(dataError){
+        console.warn("Sincronização inicial atrasada no celular:", dataError);
+        showAuthMessage(
+          "O app abriu. A sincronização está demorando; vamos tentar novamente em segundo plano.",
+          "warning"
+        );
+      }
+
+      /* Sincronização complementar sem bloquear a interface. */
       syncBillsInBackground();
 
     }catch(dataError){
 
       console.error(
-        "Erro ao carregar dados:",
+        "Erro ao abrir o aplicativo:",
         dataError
       );
 
-
       hideLoading();
-
-
       showLogin();
       showAuthMessage(
-        "Login realizado, mas a conexão com seus dados demorou. Toque em Entrar novamente para tentar sincronizar.",
+        "Não foi possível abrir o aplicativo. Tente novamente.",
         "warning"
       );
 
@@ -8081,9 +8083,12 @@ async function initialize(){
 
 
     const r =
-      await supabaseClient
-        .auth
-        .getSession();
+      await withTimeout(
+        supabaseClient
+          .auth
+          .getSession(),
+        8000
+      );
 
 
     if(r.error){
