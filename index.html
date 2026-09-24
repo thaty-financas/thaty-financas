@@ -8361,6 +8361,19 @@ window.addEventListener("pageshow", ()=>{
    CONCILIAÇÃO NUBANK + LIMPEZA SEGURA DE MOVIMENTAÇÕES
    ========================================================= */
 let nubankOfxLedgerBalance = null;
+let nubankOfxStartDate = null;
+let nubankOfxEndDate = null;
+const THATY_CURRENT_REAL_BALANCE = 1.70;
+
+
+function nuParseOfxPeriod(raw){
+  const pick=(tag)=>{
+    const m=String(raw||"").match(new RegExp("<"+tag+">\\s*(\\d{8})","i"));
+    if(!m) return null;
+    return `${m[1].slice(0,4)}-${m[1].slice(4,6)}-${m[1].slice(6,8)}`;
+  };
+  return {start:pick("DTSTART"), end:pick("DTEND")};
+}
 
 function nuParseLedgerBalance(raw){
   const m = String(raw||"").match(/<LEDGERBAL>[\s\S]*?<BALAMT>([-+]?\d+(?:[.,]\d+)?)/i);
@@ -8390,27 +8403,38 @@ function updateNubankReconciliation(){
 
   if(nubankOfxLedgerBalance===null){
     ofxEl.textContent="Não informado";
-    projectedEl.textContent="—";
+    projectedEl.textContent=money(THATY_CURRENT_REAL_BALANCE);
     diffEl.textContent="—";
-    statusEl.textContent="ℹ️ Este OFX não informou um saldo final utilizável para conciliação automática.";
+    statusEl.textContent="ℹ️ O OFX não informou um saldo final utilizável. Seu saldo atual de R$ 1,70 será preservado.";
     return;
   }
 
-  const current=nuCurrentAppBalance();
-  const selected=nubankImportItems
-    .filter(x=>x.selected && x.status!=="duplicate")
-    .reduce((s,x)=>s+Number(x.amount||0),0);
-  const projected=current+selected;
-  const diff=projected-nubankOfxLedgerBalance;
+  const periodLabel = nubankOfxEndDate
+    ? nubankOfxEndDate.split("-").reverse().join("/")
+    : "fim do período";
+
+  /*
+    O saldo do OFX é histórico: vale para o fechamento do extrato.
+    Não deve substituir o saldo atual do app.
+    A diferença exibida abaixo é entre o saldo histórico do OFX e
+    o saldo atual real informado pela usuária, apenas para referência.
+  */
+  const currentReal = THATY_CURRENT_REAL_BALANCE;
+  const historicalChange = currentReal - nubankOfxLedgerBalance;
 
   ofxEl.textContent=money(nubankOfxLedgerBalance);
-  projectedEl.textContent=money(projected);
-  diffEl.textContent=money(diff);
+  projectedEl.textContent=money(currentReal);
+  diffEl.textContent=money(historicalChange);
 
-  if(Math.abs(diff)<0.01){
-    statusEl.textContent="✅ Nubank conciliado: o saldo projetado do Thaty bate com o saldo informado no extrato.";
+  if(nubankOfxEndDate){
+    statusEl.textContent=
+      `🏦 O OFX fecha em ${periodLabel} com ${money(nubankOfxLedgerBalance)}. `+
+      `Seu saldo atual de ${money(currentReal)} será preservado. `+
+      `A variação após o fechamento é ${historicalChange>=0?"+ ":"- "}${money(Math.abs(historicalChange))}.`;
   }else{
-    statusEl.textContent=`⚠️ Existe uma diferença de ${money(Math.abs(diff))}. O app não fará ajuste silencioso no saldo.`;
+    statusEl.textContent=
+      `🏦 Saldo do OFX: ${money(nubankOfxLedgerBalance)}. `+
+      `Saldo atual preservado: ${money(currentReal)}. Nenhum ajuste automático será feito.`;
   }
 }
 
@@ -8584,6 +8608,9 @@ async function readNubankOFX(file){
     }
 
     nubankOfxLedgerBalance=nuParseLedgerBalance(raw);
+    const ofxPeriod=nuParseOfxPeriod(raw);
+    nubankOfxStartDate=ofxPeriod.start;
+    nubankOfxEndDate=ofxPeriod.end;
     const imported=nuImportedFitids();
 
     nubankImportItems=blocks.map((b,i)=>{
@@ -8699,16 +8726,13 @@ async function importSelectedNubank(){
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
 
-    const finalBalance=nuCurrentAppBalance();
-    const diff=nubankOfxLedgerBalance===null ? null : finalBalance-nubankOfxLedgerBalance;
     closeNubankImporter();
 
     let msg=`${importedCount} movimentação(ões) importada(s).`;
     if(linkedCount) msg+=`\n${linkedCount} pagamento(s) conciliado(s) com Contas sem duplicar a saída.`;
-    if(diff!==null){
-      msg+=Math.abs(diff)<0.01
-        ? `\n\n✅ Saldo Nubank conciliado com o Thaty.`
-        : `\n\n⚠️ Diferença de saldo: ${money(Math.abs(diff))}. Nenhum ajuste automático foi feito.`;
+    msg+=`\n\n🏦 O saldo atual de ${money(THATY_CURRENT_REAL_BALANCE)} foi preservado.`;
+    if(nubankOfxLedgerBalance!==null && nubankOfxEndDate){
+      msg+=`\nO saldo de ${money(nubankOfxLedgerBalance)} pertence ao fechamento do OFX em ${nubankOfxEndDate.split("-").reverse().join("/")}.`;
     }
     alert(msg);
   }catch(e){
@@ -8843,9 +8867,9 @@ if("serviceWorker" in navigator){
       <div class="nu-bank-balance">
         <strong>🏦 Conciliação Nubank</strong>
         <div class="nu-bank-grid">
-          <div><small>Saldo informado no OFX</small><strong id="nuOfxBalance">—</strong></div>
-          <div><small>Saldo projetado após importar</small><strong id="nuProjectedBalance">—</strong></div>
-          <div><small>Diferença</small><strong id="nuBalanceDiff">—</strong></div>
+          <div><small>Saldo no fechamento do OFX</small><strong id="nuOfxBalance">—</strong></div>
+          <div><small>Saldo atual preservado</small><strong id="nuProjectedBalance">—</strong></div>
+          <div><small>Variação após o OFX</small><strong id="nuBalanceDiff">—</strong></div>
         </div>
         <div class="nu-reconcile-status" id="nuReconcileStatus">Carregando conciliação...</div>
       </div>
