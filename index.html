@@ -8503,14 +8503,42 @@ function nuImportedFitids(){
 function nuBillCandidates(item){
   if(item.amount >= 0) return [];
   const value=Math.abs(item.amount);
-  const d=new Date(item.date+"T12:00:00");
+  const itemDate=new Date(item.date+"T12:00:00");
+  const itemMonth=String(item.date||"").slice(0,7);
+
   return database.bills.filter(b=>{
-    if(currentBillIsPaid(b)) return false;
-    if(Math.abs(Number(b.amount||0)-value) > 0.01) return false;
-    const due=billDueDateForMonth(b,item.date.slice(0,7));
-    if(!due) return true;
-    const bd=new Date(due+"T12:00:00");
-    return Math.abs((bd-d)/86400000) <= 7;
+    try{
+      /* Não sugere como conta algo que já está pago no período atual. */
+      if(typeof currentBillIsPaid==="function" && currentBillIsPaid(b)) return false;
+
+      if(Math.abs(Number(b.amount||0)-value) > 0.01) return false;
+
+      /* Usa o vencimento que realmente existe no cadastro da conta.
+         Não depende mais da função inexistente billDueDateForMonth. */
+      let dueRaw = b.due_date || b.dueDate || b.due || b.date || "";
+      let dueDate = null;
+
+      if(dueRaw){
+        const s=String(dueRaw);
+        if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+          /* Para contas recorrentes, compara usando o mesmo dia no mês do extrato. */
+          const day=s.slice(8,10);
+          dueDate=new Date(`${itemMonth}-${day}T12:00:00`);
+        }else if(/^\d{1,2}$/.test(s)){
+          const day=String(Number(s)).padStart(2,"0");
+          dueDate=new Date(`${itemMonth}-${day}T12:00:00`);
+        }
+      }
+
+      /* Se não houver vencimento legível, ainda permite sugerir pelo valor,
+         mas deixa a decisão final para a tela de revisão. */
+      if(!dueDate || Number.isNaN(dueDate.getTime())) return true;
+
+      return Math.abs((dueDate-itemDate)/86400000) <= 7;
+    }catch(e){
+      console.warn("Não foi possível comparar conta com OFX:",e);
+      return false;
+    }
   });
 }
 function nuClassify(item, imported){
