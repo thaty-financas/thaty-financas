@@ -2080,6 +2080,29 @@ td button{
 
 
 </style>
+
+<style id="report-breakdown-style">
+.report-breakdown{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 18px;
+}
+.report-breakdown-card{
+  padding:14px;
+  border-radius:15px;
+  border:1px solid var(--border,rgba(255,255,255,.08));
+  background:var(--card,rgba(255,255,255,.04));
+}
+.report-breakdown-label{font-size:11px;opacity:.68;margin-bottom:5px}
+.report-breakdown-value{font-size:16px;font-weight:900}
+@media(max-width:700px){
+  .report-breakdown{grid-template-columns:1fr 1fr;gap:8px}
+  .report-breakdown-card{padding:12px}
+  .report-breakdown-value{font-size:15px}
+}
+</style>
+
 </head>
 
 <body>
@@ -2993,7 +3016,26 @@ td button{
 
       <h2>
         Relatórios
-      </h2><div>
+      </h2>
+<div id="reportBreakdown" class="report-breakdown">
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">📥 Entradas do mês</div>
+    <div class="report-breakdown-value" id="reportManualIncome">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">🛍️ Gastos manuais</div>
+    <div class="report-breakdown-value" id="reportManualExpense">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">🧾 Contas pagas</div>
+    <div class="report-breakdown-value" id="reportBillsPaid">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">💸 Total que saiu</div>
+    <div class="report-breakdown-value" id="reportTotalOut">R$ 0,00</div>
+  </div>
+</div>
+<div>
           </div>
         </div>
         </div>
@@ -8322,7 +8364,53 @@ if("serviceWorker" in navigator){
 
 }
 
+
+function updateReportBreakdown(){
+  const income = manualTransactions()
+    .filter(t=>t.type==="income")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
+
+  const manualExpense = manualTransactions()
+    .filter(t=>t.type==="expense")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
+
+  /* As contas automáticas continuam internas e são usadas apenas
+     para descobrir quanto foi efetivamente pago. */
+  const billsPaid = database.transactions
+    .filter(t=>isAutomaticBillMovement(t) && !isPendingBillMovement(t) && t.type==="expense")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
+
+  const totalOut = manualExpense + billsPaid;
+
+  const values = {
+    reportManualIncome: income,
+    reportManualExpense: manualExpense,
+    reportBillsPaid: billsPaid,
+    reportTotalOut: totalOut
+  };
+
+  Object.entries(values).forEach(([id,value])=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent = privacyMode ? "••••••" : money(value);
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(updateReportBreakdown,900);
+});
+window.addEventListener("pageshow",()=>setTimeout(updateReportBreakdown,500));
+
 </script>
+<script id="report-breakdown-refresh">
+setInterval(()=>{
+  try{
+    if(document.getElementById("reportBreakdown") && typeof updateReportBreakdown==="function"){
+      updateReportBreakdown();
+    }
+  }catch(e){}
+},2000);
+</script>
+
 
 </body>
 </html>
