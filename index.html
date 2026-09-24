@@ -8442,12 +8442,11 @@ async function clearManualMovementHistory(){
   if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
 
   const manual=database.transactions.filter(t=>!isAutomaticBillMovement(t));
-  if(!manual.length) return alert("Não existem movimentações manuais para limpar.");
+  if(!manual.length) return alert("Não existem movimentações para limpar.");
 
   const ok=confirm(
-    `Você está prestes a apagar ${manual.length} movimentação(ões) de entrada/saída.\n\n`+
-    `CONTAS, parcelas, poupança, objetivos, perfil e configurações NÃO serão apagados.\n\n`+
-    `Depois disso, você poderá reconstruir as movimentações importando o OFX do Nubank.\n\nContinuar?`
+    `Você está prestes a apagar ${manual.length} movimentação(ões).\n\n`+
+    `CONTAS, parcelas, poupança, objetivos, perfil e configurações NÃO serão apagados.\n\nContinuar?`
   );
   if(!ok) return;
 
@@ -8455,16 +8454,32 @@ async function clearManualMovementHistory(){
   if(String(typed||"").trim().toUpperCase()!=="LIMPAR") return alert("Limpeza cancelada.");
 
   try{
+    let removed=0, failed=0;
     const ids=manual.map(t=>t.id).filter(Boolean);
-    if(ids.length){
+
+    /* Uma exclusão por ID evita URL/requisição grande demais no backend. */
+    for(const id of ids){
       const {error}=await supabaseClient.from("transactions")
-        .delete().in("id",ids).eq("user_id",currentUser.id);
-      if(error) throw error;
+        .delete()
+        .eq("id",id)
+        .eq("user_id",currentUser.id);
+      if(error){
+        console.error("Falha ao apagar movimentação",id,error);
+        failed++;
+      }else{
+        removed++;
+      }
     }
+
     await loadCloudData(false,false);
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
-    alert("Movimentações limpas. 🧡 As Contas e os demais dados foram preservados.");
+
+    if(failed){
+      alert(`Foram apagadas ${removed} movimentação(ões), mas ${failed} falharam. Tente limpar novamente para remover o restante.`);
+    }else{
+      alert(`Pronto. ${removed} movimentação(ões) foram apagadas. 🧡\n\nSuas Contas e os demais dados foram preservados.`);
+    }
   }catch(e){
     console.error(e);
     alert(e.message||"Não foi possível limpar as movimentações.");
@@ -8686,27 +8701,56 @@ function nuChooseBill(idx,value){
   item.selected=value==="movement";
   updateNubankReconciliation();
 }
+let nubankImportRunning=false;
+
 async function importSelectedNubank(){
+  if(nubankImportRunning) return;
   if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
 
-  const movements=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate");
+  const btn=document.querySelector('#nubankImportModal button[onclick="importSelectedNubank()"]')
+    || [...document.querySelectorAll("button")].find(b=>/Importar selecionadas/i.test(b.textContent||""));
+
+  const movements=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate" && !x.billId);
   const billLinks=nubankImportItems.filter(x=>x.status==="bill" && x.billId);
 
   if(!movements.length && !billLinks.length)
     return alert("Selecione movimentações ou vincule pagamentos às contas antes de importar.");
 
-  try{
-    let importedCount=0, linkedCount=0;
+  nubankImportRunning=true;
+  const oldText=btn ? btn.textContent : "";
+  if(btn){
+    btn.disabled=true;
+    btn.textContent="⏳ Importando...";
+    btn.style.opacity=".65";
+    btn.style.pointerEvents="none";
+  }
 
-    /* Primeiro, concilia possíveis contas. Não cria Movimentação para elas. */
+  try{
+    let importedCount=0, linkedCount=0, skippedCount=0;
+
+    /* Concilia contas sem criar uma segunda movimentação. */
     for(const item of billLinks){
       await reconcileImportedItemWithBill(item,item.billId);
       linkedCount++;
     }
 
-    /* Depois importa apenas o que realmente deve aparecer em Movimentações. */
     for(const item of movements){
-      if(item.billId) continue;
+      /* Reconsulta o banco imediatamente antes de inserir.
+         Isso protege inclusive contra uma tentativa anterior parcialmente concluída. */
+      const fitMarker=`nubank-fitid:${item.fitid}`;
+      const {data:existing,error:checkError}=await supabaseClient
+        .from("transactions")
+        .select("id,notes")
+        .eq("user_id",currentUser.id)
+        .ilike("notes",`%${fitMarker}%`)
+        .limit(1);
+
+      if(checkError) throw checkError;
+      if(existing && existing.length){
+        skippedCount++;
+        continue;
+      }
+
       const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
       const payload={
         user_id:currentUser.id,
@@ -8715,8 +8759,9 @@ async function importSelectedNubank(){
         description:item.memo,
         category:isTikTok?"Salário":"Outros",
         date:item.date,
-        notes:`nubank-fitid:${item.fitid}|nubank-ofx${isTikTok?"|tiktok":""}`
+        notes:`${fitMarker}|nubank-ofx${isTikTok?"|tiktok":""}`
       };
+
       const {error}=await supabaseClient.from("transactions").insert(payload);
       if(error) throw error;
       importedCount++;
@@ -8725,10 +8770,10 @@ async function importSelectedNubank(){
     await loadCloudData(false,false);
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
-
     closeNubankImporter();
 
     let msg=`${importedCount} movimentação(ões) importada(s).`;
+    if(skippedCount) msg+=`\n${skippedCount} já existia(m) e foi(ram) ignorada(s).`;
     if(linkedCount) msg+=`\n${linkedCount} pagamento(s) conciliado(s) com Contas sem duplicar a saída.`;
     msg+=`\n\n🏦 O saldo atual de ${money(THATY_CURRENT_REAL_BALANCE)} foi preservado.`;
     if(nubankOfxLedgerBalance!==null && nubankOfxEndDate){
@@ -8738,6 +8783,14 @@ async function importSelectedNubank(){
   }catch(e){
     console.error(e);
     alert(e.message||"Não foi possível concluir a importação.");
+  }finally{
+    nubankImportRunning=false;
+    if(btn){
+      btn.disabled=false;
+      btn.textContent=oldText||"Importar selecionadas";
+      btn.style.opacity="";
+      btn.style.pointerEvents="";
+    }
   }
 }
 
