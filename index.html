@@ -8355,12 +8355,6 @@ window.addEventListener("pageshow", ()=>{
    INICIAR
    ========================================================= */
 
-initialize();
-
-
-})();
-
-
 
 
 /* =========================================================
@@ -8723,7 +8717,21 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
   }
 });
-</script>
+
+
+/* Funções do importador expostas à interface HTML. */
+window.openNubankImporter = openNubankImporter;
+window.closeNubankImporter = closeNubankImporter;
+window.setNuFilter = setNuFilter;
+window.nuChooseBill = nuChooseBill;
+window.importSelectedNubank = importSelectedNubank;
+window.clearManualMovementHistory = clearManualMovementHistory;
+
+
+initialize();
+
+
+})()</script>
 
 <!-- =====================================================
      SERVICE WORKER
@@ -8790,51 +8798,9 @@ if("serviceWorker" in navigator){
 }
 
 
-function updateReportBreakdown(){
-  const income = manualTransactions()
-    .filter(t=>t.type==="income")
-    .reduce((s,t)=>s+Number(t.amount||0),0);
-
-  const manualExpense = manualTransactions()
-    .filter(t=>t.type==="expense")
-    .reduce((s,t)=>s+Number(t.amount||0),0);
-
-  /* As contas automáticas continuam internas e são usadas apenas
-     para descobrir quanto foi efetivamente pago. */
-  const billsPaid = database.transactions
-    .filter(t=>isAutomaticBillMovement(t) && !isPendingBillMovement(t) && t.type==="expense")
-    .reduce((s,t)=>s+Number(t.amount||0),0);
-
-  const totalOut = manualExpense + billsPaid;
-
-  const values = {
-    reportManualIncome: income,
-    reportManualExpense: manualExpense,
-    reportBillsPaid: billsPaid,
-    reportTotalOut: totalOut
-  };
-
-  Object.entries(values).forEach(([id,value])=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent = privacyMode ? "••••••" : money(value);
-  });
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  setTimeout(updateReportBreakdown,900);
-});
-window.addEventListener("pageshow",()=>setTimeout(updateReportBreakdown,500));
 
 </script>
-<script id="report-breakdown-refresh">
-setInterval(()=>{
-  try{
-    if(document.getElementById("reportBreakdown") && typeof updateReportBreakdown==="function"){
-      updateReportBreakdown();
-    }
-  }catch(e){}
-},2000);
-</script>
+
 
 
 
