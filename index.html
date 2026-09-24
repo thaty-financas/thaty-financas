@@ -3052,7 +3052,7 @@ td button{
       <h2>
         Relatórios
       </h2>
-<div id="reportBreakdown" class="report-breakdown">
+<div id="reportMonthLabel" style="font-weight:900;font-size:14px;margin:14px 0 4px">Resumo do mês atual</div><div id="reportBreakdown" class="report-breakdown">
   <div class="report-breakdown-card">
     <div class="report-breakdown-label">📥 Entradas do mês</div>
     <div class="report-breakdown-value" id="reportManualIncome">R$ 0,00</div>
@@ -3298,6 +3298,33 @@ let valuesHidden =
 /* =========================================================
    BANCO LOCAL
    ========================================================= */
+
+
+/* =========================================================
+   VIRADA AUTOMÁTICA DO MÊS
+   Saldo continua; indicadores mensais usam somente o mês atual.
+   ========================================================= */
+function thatyCurrentMonthKey(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function thatyTransactionMonthKey(t){
+  return String(t?.date || t?.created_at || "").slice(0,7);
+}
+function thatyCurrentMonthTransactions(list){
+  const mk=thatyCurrentMonthKey();
+  return (Array.isArray(list)?list:[]).filter(t=>thatyTransactionMonthKey(t)===mk);
+}
+function thatyCurrentMonthManualTransactions(){
+  return thatyCurrentMonthTransactions(
+    typeof manualTransactions==="function" ? manualTransactions() : database.transactions
+  );
+}
+function thatyCurrentMonthBillMovements(){
+  return thatyCurrentMonthTransactions(
+    database.transactions.filter(t=>typeof isAutomaticBillMovement==="function" && isAutomaticBillMovement(t))
+  );
+}
 
 let database = {
 
@@ -5253,7 +5280,7 @@ window.toggleInstallmentSchedule = toggleInstallmentSchedule;
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=database.transactions.filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=thatyCurrentMonthTransactions(database.transactions).filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -8612,6 +8639,23 @@ async function importSelectedNubank(){
     alert(e.message||"Não foi possível concluir a importação.");
   }
 }
+
+
+function updateCurrentMonthLabels(){
+  const names=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const d=new Date();
+  const el=document.getElementById("reportMonthLabel");
+  if(el) el.textContent=`Resumo de ${names[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>{
+  updateCurrentMonthLabels();
+  if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+},1000));
+window.addEventListener("pageshow",()=>setTimeout(()=>{
+  updateCurrentMonthLabels();
+  if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+},400));
 </script>
 
 <!-- =====================================================
