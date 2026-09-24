@@ -2126,6 +2126,18 @@ td button{
 @media(max-width:600px){.nu-summary{grid-template-columns:1fr 1fr}.nu-summary>div:last-child{grid-column:1/-1}.nu-box{padding:14px}.nu-row{grid-template-columns:auto 1fr}.nu-value{grid-column:2}.nu-actions{bottom:-14px}}
 </style>
 
+
+<style id="nubank-reconcile-style">
+.nu-bank-balance{margin:12px 0;padding:14px;border-radius:15px;background:rgba(127,127,127,.08);border:1px solid var(--border,rgba(255,255,255,.10))}
+.nu-bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.nu-bank-grid>div{padding:10px;border-radius:11px;background:rgba(127,127,127,.07)}
+.nu-bank-grid small{display:block;font-size:10px;opacity:.65}.nu-bank-grid strong{display:block;margin-top:4px;font-size:14px}
+.nu-reconcile-status{font-size:12px;font-weight:800;margin-top:10px}
+.nu-danger-zone{margin-top:16px;padding-top:14px;border-top:1px solid rgba(127,127,127,.15)}
+.nu-danger-btn{width:100%}
+@media(max-width:600px){.nu-bank-grid{grid-template-columns:1fr}.nu-bank-grid>div{padding:9px}}
+</style>
+
 </head>
 
 <body>
@@ -2425,7 +2437,7 @@ td button{
 
         <h2>
           Movimentações
-        </h2><button type="button" class="btn secondary nu-import-btn" onclick="openNubankImporter()">📥 Importar Nubank (OFX)</button>
+        </h2><button type="button" class="btn secondary nu-import-btn" onclick="openNubankImporter()">📥 Importar Nubank (OFX)</button><button type="button" class="btn secondary nu-import-btn" onclick="clearManualMovementHistory()">🗑️ Limpar movimentações</button>
 
         <button
           id="addTransactionButton"
@@ -8323,6 +8335,121 @@ initialize();
 
 
 
+
+/* =========================================================
+   CONCILIAÇÃO NUBANK + LIMPEZA SEGURA DE MOVIMENTAÇÕES
+   ========================================================= */
+let nubankOfxLedgerBalance = null;
+
+function nuParseLedgerBalance(raw){
+  const m = String(raw||"").match(/<LEDGERBAL>[\s\S]*?<BALAMT>([-+]?\d+(?:[.,]\d+)?)/i);
+  if(!m) return null;
+  const n = Number(m[1].replace(",","."));
+  return Number.isFinite(n) ? n : null;
+}
+
+function nuCurrentAppBalance(){
+  try{
+    const income = database.transactions
+      .filter(t=>t.type==="income" && !isPendingBillMovement(t))
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+    const expense = database.transactions
+      .filter(t=>t.type==="expense" && !isPendingBillMovement(t))
+      .reduce((s,t)=>s+Number(t.amount||0),0);
+    return Number(database.balance||0) + income - expense;
+  }catch(e){ return 0; }
+}
+
+function updateNubankReconciliation(){
+  const ofxEl=document.getElementById("nuOfxBalance");
+  const projectedEl=document.getElementById("nuProjectedBalance");
+  const diffEl=document.getElementById("nuBalanceDiff");
+  const statusEl=document.getElementById("nuReconcileStatus");
+  if(!ofxEl||!projectedEl||!diffEl||!statusEl) return;
+
+  if(nubankOfxLedgerBalance===null){
+    ofxEl.textContent="Não informado";
+    projectedEl.textContent="—";
+    diffEl.textContent="—";
+    statusEl.textContent="ℹ️ Este OFX não informou um saldo final utilizável para conciliação automática.";
+    return;
+  }
+
+  const current=nuCurrentAppBalance();
+  const selected=nubankImportItems
+    .filter(x=>x.selected && x.status!=="duplicate")
+    .reduce((s,x)=>s+Number(x.amount||0),0);
+  const projected=current+selected;
+  const diff=projected-nubankOfxLedgerBalance;
+
+  ofxEl.textContent=money(nubankOfxLedgerBalance);
+  projectedEl.textContent=money(projected);
+  diffEl.textContent=money(diff);
+
+  if(Math.abs(diff)<0.01){
+    statusEl.textContent="✅ Nubank conciliado: o saldo projetado do Thaty bate com o saldo informado no extrato.";
+  }else{
+    statusEl.textContent=`⚠️ Existe uma diferença de ${money(Math.abs(diff))}. O app não fará ajuste silencioso no saldo.`;
+  }
+}
+
+async function clearManualMovementHistory(){
+  if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
+
+  const manual=database.transactions.filter(t=>!isAutomaticBillMovement(t));
+  if(!manual.length) return alert("Não existem movimentações manuais para limpar.");
+
+  const ok=confirm(
+    `Você está prestes a apagar ${manual.length} movimentação(ões) de entrada/saída.\n\n`+
+    `CONTAS, parcelas, poupança, objetivos, perfil e configurações NÃO serão apagados.\n\n`+
+    `Depois disso, você poderá reconstruir as movimentações importando o OFX do Nubank.\n\nContinuar?`
+  );
+  if(!ok) return;
+
+  const typed=prompt('Para confirmar, digite LIMPAR:');
+  if(String(typed||"").trim().toUpperCase()!=="LIMPAR") return alert("Limpeza cancelada.");
+
+  try{
+    const ids=manual.map(t=>t.id).filter(Boolean);
+    if(ids.length){
+      const {error}=await supabaseClient.from("transactions")
+        .delete().in("id",ids).eq("user_id",currentUser.id);
+      if(error) throw error;
+    }
+    await loadCloudData(false,false);
+    renderEverything();
+    if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+    alert("Movimentações limpas. 🧡 As Contas e os demais dados foram preservados.");
+  }catch(e){
+    console.error(e);
+    alert(e.message||"Não foi possível limpar as movimentações.");
+  }
+}
+
+/* Liga uma saída importada a uma conta sem criar uma segunda saída.
+   O OFX continua sendo a movimentação bancária; a conta serve para controle. */
+async function reconcileImportedItemWithBill(item,billId){
+  const bill=database.bills.find(b=>String(b.id)===String(billId));
+  if(!bill) return false;
+
+  const period = currentBillPeriod(bill);
+  const monthKey = item.date ? item.date.slice(0,7) : period.monthKey;
+  let info = typeof infoWithPaidMonth==="function"
+    ? infoWithPaidMonth(bill.info, monthKey)
+    : String(bill.info||"");
+
+  const marker=`|OFX:${item.fitid}`;
+  if(!info.includes(marker)) info+=marker;
+
+  const {error}=await supabaseClient.from("bills").update({
+    info,
+    paid: period.data.type==="monthly" ? true : bill.paid
+  }).eq("id",bill.id).eq("user_id",currentUser.id);
+  if(error) throw error;
+  return true;
+}
+
+
 /* =========================================================
    IMPORTADOR NUBANK OFX
    ========================================================= */
@@ -8375,6 +8502,7 @@ function nuClassify(item, imported){
 async function readNubankOFX(file){
   if(!file) return;
   const raw=await file.text();
+  nubankOfxLedgerBalance=nuParseLedgerBalance(raw);
   const imported=nuImportedFitids();
   const blocks=raw.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/gi) || [];
   nubankImportItems=blocks.map((b,i)=>{
@@ -8389,6 +8517,7 @@ async function readNubankOFX(file){
   });
   document.getElementById("nuImportContent").style.display="";
   renderNubankImport();
+  updateNubankReconciliation();
 }
 function setNuFilter(filter,btn){
   nubankImportFilter=filter;
@@ -8414,7 +8543,7 @@ function renderNubankImport(){
       <option value="movement">Tratar como movimentação</option>
     </select>`:"";
     return `<div class="nu-row">
-      <input type="checkbox" ${item.selected?"checked":""} ${item.status==="duplicate"?"disabled":""} onchange="nubankImportItems[${idx}].selected=this.checked">
+      <input type="checkbox" ${item.selected?"checked":""} ${item.status==="duplicate"?"disabled":""} onchange="nubankImportItems[${idx}].selected=this.checked;updateNubankReconciliation()">
       <div><strong>${escNu(item.memo)}</strong><small>${escNu(item.date.split("-").reverse().join("/"))}</small><span class="nu-badge">${badge}</span>${matchSelect}</div>
       <div class="nu-value">${item.amount>=0?"+ ":"- "}${money(Math.abs(item.amount))}</div>
     </div>`;
@@ -8424,17 +8553,29 @@ function nuChooseBill(idx,value){
   const item=nubankImportItems[idx];
   item.billId=value && value!=="movement" ? value : "";
   item.selected=value==="movement";
+  updateNubankReconciliation();
 }
 async function importSelectedNubank(){
   if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
-  const chosen=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate");
-  if(!chosen.length) return alert("Selecione pelo menos uma movimentação para importar.");
+
+  const movements=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate");
+  const billLinks=nubankImportItems.filter(x=>x.status==="bill" && x.billId);
+
+  if(!movements.length && !billLinks.length)
+    return alert("Selecione movimentações ou vincule pagamentos às contas antes de importar.");
 
   try{
-    let importedCount=0;
-    for(const item of chosen){
-      // Possible bill treated as a normal movement only after explicit choice.
-      if(item.status==="bill" && !item.selected) continue;
+    let importedCount=0, linkedCount=0;
+
+    /* Primeiro, concilia possíveis contas. Não cria Movimentação para elas. */
+    for(const item of billLinks){
+      await reconcileImportedItemWithBill(item,item.billId);
+      linkedCount++;
+    }
+
+    /* Depois importa apenas o que realmente deve aparecer em Movimentações. */
+    for(const item of movements){
+      if(item.billId) continue;
       const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
       const payload={
         user_id:currentUser.id,
@@ -8449,14 +8590,26 @@ async function importSelectedNubank(){
       if(error) throw error;
       importedCount++;
     }
+
     await loadCloudData(false,false);
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+
+    const finalBalance=nuCurrentAppBalance();
+    const diff=nubankOfxLedgerBalance===null ? null : finalBalance-nubankOfxLedgerBalance;
     closeNubankImporter();
-    alert(`${importedCount} movimentação(ões) importada(s) com sucesso. 🧡`);
+
+    let msg=`${importedCount} movimentação(ões) importada(s).`;
+    if(linkedCount) msg+=`\n${linkedCount} pagamento(s) conciliado(s) com Contas sem duplicar a saída.`;
+    if(diff!==null){
+      msg+=Math.abs(diff)<0.01
+        ? `\n\n✅ Saldo Nubank conciliado com o Thaty.`
+        : `\n\n⚠️ Diferença de saldo: ${money(Math.abs(diff))}. Nenhum ajuste automático foi feito.`;
+    }
+    alert(msg);
   }catch(e){
     console.error(e);
-    alert(e.message||"Não foi possível importar o extrato.");
+    alert(e.message||"Não foi possível concluir a importação.");
   }
 }
 </script>
@@ -8582,6 +8735,15 @@ setInterval(()=>{
     </div>
     <input id="nubankOfxFile" type="file" accept=".ofx,application/x-ofx" onchange="readNubankOFX(this.files[0])">
     <div id="nuImportContent" style="display:none">
+      <div class="nu-bank-balance">
+        <strong>🏦 Conciliação Nubank</strong>
+        <div class="nu-bank-grid">
+          <div><small>Saldo informado no OFX</small><strong id="nuOfxBalance">—</strong></div>
+          <div><small>Saldo projetado após importar</small><strong id="nuProjectedBalance">—</strong></div>
+          <div><small>Diferença</small><strong id="nuBalanceDiff">—</strong></div>
+        </div>
+        <div class="nu-reconcile-status" id="nuReconcileStatus">Carregando conciliação...</div>
+      </div>
       <div class="nu-summary">
         <div><small>Novas</small><strong id="nuNewCount">0</strong></div>
         <div><small>Possíveis contas</small><strong id="nuBillCount">0</strong></div>
