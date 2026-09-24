@@ -1113,6 +1113,13 @@ td button{
     0 0 12px rgba(244,123,32,.25);
 }
 
+.transactionSummary{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
 .reportSummary{
   display:grid;
 
@@ -1712,7 +1719,8 @@ td button{
     gap:13px;
   }
 
-  .reportSummary{
+  .reportSummary,
+  .transactionSummary{
     grid-template-columns:1fr;
   }
 
@@ -1986,7 +1994,7 @@ td button{
   .installmentDates{gap:9px}
   .installmentDate{padding:10px;border-radius:12px}
 
-  .reportSummary{grid-template-columns:1fr;gap:9px}
+  .reportSummary,.transactionSummary{grid-template-columns:1fr;gap:9px}
   .reportItem{padding:13px;border-radius:14px;gap:8px}
   .reportAmount{font-size:15px}
 
@@ -2381,6 +2389,21 @@ td button{
         >
           + Adicionar
         </button>
+
+      </div>
+
+
+      <div id="transactionSummary" class="transactionSummary">
+
+        <div class="reportStat reportIncome">
+          <span>Total de entradas</span>
+          <strong id="transactionIncomeTotal">R$ 0,00</strong>
+        </div>
+
+        <div class="reportStat reportExpense">
+          <span>Total de saídas</span>
+          <strong id="transactionExpenseTotal">R$ 0,00</strong>
+        </div>
 
       </div>
 
@@ -4168,7 +4191,11 @@ function applyPrivacyMode(){
 
     "dashboardBalance",
 
-    "homeTikTokIncome"
+    "homeTikTokIncome",
+
+    "transactionIncomeTotal",
+
+    "transactionExpenseTotal"
 
   ];
 
@@ -5146,6 +5173,27 @@ function renderHome(){renderUserGreeting();renderHomeProfile();const income=data
    ========================================================= */
 
 function renderTransactions(){
+
+  const transactionIncome = database.transactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const transactionExpense = database.transactions
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const incomeTotalEl = $("transactionIncomeTotal");
+  const expenseTotalEl = $("transactionExpenseTotal");
+
+  if(incomeTotalEl){
+    incomeTotalEl.dataset.realValue = money(transactionIncome);
+    incomeTotalEl.textContent = valuesHidden ? "R$ ••••••" : money(transactionIncome);
+  }
+
+  if(expenseTotalEl){
+    expenseTotalEl.dataset.realValue = money(transactionExpense);
+    expenseTotalEl.textContent = valuesHidden ? "R$ ••••••" : money(transactionExpense);
+  }
 
   if(!database.transactions.length){
 
