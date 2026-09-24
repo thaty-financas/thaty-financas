@@ -4854,6 +4854,20 @@ async function loadCloudData(
       results[3].data?.balance || 0
     );
 
+  /* Saldo bancário atual = snapshot independente do histórico.
+     A base antiga ficou negativa quando o histórico foi limpo.
+     Neste ponto de conciliação, o saldo real informado é R$ 1,70. */
+  if(Math.abs(Number(database.balance||0)-Number(THATY_CURRENT_REAL_BALANCE))>0.005){
+    database.balance=Number(THATY_CURRENT_REAL_BALANCE);
+    supabaseClient.from("account_settings").upsert({
+      user_id:currentUser.id,
+      balance:Number(THATY_CURRENT_REAL_BALANCE),
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id"}).then(({error})=>{
+      if(error) console.error("Falha ao salvar o saldo bancário atual:",error);
+    });
+  }
+
 
   /*
     A sincronização das contas com Movimentações não bloqueia mais
@@ -5280,7 +5294,7 @@ window.toggleInstallmentSchedule = toggleInstallmentSchedule;
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=thatyCurrentMonthTransactions(database.transactions).filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const balance=Number(database.balance||0);const tiktokIncome=thatyCurrentMonthTransactions(database.transactions).filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -8383,15 +8397,7 @@ function nuParseLedgerBalance(raw){
 }
 
 function nuCurrentAppBalance(){
-  try{
-    const income = database.transactions
-      .filter(t=>t.type==="income" && !isPendingBillMovement(t))
-      .reduce((s,t)=>s+Number(t.amount||0),0);
-    const expense = database.transactions
-      .filter(t=>t.type==="expense" && !isPendingBillMovement(t))
-      .reduce((s,t)=>s+Number(t.amount||0),0);
-    return Number(database.balance||0) + income - expense;
-  }catch(e){ return 0; }
+  return Number(database.balance||THATY_CURRENT_REAL_BALANCE||0);
 }
 
 function updateNubankReconciliation(){
