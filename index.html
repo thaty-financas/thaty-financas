@@ -2103,6 +2103,29 @@ td button{
 }
 </style>
 
+
+<style id="nubank-import-style">
+.nu-import-btn{margin-left:8px}
+.nu-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px}
+.nu-modal.open{display:flex}
+.nu-box{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--card,#171717);color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));border-radius:20px;padding:18px}
+.nu-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+.nu-title{font-size:18px;font-weight:900}
+.nu-close{border:0;background:transparent;color:inherit;font-size:24px;cursor:pointer}
+.nu-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.nu-summary>div{padding:11px;border-radius:12px;background:rgba(127,127,127,.09)}
+.nu-summary small{display:block;opacity:.65;font-size:10px}.nu-summary strong{display:block;margin-top:4px}
+.nu-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+.nu-tab{white-space:nowrap;border:1px solid var(--border,rgba(255,255,255,.12));background:transparent;color:inherit;border-radius:999px;padding:8px 11px;cursor:pointer}
+.nu-tab.active{background:rgba(127,127,127,.16)}
+.nu-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(127,127,127,.12)}
+.nu-row small{display:block;opacity:.62;margin-top:3px}.nu-value{font-weight:900;white-space:nowrap}
+.nu-badge{display:inline-block;font-size:10px;padding:3px 7px;border-radius:999px;background:rgba(127,127,127,.12);margin-top:4px}
+.nu-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;position:sticky;bottom:-18px;padding:12px 0;background:inherit}
+.nu-match-select{max-width:220px;margin-top:6px;font-size:11px}
+@media(max-width:600px){.nu-summary{grid-template-columns:1fr 1fr}.nu-summary>div:last-child{grid-column:1/-1}.nu-box{padding:14px}.nu-row{grid-template-columns:auto 1fr}.nu-value{grid-column:2}.nu-actions{bottom:-14px}}
+</style>
+
 </head>
 
 <body>
@@ -2402,7 +2425,7 @@ td button{
 
         <h2>
           Movimentações
-        </h2>
+        </h2><button type="button" class="btn secondary nu-import-btn" onclick="openNubankImporter()">📥 Importar Nubank (OFX)</button>
 
         <button
           id="addTransactionButton"
@@ -8298,6 +8321,144 @@ initialize();
 
 })();
 
+
+
+/* =========================================================
+   IMPORTADOR NUBANK OFX
+   ========================================================= */
+let nubankImportItems = [];
+let nubankImportFilter = "all";
+
+function openNubankImporter(){
+  document.getElementById("nubankImportModal")?.classList.add("open");
+}
+function closeNubankImporter(){
+  document.getElementById("nubankImportModal")?.classList.remove("open");
+}
+function nuText(block, tag){
+  const m=block.match(new RegExp("<"+tag+">([^\\r\\n<]+)","i"));
+  return m ? m[1].trim() : "";
+}
+function nuDate(raw){
+  const s=String(raw||"");
+  const m=s.match(/^(\d{4})(\d{2})(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : "";
+}
+function nuImportedFitids(){
+  const ids=new Set();
+  database.transactions.forEach(t=>{
+    const m=String(t.notes||"").match(/nubank-fitid:([^|]+)/);
+    if(m) ids.add(m[1]);
+  });
+  return ids;
+}
+function nuBillCandidates(item){
+  if(item.amount >= 0) return [];
+  const value=Math.abs(item.amount);
+  const d=new Date(item.date+"T12:00:00");
+  return database.bills.filter(b=>{
+    if(currentBillIsPaid(b)) return false;
+    if(Math.abs(Number(b.amount||0)-value) > 0.01) return false;
+    const due=billDueDateForMonth(b,item.date.slice(0,7));
+    if(!due) return true;
+    const bd=new Date(due+"T12:00:00");
+    return Math.abs((bd-d)/86400000) <= 7;
+  });
+}
+function nuClassify(item, imported){
+  if(imported.has(item.fitid)) return "duplicate";
+  const matches=nuBillCandidates(item);
+  item.billMatches=matches;
+  if(matches.length) return "bill";
+  return "new";
+}
+async function readNubankOFX(file){
+  if(!file) return;
+  const raw=await file.text();
+  const imported=nuImportedFitids();
+  const blocks=raw.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/gi) || [];
+  nubankImportItems=blocks.map((b,i)=>{
+    const amount=Number(nuText(b,"TRNAMT").replace(",",".")||0);
+    const memo=nuText(b,"MEMO") || nuText(b,"NAME") || "Movimentação Nubank";
+    const fitid=nuText(b,"FITID") || `fallback-${nuDate(nuText(b,"DTPOSTED"))}-${amount}-${i}`;
+    const item={fitid,date:nuDate(nuText(b,"DTPOSTED")),amount,memo,index:i,selected:true,billId:""};
+    item.status=nuClassify(item,imported);
+    if(item.status==="duplicate") item.selected=false;
+    if(item.status==="bill") item.selected=false; // require explicit decision
+    return item;
+  });
+  document.getElementById("nuImportContent").style.display="";
+  renderNubankImport();
+}
+function setNuFilter(filter,btn){
+  nubankImportFilter=filter;
+  document.querySelectorAll(".nu-tab").forEach(x=>x.classList.remove("active"));
+  btn?.classList.add("active");
+  renderNubankImport();
+}
+function escNu(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function renderNubankImport(){
+  const rows=document.getElementById("nuRows"); if(!rows) return;
+  const count=s=>nubankImportItems.filter(x=>x.status===s).length;
+  document.getElementById("nuNewCount").textContent=count("new");
+  document.getElementById("nuBillCount").textContent=count("bill");
+  document.getElementById("nuDupCount").textContent=count("duplicate");
+  const visible=nubankImportItems.filter(x=>nubankImportFilter==="all"||x.status===nubankImportFilter);
+  rows.innerHTML=visible.map(item=>{
+    const idx=nubankImportItems.indexOf(item);
+    const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
+    const badge=item.status==="duplicate"?"Já importada":item.status==="bill"?"Possível conta":isTikTok?"TikTok • Salário":"Nova movimentação";
+    const matchSelect=item.status==="bill" ? `<select class="nu-match-select" onchange="nuChooseBill(${idx},this.value)">
+      <option value="">Não importar por enquanto</option>
+      ${item.billMatches.map(b=>`<option value="${escNu(b.id)}">${escNu(b.name||b.description||"Conta")} • ${money(Number(b.amount||0))}</option>`).join("")}
+      <option value="movement">Tratar como movimentação</option>
+    </select>`:"";
+    return `<div class="nu-row">
+      <input type="checkbox" ${item.selected?"checked":""} ${item.status==="duplicate"?"disabled":""} onchange="nubankImportItems[${idx}].selected=this.checked">
+      <div><strong>${escNu(item.memo)}</strong><small>${escNu(item.date.split("-").reverse().join("/"))}</small><span class="nu-badge">${badge}</span>${matchSelect}</div>
+      <div class="nu-value">${item.amount>=0?"+ ":"- "}${money(Math.abs(item.amount))}</div>
+    </div>`;
+  }).join("") || `<div style="padding:20px;text-align:center;opacity:.6">Nenhuma movimentação nesta categoria.</div>`;
+}
+function nuChooseBill(idx,value){
+  const item=nubankImportItems[idx];
+  item.billId=value && value!=="movement" ? value : "";
+  item.selected=value==="movement";
+}
+async function importSelectedNubank(){
+  if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
+  const chosen=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate");
+  if(!chosen.length) return alert("Selecione pelo menos uma movimentação para importar.");
+
+  try{
+    let importedCount=0;
+    for(const item of chosen){
+      // Possible bill treated as a normal movement only after explicit choice.
+      if(item.status==="bill" && !item.selected) continue;
+      const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
+      const payload={
+        user_id:currentUser.id,
+        type:item.amount>=0?"income":"expense",
+        amount:Math.abs(item.amount),
+        description:item.memo,
+        category:isTikTok?"Salário":"Outros",
+        date:item.date,
+        notes:`nubank-fitid:${item.fitid}|nubank-ofx${isTikTok?"|tiktok":""}`
+      };
+      const {error}=await supabaseClient.from("transactions").insert(payload);
+      if(error) throw error;
+      importedCount++;
+    }
+    await loadCloudData(false,false);
+    renderEverything();
+    if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+    closeNubankImporter();
+    alert(`${importedCount} movimentação(ões) importada(s) com sucesso. 🧡`);
+  }catch(e){
+    console.error(e);
+    alert(e.message||"Não foi possível importar o extrato.");
+  }
+}
 </script>
 
 <!-- =====================================================
@@ -8411,6 +8572,35 @@ setInterval(()=>{
 },2000);
 </script>
 
+
+
+<div id="nubankImportModal" class="nu-modal">
+  <div class="nu-box">
+    <div class="nu-head">
+      <div><div class="nu-title">📥 Importar extrato Nubank</div><div style="font-size:11px;opacity:.65">OFX • revise antes de salvar</div></div>
+      <button class="nu-close" onclick="closeNubankImporter()">×</button>
+    </div>
+    <input id="nubankOfxFile" type="file" accept=".ofx,application/x-ofx" onchange="readNubankOFX(this.files[0])">
+    <div id="nuImportContent" style="display:none">
+      <div class="nu-summary">
+        <div><small>Novas</small><strong id="nuNewCount">0</strong></div>
+        <div><small>Possíveis contas</small><strong id="nuBillCount">0</strong></div>
+        <div><small>Já importadas</small><strong id="nuDupCount">0</strong></div>
+      </div>
+      <div class="nu-tabs">
+        <button class="nu-tab active" onclick="setNuFilter('all',this)">Todas</button>
+        <button class="nu-tab" onclick="setNuFilter('new',this)">Novas</button>
+        <button class="nu-tab" onclick="setNuFilter('bill',this)">Possíveis contas</button>
+        <button class="nu-tab" onclick="setNuFilter('duplicate',this)">Já importadas</button>
+      </div>
+      <div id="nuRows"></div>
+      <div class="nu-actions">
+        <button class="btn secondary" onclick="closeNubankImporter()">Cancelar</button>
+        <button class="btn primary" onclick="importSelectedNubank()">Importar selecionadas</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
