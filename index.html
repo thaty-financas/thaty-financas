@@ -3983,15 +3983,51 @@ function isBillQuitada(bill){
   return String(bill?.info || "").includes("|QUITADA=1");
 }
 
-function currentBillIsPaid(bill){
+function paidMonthsFromBill(bill){
+  const raw = String(bill?.info || "");
+  const m = raw.match(/\|PAGOS=([^|]*)/);
+  return m && m[1] ? m[1].split(",").filter(Boolean) : [];
+}
+
+function infoWithPaidMonth(info, monthKey){
+  let raw = String(info || "");
+  const months = new Set((raw.match(/\|PAGOS=([^|]*)/)?.[1] || "").split(",").filter(Boolean));
+  months.add(monthKey);
+  raw = raw.replace(/\|PAGOS=[^|]*/g, "");
+  return raw + "|PAGOS=" + [...months].sort().join(",");
+}
+
+function billPaidForMonth(bill, monthKey){
   if(isBillQuitada(bill)) return true;
+  if(paidMonthsFromBill(bill).includes(monthKey)) return true;
+  /* Compatibilidade temporária com registros antigos, antes da migração. */
   const period = currentBillPeriod(bill);
-  return billMovementIsPaid(billMovementForMonth(bill, period.monthKey, period.installment));
+  const installment = period.data.type === "installment"
+    ? installmentNumberForMonth(period.data, monthKey)
+    : null;
+  return billMovementIsPaid(billMovementForMonth(bill, monthKey, installment));
+}
+
+function currentBillIsPaid(bill){
+  return billPaidForMonth(bill, currentMonthKey());
+}
+
+function paidBillsExpenseCurrentMonth(){
+  return database.bills.reduce((sum,bill)=>
+    sum + (currentBillIsPaid(bill) ? Number(bill.amount || 0) : 0), 0);
 }
 
 function isPendingBillMovement(transaction){
   const notes = String(transaction?.notes || "");
   return notes.startsWith("bill:") && !notes.endsWith(":paid");
+}
+
+function isBillMovement(transaction){
+  return String(transaction?.notes || "").startsWith("bill:");
+}
+
+function manualTransactions(){
+  return database.transactions.filter(t=>!isBillMovement(t));
 }
 
 
@@ -5165,7 +5201,7 @@ window.toggleInstallmentSchedule = toggleInstallmentSchedule;
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=database.transactions.filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const income=manualTransactions().filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=manualTransactions().filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense-paidBillsExpenseCurrentMonth();const tiktokIncome=manualTransactions().filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -5928,7 +5964,7 @@ function renderTikTokReport(){
 function renderReports(){
 
   const transactions =
-    [...database.transactions]
+    [...manualTransactions()]
       .sort(
         (a,b)=>
           String(b.date || "")
@@ -5962,7 +5998,7 @@ function renderReports(){
       );
 
   const currentBalance =
-    database.balance + income - expense;
+    database.balance + income - expense - paidBillsExpenseCurrentMonth();
 
   const totalBills =
     database.bills.reduce(
@@ -6958,6 +6994,45 @@ window.editBill =
   };
 
 
+
+let billMovementMigrationDone = false;
+async function migrateBillMovementsOutOfTransactions(){
+  if(billMovementMigrationDone || !currentUser) return;
+  const autos = database.transactions.filter(isBillMovement);
+  if(!autos.length){ billMovementMigrationDone = true; return; }
+
+  try{
+    for(const bill of database.bills){
+      const paidMonths = new Set(paidMonthsFromBill(bill));
+      const prefix = `bill:${bill.id}`;
+      for(const t of autos.filter(x=>String(x.notes||"").startsWith(prefix))){
+        const note=String(t.notes||"");
+        if(!note.endsWith(":paid")) continue;
+        const mm=note.match(/:month:(\d{4}-\d{2})/);
+        if(mm) paidMonths.add(mm[1]);
+      }
+      if(paidMonths.size){
+        let info=String(bill.info||"").replace(/\|PAGOS=[^|]*/g,"");
+        info += "|PAGOS=" + [...paidMonths].sort().join(",");
+        const r=await supabaseClient.from("bills").update({info}).eq("id",bill.id).eq("user_id",currentUser.id);
+        if(r.error) throw r.error;
+      }
+    }
+
+    const ids=autos.map(x=>x.id).filter(Boolean);
+    if(ids.length){
+      const d=await supabaseClient.from("transactions").delete().in("id",ids).eq("user_id",currentUser.id);
+      if(d.error) throw d.error;
+    }
+    billMovementMigrationDone = true;
+    await loadCloudData(false,false);
+    renderEverything();
+  }catch(e){
+    console.error("Não foi possível concluir a separação Contas/Movimentações:",e);
+  }
+}
+
+
 /* =========================================================
    SINCRONIZAÇÃO CONTAS → MOVIMENTAÇÕES
    ========================================================= */
@@ -6969,278 +7044,20 @@ function billTransactionDescription(billName, info, installmentNumber, monthKey)
 }
 
 async function syncBillTransaction(bill){
-  if(!currentUser || !bill?.id) return;
-  if(isBillQuitada(bill)) return;
-  const period = currentBillPeriod(bill);
-  const note = billMovementNote(bill, period.monthKey, period.installment);
-  const paidNote = `${note}:paid`;
-  let candidates = database.transactions.filter(t => String(t.notes || "") === note || String(t.notes || "") === paidNote);
-
-  /* Migra lançamentos automáticos antigos do mês atual sem apagar históricos. */
-  if(!candidates.length){
-    const legacy = database.transactions.filter(t => {
-      const n=String(t.notes || "");
-      if(!n.startsWith(`bill:${bill.id}`)) return false;
-      if(n.includes(":installment:") || n.includes(":month:")) return false;
-      if(t.type !== "expense") return false;
-      if(Number(t.amount || 0) !== Number(bill.amount || 0)) return false;
-      return monthKeyFromDate(t.date) === period.monthKey;
-    });
-
-    if(legacy.length){
-      const keep=legacy[0];
-      const wasPaid=legacy.some(t => String(t.notes || "").endsWith(":paid"));
-      const mr=await supabaseClient.from("transactions").update({
-        user_id:currentUser.id,
-        type:"expense",
-        description:billTransactionDescription(bill.name,bill.info,period.installment,period.monthKey),
-        amount:Number(bill.amount || 0),
-        date:keep.date || `${period.monthKey}-01`,
-        category:"Contas",
-        notes:wasPaid ? paidNote : note
-      }).eq("id",keep.id).eq("user_id",currentUser.id);
-      if(mr.error) throw mr.error;
-      for(const duplicate of legacy.slice(1)){
-        const dr=await supabaseClient.from("transactions").delete().eq("id",duplicate.id).eq("user_id",currentUser.id);
-        if(dr.error) throw dr.error;
-      }
-      candidates=[{...keep,notes:wasPaid ? paidNote : note}];
-    }
-  }
-
-  const paid = candidates.some(t => billMovementIsPaid(t));
-  const payload = {
-    user_id:currentUser.id, type:"expense",
-    description:billTransactionDescription(bill.name,bill.info,period.installment,period.monthKey),
-    amount:Number(bill.amount || 0), date:`${period.monthKey}-01`, category:"Contas",
-    notes:paid ? paidNote : note
-  };
-
-  if(candidates.length){
-    const keep=candidates[0];
-    const r=await supabaseClient.from("transactions").update(payload).eq("id",keep.id).eq("user_id",currentUser.id);
-    if(r.error) throw r.error;
-    for(const duplicate of candidates.slice(1)){
-      const d=await supabaseClient.from("transactions").delete().eq("id",duplicate.id).eq("user_id",currentUser.id);
-      if(d.error) throw d.error;
-    }
-  }else{
-    const r=await supabaseClient.from("transactions").insert(payload);
-    if(r.error) throw r.error;
-  }
-
-  const billPaid = period.data.type === "installment"
-    ? (period.installment === period.data.total && paid)
-    : paid;
-  const br=await supabaseClient.from("bills").update({paid:billPaid}).eq("id",bill.id).eq("user_id",currentUser.id);
-  if(br.error) throw br.error;
+  /* Contas não geram mais Movimentações automáticas. */
+  return;
 }
 
 let billSyncInProgress = false;
 
 async function syncAllBillsToTransactions(){
-  if(!currentUser || !database.bills.length || billSyncInProgress) return;
-  billSyncInProgress = true;
-  try{
-    for(const bill of [...database.bills]){
-      try{
-        await syncBillTransaction(bill);
-      }catch(e){
-        console.error("Erro ao sincronizar conta:", bill?.name, e);
-      }
-    }
-  }finally{
-    billSyncInProgress = false;
-  }
+  return;
 }
+
 
 function syncBillsInBackground(){
-  if(!currentUser || billSyncInProgress) return;
-  syncAllBillsToTransactions()
-    .then(async()=>{
-      try{
-        await loadCloudData(false, false);
-        renderEverything();
-      }catch(e){
-        console.error("Erro ao atualizar dados após sincronização:", e);
-      }
-    })
-    .catch(e=>console.error("Erro na sincronização em segundo plano:", e));
+  return;
 }
-
-/* =========================================================
-   SALVAR / ATUALIZAR CONTA
-   ========================================================= */
-
-$("saveBillButton").onclick =
-  async()=>{
-
-    try{
-
-      if(!currentUser){
-        return alert("Sua sessão expirou. Entre novamente.");
-      }
-
-      const name = $("billName").value.trim();
-      const amount = numberValue($("billAmount").value);
-      let totalDebt = numberValue($("billTotalDebt").value);
-      const type = $("billType").value;
-      const dueDay = Math.min(31, Math.max(1, Number($("billDueDay").value) || 10));
-
-      if(!name){
-        return alert("Digite o nome da conta.");
-      }
-
-      if(amount <= 0){
-        return alert("Digite o valor da parcela/conta.");
-      }
-
-      const existingBill = editingBillId
-        ? database.bills.find(b => String(b.id) === String(editingBillId))
-        : null;
-
-      if(totalDebt <= 0){
-        totalDebt = existingBill
-          ? Number(existingBill.total_debt)
-          : amount;
-      }
-
-      let info;
-
-      if(type === "installment"){
-        const current = Math.max(
-          1,
-          Number($("billCurrentInstallment").value) || 1
-        );
-
-        const total = Math.max(
-          current,
-          Number($("billTotalInstallments").value) || 1
-        );
-
-        let start = $("billStartMonth").value;
-
-        if(!start){
-          start = monthInputValue(
-            addMonths(
-              new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-              -(current - 1)
-            )
-          );
-        }
-
-        info = createInstallmentInfo(current, total, start, "");
-
-      }else{
-        info = createMonthlyInfo("");
-      }
-
-      /* ===================================================
-         EDITAR
-         =================================================== */
-
-      if(editingBillId){
-
-        const r = await supabaseClient
-          .from("bills")
-          .update({
-            name,
-            amount,
-            total_debt: totalDebt,
-            info,
-            due_day:dueDay
-          })
-          .eq("id", editingBillId)
-          .eq("user_id", currentUser.id);
-
-        if(r.error) throw r.error;
-
-        const updatedBill = {
-          ...(existingBill || {}),
-          id: editingBillId,
-          name,
-          amount,
-          total_debt: totalDebt,
-          info,
-          due_day:dueDay
-        };
-
-        /* Editar uma conta também atualiza sua saída em Movimentações. */
-        await syncBillTransaction(updatedBill);
-
-        editingBillId = null;
-        $("billForm").classList.add("hidden");
-        $("saveBillButton").textContent = "Salvar";
-        $("billName").value = "";
-        $("billAmount").value = "";
-        $("billTotalDebt").value = "";
-
-        await loadCloudData(false, false);
-        renderEverything();
-
-        alert("Conta atualizada com sucesso! 🧡");
-        return;
-      }
-
-      /* ===================================================
-         NOVA CONTA
-         =================================================== */
-
-      const r = await supabaseClient
-        .from("bills")
-        .insert({
-          user_id: currentUser.id,
-          name,
-          amount,
-          total_debt: totalDebt,
-          info,
-          due_day:dueDay,
-          paid:false
-        })
-        .select("id")
-        .single();
-
-      if(r.error) throw r.error;
-
-      /* Ao cadastrar a conta, ela já entra como SAÍDA em Movimentações. */
-      const newBill = {
-        id:r.data.id,
-        name,
-        amount,
-        total_debt:totalDebt,
-        info,
-        due_day:dueDay,
-        paid:false
-      };
-
-      /*
-         No celular, não vamos prender o salvamento esperando a
-         sincronização da conta com Movimentações. A conta é salva
-         primeiro e a saída é sincronizada em segundo plano.
-      */
-      $("billForm").classList.add("hidden");
-      $("billName").value = "";
-      $("billAmount").value = "";
-      $("billTotalDebt").value = "";
-
-      await loadCloudData(false, false);
-      renderEverything();
-
-      syncBillTransaction(newBill)
-        .then(async()=>{
-          await loadCloudData(false, false);
-          renderEverything();
-        })
-        .catch(e=>{
-          console.error("Erro ao sincronizar a conta com Movimentações:", e);
-        });
-
-    }catch(e){
-      console.error(e);
-      alert(e.message || "Não foi possível salvar a conta.");
-    }
-
-  };
 
 
 /* =========================================================
@@ -7255,29 +7072,21 @@ window.markBillPaid =
       if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
 
       const period=currentBillPeriod(bill);
-      const note=billMovementNote(bill,period.monthKey,period.installment);
-      let movement=billMovementForMonth(bill,period.monthKey,period.installment);
+      if(currentBillIsPaid(bill)) return alert("Esta parcela já está marcada como paga. 🧡");
 
-      if(!movement){
-        await syncBillTransaction(bill);
-        await loadCloudData(false, false);
-        movement=billMovementForMonth(bill,period.monthKey,period.installment);
-      }
-      if(!movement) return alert("Não foi possível localizar a movimentação desta conta.");
-      if(billMovementIsPaid(movement)) return alert("Esta parcela já está marcada como paga. 🧡");
+      const newInfo = infoWithPaidMonth(bill.info, period.monthKey);
+      const isLast = period.data.type==="installment" && period.installment===period.data.total;
 
-      const r=await supabaseClient.from("transactions").update({notes:`${note}:paid`,date:new Date().toISOString().slice(0,10)}).eq("id",movement.id).eq("user_id",currentUser.id);
-      if(r.error) throw r.error;
-
-      const isLast=period.data.type==="installment" && period.installment===period.data.total;
-      const br=await supabaseClient.from("bills").update({paid:isLast || period.data.type==="monthly"}).eq("id",id).eq("user_id",currentUser.id);
+      const br=await supabaseClient.from("bills").update({
+        info:newInfo,
+        paid:isLast || period.data.type==="monthly"
+      }).eq("id",id).eq("user_id",currentUser.id);
       if(br.error) throw br.error;
 
       await loadCloudData(false, false);
       renderEverything();
-      syncBillsInBackground();
 
-      alert(isLast ? "🎉 Última parcela paga! O histórico mensal foi mantido." : "Parcela paga! 🧡 Ela continua registrada no mês correspondente.");
+      alert(isLast ? "🎉 Última parcela paga! O histórico mensal foi mantido." : "Parcela paga! 🧡 Ela continua registrada somente na aba Contas.");
     }catch(e){
       console.error(e);
       alert(e.message || "Não foi possível marcar a conta como paga.");
@@ -8309,6 +8118,13 @@ if("serviceWorker" in navigator){
 
 }
 
+
+document.addEventListener("DOMContentLoaded",()=>{
+  setTimeout(()=>migrateBillMovementsOutOfTransactions(),2200);
+});
+window.addEventListener("pageshow",()=>{
+  setTimeout(()=>migrateBillMovementsOutOfTransactions(),1200);
+});
 </script>
 
 </body>
