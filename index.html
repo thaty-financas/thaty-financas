@@ -2138,6 +2138,110 @@ td button{
 @media(max-width:600px){.nu-bank-grid{grid-template-columns:1fr}.nu-bank-grid>div{padding:9px}}
 </style>
 
+
+<style id="thaty-mobile-final-fix">
+.transactionsHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+.transactionsHeader h2{margin:0}
+.transactionsHeaderActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.transactionsHeaderActions button{
+  width:auto;
+  margin:0 !important;
+  white-space:nowrap;
+}
+.transactionAddButton{order:3}
+
+@media(max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  #appScreen,main,.page{width:100%;max-width:100%;min-width:0}
+  main{box-sizing:border-box}
+
+  .transactionsHeader{
+    display:block;
+    width:100%;
+    margin-bottom:14px;
+  }
+  .transactionsHeader h2{
+    display:block;
+    width:100%;
+    margin:0 0 16px;
+  }
+  .transactionsHeaderActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    width:100%;
+  }
+  .transactionsHeaderActions button{
+    width:100% !important;
+    min-width:0;
+    min-height:46px;
+    margin:0 !important;
+    padding:10px 9px;
+    white-space:normal;
+    line-height:1.2;
+  }
+  .transactionAddButton{
+    order:-1;
+    grid-column:1/-1;
+  }
+
+  #transactionSummary.transactionSummary{
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+  }
+
+  #reports .report-breakdown{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  #reports .reportSummary{
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  #reports .reportStat,
+  #reports .report-breakdown-card{
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+
+  .nu-box{
+    width:min(100%,720px);
+    max-height:calc(100dvh - 20px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+  .nu-actions{
+    position:sticky;
+    bottom:0;
+    z-index:3;
+  }
+}
+@media(max-width:430px){
+  .transactionsHeaderActions{
+    grid-template-columns:1fr;
+  }
+  .transactionAddButton{grid-column:auto}
+  #transactionSummary.transactionSummary{
+    grid-template-columns:1fr;
+  }
+  #reports .report-breakdown{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -2433,21 +2537,34 @@ td button{
       class="page hidden"
     >
 
-      <div class="row">
+      <div class="transactionsHeader">
+        <h2>Movimentações</h2>
 
-        <h2>
-          Movimentações
-        </h2><button type="button" class="btn secondary nu-import-btn" onclick="openNubankImporter()">📥 Importar Nubank (OFX)</button><button type="button" class="btn secondary nu-import-btn" onclick="clearManualMovementHistory()">🗑️ Limpar movimentações</button>
+        <div class="transactionsHeaderActions">
+          <button
+            id="addTransactionButton"
+            class="primary transactionAddButton"
+            type="button"
+          >
+            + Adicionar
+          </button>
 
-        <button
-          id="addTransactionButton"
-          class="primary"
-          type="button"
-          style="width:auto;margin:0"
-        >
-          + Adicionar
-        </button>
+          <button
+            type="button"
+            class="btn secondary nu-import-btn"
+            onclick="openNubankImporter()"
+          >
+            📥 Importar Nubank (OFX)
+          </button>
 
+          <button
+            type="button"
+            class="btn secondary nu-import-btn transactionClearButton"
+            onclick="clearManualMovementHistory()"
+          >
+            🗑️ Limpar movimentações
+          </button>
+        </div>
       </div>
 
 
@@ -6057,137 +6174,68 @@ function renderTikTokReport(){
 }
 
 function renderReports(){
+  const currentKey=currentMonthKey();
 
-  const transactions =
-    [...database.transactions]
-      .sort(
-        (a,b)=>
-          String(b.date || "")
-            .localeCompare(
-              String(a.date || "")
-            )
-      );
+  // Movimentações do mês atual apenas.
+  const transactions=[...database.transactions]
+    .filter(t=>monthKeyFromDate(t.date)===currentKey)
+    .sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
 
-  const income =
-    transactions
-      .filter(
-        x=>x.type === "income"
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(x.amount || 0),
-        0
-      );
+  // Contas ficam fora dos gastos manuais para não duplicar.
+  const manualTransactions=transactions.filter(t=>!isAutomaticBillMovement(t));
 
-  const expense =
-    transactions
-      .filter(
-        x=>x.type === "expense" && !isPendingBillMovement(x)
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(x.amount || 0),
-        0
-      );
+  const income=manualTransactions
+    .filter(t=>t.type==="income")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
 
-  const currentBalance =
-    database.balance + income - expense;
+  const manualExpense=manualTransactions
+    .filter(t=>t.type==="expense")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
 
-  const totalBills =
-    database.bills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.total_debt ??
-          x.totalDebt ??
-          x.amount ??
-          0
-        ),
-      0
-    );
+  // O saldo atual é o snapshot bancário. Não reconstruir pelo histórico.
+  const currentBalance=Number(database.balance||0);
 
-  const paidBills =
-    database.bills.filter(
-      x=>x.paid
-    );
+  // Valor/status da conta referente ao mês atual.
+  const billRows=database.bills.map(b=>{
+    const period=currentBillPeriod(b);
+    const amount=Number(period?.data?.amount ?? b.amount ?? 0);
+    return {bill:b,amount,paid:currentBillIsPaid(b)};
+  });
 
-  /* Mostra como pendente apenas o que vence no mês atual e ainda não foi pago.
-     Para parcelas, meses futuros/passados não entram neste total. */
-  const currentMonth = currentMonthKey();
-  const pendingBills =
-    database.bills.filter(b=>{
-      const data = getInstallmentData(b);
+  const totalBills=billRows.reduce((s,x)=>s+x.amount,0);
+  const paidBillRows=billRows.filter(x=>x.paid);
+  const pendingBillRows=billRows.filter(x=>!x.paid);
+  const paidBillsTotal=paidBillRows.reduce((s,x)=>s+x.amount,0);
+  const pendingBillsTotal=pendingBillRows.reduce((s,x)=>s+x.amount,0);
 
-      if(data.type === "installment"){
-        const start = parseMonthInput(data.start);
-        const end = getInstallmentEndDate(data);
-        const current = parseMonthInput(currentMonth);
-        if(!start || !end || !current) return false;
-        const startKey = monthInputValue(start);
-        const endKey = monthInputValue(end);
-        if(currentMonth < startKey || currentMonth > endKey) return false;
-      }
+  // Saídas do relatório = gastos manuais + contas pagas.
+  const expense=manualExpense+paidBillsTotal;
 
-      return !currentBillIsPaid(b);
-    });
+  // Mantém os objetos esperados pela parte detalhada do relatório.
+  const paidBills=paidBillRows.map(x=>x.bill);
+  const pendingBills=pendingBillRows.map(x=>x.bill);
 
-  const paidBillsTotal =
-    paidBills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.amount ||
-          0
-        ),
-      0
-    );
-
-  const pendingBillsTotal =
-    pendingBills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.amount ||
-          0
-        ),
-      0
-    );
-
-  const goalsSaved =
-    database.goals.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.saved || 0
-        ),
-      0
-    );
-
-  const goalsTarget =
-    database.goals.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.target || 0
-        ),
-      0
-    );
+  const goalsSaved=database.goals.reduce((s,x)=>s+Number(x.saved||0),0);
+  const goalsTarget=database.goals.reduce((s,x)=>s+Number(x.target||0),0);
 
   $("reportBalanceTotal").textContent=money(currentBalance);
+  $("reportIncomeTotal").textContent=money(income);
+  $("reportExpenseTotal").textContent=money(expense);
+  $("reportBillsTotal").textContent=money(totalBills);
+  $("reportPendingBillsTotal").textContent=money(pendingBillsTotal);
 
-  $("reportIncomeTotal").textContent =
-    money(income);
+  // Sincroniza os quatro cards superiores.
+  const monthLabel=document.getElementById("reportMonthLabel");
+  if(monthLabel) monthLabel.textContent=`Resumo de ${formatMonth(parseMonthInput(currentKey))}`;
 
-  $("reportExpenseTotal").textContent =
-    money(expense);
-
-  $("reportBillsTotal").textContent =
-    money(totalBills);
-
-  $("reportPendingBillsTotal").textContent =
-    money(pendingBillsTotal);
+  const setReportValue=(id,value)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=money(value);
+  };
+  setReportValue("reportManualIncome",income);
+  setReportValue("reportManualExpense",manualExpense);
+  setReportValue("reportBillsPaid",paidBillsTotal);
+  setReportValue("reportTotalOut",expense);
 
   $("reportContent").innerHTML = `
 
