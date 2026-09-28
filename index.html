@@ -2546,7 +2546,10 @@ button[title="Voltar"]{
 </style>
 
 
-<style id="thaty-v6-mobile-final">
+
+
+
+<style id="thaty-v10-unified-mobile">
 @media(max-width:700px){
   #appScreen > header{
     z-index:1000 !important;
@@ -2554,47 +2557,18 @@ button[title="Voltar"]{
   }
   #logoutButton{
     display:inline-flex !important;
-    position:relative;
-    z-index:1002 !important;
-    pointer-events:auto !important;
-    touch-action:manipulation;
-  }
-  #navigation,
-  #mobileMenuOverlay,
-  #mobileMenuPanel,
-  #mobileMenuButton{
-    display:none !important;
-    pointer-events:none !important;
-  }
-  #appScreen main{
-    min-height:100dvh;
-    overflow:visible;
-  }
-}
-</style>
-
-
-<style id="thaty-v9-mobile-fix">
-@media(max-width:700px){
-  #appScreen > header{
-    z-index:9999 !important;
-    pointer-events:auto !important;
-  }
-  #logoutButton{
-    display:inline-flex !important;
     visibility:visible !important;
     opacity:1 !important;
     position:relative !important;
-    z-index:10000 !important;
+    z-index:1001 !important;
     pointer-events:auto !important;
-    touch-action:manipulation !important;
+    touch-action:manipulation;
   }
   #mobileMenuOverlay,
   #mobileMenuPanel,
   #mobileMenuButton,
   #navigation{
     display:none !important;
-    visibility:hidden !important;
     pointer-events:none !important;
   }
 }
@@ -5144,7 +5118,7 @@ async function authAction(){
 
       try{
         showAuthMessage("Sincronizando seus dados...", "success");
-        await withTimeout(loadCloudData(true, false), 10000);
+        await withTimeout(loadSimpleAppData(), 30000);
         renderEverything();
         showAuthMessage("Dados sincronizados.", "success");
       }catch(dataError){
@@ -5327,6 +5301,41 @@ async function loadSimplifiedCloudData(){
 
   database.transactions=transactionsResult.data || [];
   database.bills=billsResult.data || [];
+
+  return true;
+}
+
+
+
+async function loadSimpleAppData(){
+  if(!currentUser?.id){
+    const sessionResult = await supabaseClient.auth.getSession();
+    const session = sessionResult?.data?.session;
+    if(!session?.user) throw new Error("Sessão não encontrada.");
+    currentUser = session.user;
+  }
+
+  const uid = currentUser.id;
+
+  const [transactionsResult, billsResult] = await Promise.all([
+    supabaseClient
+      .from("transactions")
+      .select("*")
+      .eq("user_id", uid)
+      .order("date", {ascending:false}),
+
+    supabaseClient
+      .from("bills")
+      .select("*")
+      .eq("user_id", uid)
+      .order("created_at", {ascending:false})
+  ]);
+
+  if(transactionsResult.error) throw transactionsResult.error;
+  if(billsResult.error) throw billsResult.error;
+
+  database.transactions = transactionsResult.data || [];
+  database.bills = billsResult.data || [];
 
   return true;
 }
@@ -7902,7 +7911,7 @@ function syncBillsInBackground(){
   syncAllBillsToTransactions()
     .then(async()=>{
       try{
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         renderEverything();
       }catch(e){
         console.error("Erro ao atualizar dados após sincronização:", e);
@@ -8018,7 +8027,7 @@ $("saveBillButton").onclick =
         $("billAmount").value = "";
         $("billTotalDebt").value = "";
 
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         renderEverything();
 
         alert("Conta atualizada com sucesso! 🧡");
@@ -8066,12 +8075,12 @@ $("saveBillButton").onclick =
       $("billAmount").value = "";
       $("billTotalDebt").value = "";
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
 
       syncBillTransaction(newBill)
         .then(async()=>{
-          await loadCloudData(false, false);
+          await loadSimpleAppData();
           renderEverything();
         })
         .catch(e=>{
@@ -8103,7 +8112,7 @@ window.markBillPaid =
 
       if(!movement){
         await syncBillTransaction(bill);
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         movement=billMovementForMonth(bill,period.monthKey,period.installment);
       }
       if(!movement) return alert("Não foi possível localizar a movimentação desta conta.");
@@ -8116,7 +8125,7 @@ window.markBillPaid =
       const br=await supabaseClient.from("bills").update({paid:isLast || period.data.type==="monthly"}).eq("id",id).eq("user_id",currentUser.id);
       if(br.error) throw br.error;
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
       syncBillsInBackground();
 
@@ -8195,7 +8204,7 @@ window.quitDebt =
 
       if(r.error) throw r.error;
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
       alert("Dívida quitada com sucesso! 🎉 As parcelas futuras foram encerradas.");
     }catch(e){
@@ -8857,61 +8866,30 @@ window.addMoneyToGoal =
    ========================================================= */
 
 async function logout(){
-
-  closeMobileMenu();
-
-  const logoutButtons = [
-    $("profileLogoutButton"),
-    $("mobileLogoutButton"),
-    $("logoutButton")
-  ].filter(Boolean);
-
-  logoutButtons.forEach(button=>{
-    button.disabled = true;
-  });
-
   try{
+    showLoading("Saindo...");
 
-    if(supabaseClient){
+    const result = await withTimeout(
+      supabaseClient.auth.signOut(),
+      15000
+    );
 
-      /* Logout local: não depende da internet para encerrar a sessão no aparelho. */
-      const result = await supabaseClient.auth.signOut({ scope:"local" });
+    if(result?.error) throw result.error;
 
-      if(result?.error){
-        console.error("Erro ao sair localmente:", result.error);
-      }
+  }catch(error){
+    console.error("Erro ao sair:", error);
+  }finally{
+    currentUser = null;
+    database.transactions = [];
+    database.bills = [];
 
-    }
+    hideLoading();
+    showLogin();
 
-  }catch(e){
+    if($("password")) $("password").value = "";
 
-    console.error("Erro ao sair:", e);
-
+    showAuthMessage("Você saiu da sua conta.", "success");
   }
-
-  currentUser = null;
-
-  database = {
-    transactions:[],
-    bills:[],
-    goals:[],
-    balance:0
-  };
-
-  editingBillId = null;
-  $("password").value = "";
-
-  showLogin();
-
-  showAuthMessage(
-    "Você saiu da conta. Para entrar novamente, confirme sua biometria, se o celular solicitar, e toque em Entrar.",
-    "success"
-  );
-
-  logoutButtons.forEach(button=>{
-    button.disabled = false;
-  });
-
 }
 
 
@@ -8963,143 +8941,25 @@ $("password")
 
 
 
-/* Fallback de logout para navegadores móveis/WebView. */
-document.addEventListener("click", event=>{
-  const logoutTarget = event.target.closest("#logoutButton,#mobileLogoutButton,#profileLogoutButton");
-  if(!logoutTarget) return;
 
-  event.preventDefault();
-  event.stopPropagation();
-
-  if(!logoutTarget.dataset.logoutHandled){
-    logoutTarget.dataset.logoutHandled = "1";
-    logout().finally(()=>{
-      delete logoutTarget.dataset.logoutHandled;
-    });
-  }
-}, true);
-
-
-
-/* =========================================================
-   V9 — CORREÇÃO EXCLUSIVA PARA MOBILE
-   Não altera o fluxo normal do desktop.
-   ========================================================= */
-
-function thatyIsMobile(){
-  return window.matchMedia("(max-width: 700px)").matches;
-}
-
-let thatyMobileSyncRunning = false;
-
-async function thatyMobileRefreshData(){
-  if(!thatyIsMobile() || thatyMobileSyncRunning) return;
-  thatyMobileSyncRunning = true;
-
-  try{
-    /* Recupera a sessão real do Supabase antes de buscar os dados. */
-    const sessionResult = await supabaseClient.auth.getSession();
-    const session = sessionResult?.data?.session;
-
-    if(!session?.user){
-      currentUser = null;
-      showLogin();
-      return;
-    }
-
-    currentUser = session.user;
-
-    /*
-      Usa a mesma rotina de dados da versão que funciona no PC.
-      No mobile, forçamos uma nova leitura após a sessão estar disponível.
-    */
-    await withTimeout(loadCloudData(false, false), 30000);
-
-    showApplication();
-    renderEverything();
-
-  }catch(error){
-    console.error("Erro ao sincronizar dados no mobile:", error);
-  }finally{
-    thatyMobileSyncRunning = false;
-  }
-}
-
-/* Quando a página termina de carregar no celular, sincroniza novamente.
-   Isso corrige o caso em que a interface abre antes da sessão/dados. */
-window.addEventListener("load", ()=>{
-  if(!thatyIsMobile()) return;
-  setTimeout(thatyMobileRefreshData, 350);
-});
-
-/* Ao voltar para o app no celular, atualiza os dados. */
-document.addEventListener("visibilitychange", ()=>{
-  if(thatyIsMobile() && document.visibilityState === "visible"){
-    setTimeout(thatyMobileRefreshData, 250);
-  }
-});
-
-/* Logout mobile independente do listener antigo. */
-async function thatyMobileLogout(){
-  if(!thatyIsMobile()) return false;
-
-  try{
-    showLoading("Saindo...");
-
-    const result = await withTimeout(
-      supabaseClient.auth.signOut({scope:"local"}),
-      15000
-    );
-
-    if(result?.error) throw result.error;
-
-  }catch(error){
-    console.warn("Logout mobile:", error);
-    /*
-      Mesmo se a rede falhar, removemos a sessão local para o botão
-      realmente responder no aparelho.
-    */
-    try{
-      await supabaseClient.auth.signOut({scope:"local"});
-    }catch(_){}
-  }
-
-  currentUser = null;
-
-  database.transactions = [];
-  database.bills = [];
-
-  hideLoading();
-  showLogin();
-
-  if($("password")) $("password").value = "";
-
-  showAuthMessage(
-    "Você saiu da sua conta.",
-    "success"
-  );
-
-  return true;
-}
-
-/* Capture phase: garante que nenhum overlay/listener antigo bloqueie o toque. */
+/* ÚNICO controlador do botão Sair — desktop e mobile. */
 document.addEventListener("click", async event=>{
-  if(!thatyIsMobile()) return;
-
   const button = event.target.closest("#logoutButton");
   if(!button) return;
 
   event.preventDefault();
-  event.stopImmediatePropagation();
 
+  if(button.dataset.busy === "1") return;
+  button.dataset.busy = "1";
   button.disabled = true;
 
   try{
-    await thatyMobileLogout();
+    await logout();
   }finally{
     button.disabled = false;
+    delete button.dataset.busy;
   }
-}, true);
+});
 
 
 /* =========================================================
@@ -9199,7 +9059,7 @@ async function refreshWhenVisible(){
   lastMobileRefresh = now;
 
   try{
-    await loadCloudData(false, false);
+    await loadSimpleAppData();
     renderEverything();
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
@@ -9329,7 +9189,7 @@ async function clearManualMovementHistory(){
       }
     }
 
-    await loadCloudData(false,false);
+    await loadSimpleAppData();
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
 
@@ -9625,7 +9485,7 @@ async function importSelectedNubank(){
       importedCount++;
     }
 
-    await loadCloudData(false,false);
+    await loadSimpleAppData();
     renderEverything();
     if(typeof updateReportBreakdown==="function") updateReportBreakdown();
     closeNubankImporter();
