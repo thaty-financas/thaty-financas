@@ -2242,6 +2242,207 @@ td button{
 }
 </style>
 
+
+<style id="thaty-simple-app">
+/* THATY FINANÇAS — versão simplificada: uma única tela */
+#appScreen > header{
+  position:fixed;
+  left:0; right:0; top:0; bottom:auto;
+  width:100%;
+  min-height:68px;
+  padding:12px 22px;
+  display:flex;
+  align-items:center;
+  border-right:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(6,18,32,.97);
+  backdrop-filter:blur(18px);
+  z-index:100;
+}
+#appScreen > header .headerTop{
+  width:100%;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+#appScreen > header nav,
+#mobileMenuButton,
+#mobileMenuOverlay,
+#mobileMenuPanel{
+  display:none !important;
+}
+#appScreen > header #logoutButton{
+  display:inline-flex !important;
+  width:auto;
+  margin:0;
+  min-height:42px;
+}
+#appScreen main{
+  width:100%;
+  max-width:980px;
+  margin:0 auto;
+  padding:98px 22px 50px;
+}
+#appScreen main > .page:not(#bills){
+  display:none !important;
+}
+#bills{
+  display:block !important;
+}
+#bills > .row:first-child{
+  margin-bottom:16px;
+}
+#bills > .row:first-child h2{
+  margin-bottom:0;
+}
+.contasTabs.simpleMainTabs{
+  grid-template-columns:repeat(3,1fr);
+  position:sticky;
+  top:76px;
+  z-index:20;
+  padding:8px;
+  margin:0 0 14px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(7,20,38,.94);
+  backdrop-filter:blur(14px);
+}
+.simpleMainTabs .contasTab{
+  min-height:48px;
+}
+.salaryHero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  background:linear-gradient(145deg,#291e32,#161b2d);
+  box-shadow:var(--shadow);
+}
+.salaryHeroValue{
+  margin-top:7px;
+  color:var(--green);
+  font-size:30px;
+  font-weight:950;
+  letter-spacing:-1px;
+}
+.salaryHeroIcon{
+  width:52px;
+  height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:16px;
+  background:rgba(255,255,255,.07);
+  font-size:25px;
+}
+.simpleSalaryForm .primary{
+  max-width:260px;
+}
+.simpleSalaryHistoryHeader h3{
+  margin:0;
+}
+.simpleSalaryItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.simpleSalaryItem:last-child{border-bottom:0}
+.simpleSalaryItemValue{
+  color:var(--green);
+  font-weight:900;
+  white-space:nowrap;
+}
+.simpleSalaryItemActions{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.simpleSalaryDelete{
+  min-height:36px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  color:var(--muted2);
+}
+@media(max-width:700px){
+  #appScreen > header{
+    min-height:64px;
+    padding:10px 12px;
+  }
+  #appScreen > header .brand{font-size:20px}
+  #appScreen > header #logoutButton{
+    min-height:40px;
+    padding:9px 12px;
+  }
+  #appScreen main{
+    padding:82px 10px 30px;
+  }
+  #bills > .row:first-child{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  #bills > .row:first-child h2{
+    font-size:24px;
+    flex:1;
+  }
+  #addBillButton{
+    width:auto !important;
+    min-height:42px;
+    margin:0 !important;
+    padding:9px 11px !important;
+    white-space:nowrap;
+    font-size:12px;
+  }
+  .contasOverview{
+    margin-bottom:10px;
+  }
+  .contasTabs.simpleMainTabs{
+    top:68px;
+    gap:5px;
+    padding:6px;
+    border-radius:14px;
+  }
+  .simpleMainTabs .contasTab{
+    min-height:45px;
+    padding:8px 5px;
+    font-size:11px;
+  }
+  .simpleMainTabs .contasTabCount{
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    margin-left:2px;
+    font-size:9px;
+  }
+  .salaryHero{
+    padding:16px;
+    border-radius:17px;
+  }
+  .salaryHeroValue{font-size:27px}
+  .simpleSalaryForm .primary{
+    width:100%;
+    max-width:none;
+  }
+  .simpleSalaryItem{
+    align-items:flex-start;
+  }
+  .simpleSalaryItemActions{
+    flex-direction:column;
+    align-items:flex-end;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -2507,7 +2708,7 @@ td button{
          INÍCIO
          =================================================== -->
 
-    <section id="home" class="page">
+    <section id="home" class="page hidden">
 <div class="homeHeader">
 <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
 <div class="homeHeaderActions">
@@ -2709,13 +2910,13 @@ td button{
 
     <section
       id="bills"
-      class="page hidden"
+      class="page"
     >
 
       <div class="row">
 
         <h2>
-          Contas
+          Meu mês
         </h2>
 
         <button
@@ -2724,7 +2925,7 @@ td button{
           type="button"
           style="width:auto;margin:0"
         >
-          + Adicionar
+          + Nova conta
         </button>
 
       </div>
@@ -2975,21 +3176,59 @@ td button{
         </div>
       </div>
 
-      <div class="contasTabs" role="tablist" aria-label="Organização das contas">
-        <button type="button" class="contasTab active" data-contas-tab="paid" role="tab" aria-selected="true">
-          ✓ Contas pagas <span class="contasTabCount" id="billsPaidCount">0</span>
+      <div class="contasTabs simpleMainTabs" role="tablist" aria-label="Meu mês">
+        <button type="button" class="contasTab active" data-contas-tab="pending" role="tab" aria-selected="true">
+          ⏳ A pagar <span class="contasTabCount" id="billsPendingCount">0</span>
         </button>
-        <button type="button" class="contasTab" data-contas-tab="pending" role="tab" aria-selected="false">
-          ⏳ Contas a pagar <span class="contasTabCount" id="billsPendingCount">0</span>
+        <button type="button" class="contasTab" data-contas-tab="paid" role="tab" aria-selected="false">
+          ✓ Pagas <span class="contasTabCount" id="billsPaidCount">0</span>
+        </button>
+        <button type="button" class="contasTab" data-contas-tab="salary" role="tab" aria-selected="false">
+          🎵 Salário
         </button>
       </div>
 
-      <div id="billListPaidPanel" class="contasTabPanel active" data-contas-panel="paid">
+      <div id="billListPendingPanel" class="contasTabPanel active" data-contas-panel="pending">
+        <div class="card"><div id="billListPending"></div></div>
+      </div>
+
+      <div id="billListPaidPanel" class="contasTabPanel" data-contas-panel="paid">
         <div class="card"><div id="billListPaid"></div></div>
       </div>
 
-      <div id="billListPendingPanel" class="contasTabPanel" data-contas-panel="pending">
-        <div class="card"><div id="billListPending"></div></div>
+      <div id="salaryPanel" class="contasTabPanel" data-contas-panel="salary">
+        <div class="salaryHero">
+          <div>
+            <div class="muted">Recebido do TikTok neste mês</div>
+            <div id="simpleSalaryMonthTotal" class="salaryHeroValue">R$ 0,00</div>
+          </div>
+          <div class="salaryHeroIcon">🎵</div>
+        </div>
+
+        <div class="card simpleSalaryForm">
+          <h3>Lançar recebimento do TikTok</h3>
+          <div class="formGrid">
+            <div>
+              <label>Valor recebido</label>
+              <input id="simpleSalaryAmount" type="text" inputmode="decimal" placeholder="0,00">
+            </div>
+            <div>
+              <label>Data</label>
+              <input id="simpleSalaryDate" type="date">
+            </div>
+          </div>
+          <button id="simpleSalarySave" class="primary" type="button">
+            + Adicionar salário
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="row simpleSalaryHistoryHeader">
+            <h3>Recebimentos</h3>
+            <span id="simpleSalaryCount" class="badge paid">0 lançamentos</span>
+          </div>
+          <div id="simpleSalaryHistory"></div>
+        </div>
       </div>
 
     </section><!-- ===================================================
@@ -5685,6 +5924,8 @@ function renderBills(){
     "Você não tem contas a pagar neste mês."
   );
 
+  renderSimpleSalary();
+
   const tabs = document.querySelectorAll("#bills .contasTab");
   tabs.forEach(tab=>{
     tab.onclick = ()=>{
@@ -5701,6 +5942,96 @@ function renderBills(){
   });
 
 }
+
+
+/* =========================================================
+   TELA SIMPLIFICADA — SALÁRIO TIKTOK
+   ========================================================= */
+
+function renderSimpleSalary(){
+  const totalEl = $("simpleSalaryMonthTotal");
+  const historyEl = $("simpleSalaryHistory");
+  const countEl = $("simpleSalaryCount");
+  const dateEl = $("simpleSalaryDate");
+
+  if(!totalEl || !historyEl || !countEl) return;
+
+  if(dateEl && !dateEl.value){
+    dateEl.value = new Date().toISOString().slice(0,10);
+  }
+
+  const salaryItems = database.transactions
+    .filter(isSalaryTransaction)
+    .filter(t=>monthKeyFromDate(t.date) === currentMonthKey())
+    .sort((a,b)=>String(b.date || "").localeCompare(String(a.date || "")));
+
+  const total = salaryItems.reduce((sum,t)=>sum + Number(t.amount || 0),0);
+
+  totalEl.textContent = money(total);
+  countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
+
+  if(!salaryItems.length){
+    historyEl.innerHTML = '<p class="muted">Nenhum recebimento do TikTok lançado neste mês.</p>';
+    return;
+  }
+
+  historyEl.innerHTML = salaryItems.map(t=>`
+    <div class="simpleSalaryItem">
+      <div>
+        <div class="reportDescription">${escapeHtml(t.description || "TikTok")}</div>
+        <div class="reportMeta">${formatDate(t.date)}</div>
+      </div>
+      <div class="simpleSalaryItemActions">
+        <span class="simpleSalaryItemValue">${money(t.amount)}</span>
+        <button class="simpleSalaryDelete" type="button" onclick="deleteTransaction('${t.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function saveSimpleSalary(){
+  try{
+    if(!currentUser){
+      return alert("Sua sessão expirou. Entre novamente.");
+    }
+
+    const amount = numberValue($("simpleSalaryAmount")?.value || "");
+    const date = $("simpleSalaryDate")?.value || new Date().toISOString().slice(0,10);
+
+    if(amount <= 0){
+      return alert("Digite o valor recebido do TikTok.");
+    }
+
+    const r = await supabaseClient
+      .from("transactions")
+      .insert({
+        user_id: currentUser.id,
+        type: "income",
+        description: "TikTok",
+        amount,
+        date,
+        category: "Salário",
+        notes: "tiktok-salario-manual"
+      });
+
+    if(r.error) throw r.error;
+
+    $("simpleSalaryAmount").value = "";
+    $("simpleSalaryDate").value = new Date().toISOString().slice(0,10);
+
+    await loadCloudData(false);
+    renderEverything();
+
+  }catch(e){
+    console.error(e);
+    alert(e.message || "Não foi possível salvar o recebimento.");
+  }
+}
+
+document.addEventListener("click", event=>{
+  const button = event.target.closest("#simpleSalarySave");
+  if(button) saveSimpleSalary();
+});
 
 /* =========================================================
    DÍVIDAS
@@ -6466,16 +6797,16 @@ function renderProfileAvatar(){
 function renderEverything(){
 
   renderHome();
-
   renderTransactions();
-
   renderBills();
-
   renderGoals();
-
   renderReports();
-
   renderSettings();
+
+  // Versão simplificada: o aplicativo sempre permanece na tela "Meu mês".
+  document.querySelectorAll(".page").forEach(page=>{
+    page.classList.toggle("hidden", page.id !== "bills");
+  });
 
 }
 
