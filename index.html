@@ -2573,6 +2573,33 @@ button[title="Voltar"]{
 }
 </style>
 
+
+<style id="thaty-v9-mobile-fix">
+@media(max-width:700px){
+  #appScreen > header{
+    z-index:9999 !important;
+    pointer-events:auto !important;
+  }
+  #logoutButton{
+    display:inline-flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:10000 !important;
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+  }
+  #mobileMenuOverlay,
+  #mobileMenuPanel,
+  #mobileMenuButton,
+  #navigation{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -8949,6 +8976,128 @@ document.addEventListener("click", event=>{
     logout().finally(()=>{
       delete logoutTarget.dataset.logoutHandled;
     });
+  }
+}, true);
+
+
+
+/* =========================================================
+   V9 — CORREÇÃO EXCLUSIVA PARA MOBILE
+   Não altera o fluxo normal do desktop.
+   ========================================================= */
+
+function thatyIsMobile(){
+  return window.matchMedia("(max-width: 700px)").matches;
+}
+
+let thatyMobileSyncRunning = false;
+
+async function thatyMobileRefreshData(){
+  if(!thatyIsMobile() || thatyMobileSyncRunning) return;
+  thatyMobileSyncRunning = true;
+
+  try{
+    /* Recupera a sessão real do Supabase antes de buscar os dados. */
+    const sessionResult = await supabaseClient.auth.getSession();
+    const session = sessionResult?.data?.session;
+
+    if(!session?.user){
+      currentUser = null;
+      showLogin();
+      return;
+    }
+
+    currentUser = session.user;
+
+    /*
+      Usa a mesma rotina de dados da versão que funciona no PC.
+      No mobile, forçamos uma nova leitura após a sessão estar disponível.
+    */
+    await withTimeout(loadCloudData(false, false), 30000);
+
+    showApplication();
+    renderEverything();
+
+  }catch(error){
+    console.error("Erro ao sincronizar dados no mobile:", error);
+  }finally{
+    thatyMobileSyncRunning = false;
+  }
+}
+
+/* Quando a página termina de carregar no celular, sincroniza novamente.
+   Isso corrige o caso em que a interface abre antes da sessão/dados. */
+window.addEventListener("load", ()=>{
+  if(!thatyIsMobile()) return;
+  setTimeout(thatyMobileRefreshData, 350);
+});
+
+/* Ao voltar para o app no celular, atualiza os dados. */
+document.addEventListener("visibilitychange", ()=>{
+  if(thatyIsMobile() && document.visibilityState === "visible"){
+    setTimeout(thatyMobileRefreshData, 250);
+  }
+});
+
+/* Logout mobile independente do listener antigo. */
+async function thatyMobileLogout(){
+  if(!thatyIsMobile()) return false;
+
+  try{
+    showLoading("Saindo...");
+
+    const result = await withTimeout(
+      supabaseClient.auth.signOut({scope:"local"}),
+      15000
+    );
+
+    if(result?.error) throw result.error;
+
+  }catch(error){
+    console.warn("Logout mobile:", error);
+    /*
+      Mesmo se a rede falhar, removemos a sessão local para o botão
+      realmente responder no aparelho.
+    */
+    try{
+      await supabaseClient.auth.signOut({scope:"local"});
+    }catch(_){}
+  }
+
+  currentUser = null;
+
+  database.transactions = [];
+  database.bills = [];
+
+  hideLoading();
+  showLogin();
+
+  if($("password")) $("password").value = "";
+
+  showAuthMessage(
+    "Você saiu da sua conta.",
+    "success"
+  );
+
+  return true;
+}
+
+/* Capture phase: garante que nenhum overlay/listener antigo bloqueie o toque. */
+document.addEventListener("click", async event=>{
+  if(!thatyIsMobile()) return;
+
+  const button = event.target.closest("#logoutButton");
+  if(!button) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  button.disabled = true;
+
+  try{
+    await thatyMobileLogout();
+  }finally{
+    button.disabled = false;
   }
 }, true);
 
