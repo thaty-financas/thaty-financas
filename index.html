@@ -2443,6 +2443,32 @@ td button{
 }
 </style>
 
+
+<style id="thaty-simple-v2">
+.simpleWelcome{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.simpleWelcome h2{margin:0 0 4px}.simpleWelcome p{margin:0;color:var(--muted)}
+.simpleTabTotal{display:block;margin-top:3px;color:var(--muted2);font-size:10px;font-weight:800}
+.simpleCollapseCard{margin-bottom:12px}
+.simpleCollapseHeader{width:100%;min-height:62px;margin:0 0 8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid var(--border);border-radius:15px;background:rgba(255,255,255,.035);color:var(--text)}
+.simpleCollapseHeader span:first-child{display:flex;flex-direction:column;gap:4px}.simpleCollapseHeader small{color:var(--muted);font-size:11px}
+.simpleCollapseArrow{color:var(--accent);font-size:22px;transition:transform .18s ease}
+.simpleCollapseHeader[aria-expanded="false"] .simpleCollapseArrow{transform:rotate(-90deg)}
+.simpleCollapseBody{overflow:hidden}.simpleCollapseBody.is-collapsed{display:none}
+.simpleGoalTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.simpleGoalHeadline{margin-top:5px;font-size:18px;font-weight:900}
+.simpleGoalEdit{width:auto;min-height:38px;margin:0;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.05);color:var(--muted2);white-space:nowrap}
+.simpleGoalProgressTrack{height:13px;margin:16px 0 9px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07)}
+.simpleGoalProgressBar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .3s ease}
+.simpleGoalStats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}.simpleGoalStats strong{color:var(--green);font-size:14px}
+.simpleGoalEditor{margin-top:15px;padding-top:14px;border-top:1px solid var(--border)}
+.simpleGoalEditorRow{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end}.simpleGoalEditorRow .primary{width:auto;margin:0}
+@media(max-width:700px){
+  .simpleWelcome{align-items:flex-end;gap:10px}.simpleWelcome h2{font-size:22px}.simpleWelcome p{font-size:11px}
+  .simpleGoalTop{align-items:center}.simpleGoalHeadline{font-size:16px}.simpleGoalStats{flex-direction:column;gap:3px}
+  .simpleGoalEditorRow{grid-template-columns:1fr}.simpleGoalEditorRow .primary{width:100%}
+}
+</style>
+
 </head>
 
 <body>
@@ -2913,13 +2939,13 @@ td button{
       class="page"
     >
 
-      <div class="row">
+      <div class="simpleWelcome">
+        <div>
+          <h2>Olá, Tatyane! 👋</h2>
+          <p id="simpleMonthGreeting">Aqui está o seu mês.</p>
+        </div>
 
-        <h2>
-          Meu mês
-        </h2>
-
-        <button
+        <<button
           id="addBillButton"
           class="primary"
           type="button"
@@ -3178,10 +3204,10 @@ td button{
 
       <div class="contasTabs simpleMainTabs" role="tablist" aria-label="Meu mês">
         <button type="button" class="contasTab active" data-contas-tab="pending" role="tab" aria-selected="true">
-          ⏳ A pagar <span class="contasTabCount" id="billsPendingCount">0</span>
+          ⏳ A pagar <span class="contasTabCount" id="billsPendingCount">0</span><span class="simpleTabTotal" id="billsPendingTabTotal">R$ 0,00</span>
         </button>
         <button type="button" class="contasTab" data-contas-tab="paid" role="tab" aria-selected="false">
-          ✓ Pagas <span class="contasTabCount" id="billsPaidCount">0</span>
+          ✓ Pagas <span class="contasTabCount" id="billsPaidCount">0</span><span class="simpleTabTotal" id="billsPaidTabTotal">R$ 0,00</span>
         </button>
         <button type="button" class="contasTab" data-contas-tab="salary" role="tab" aria-selected="false">
           🎵 Salário
@@ -3189,11 +3215,27 @@ td button{
       </div>
 
       <div id="billListPendingPanel" class="contasTabPanel active" data-contas-panel="pending">
-        <div class="card"><div id="billListPending"></div></div>
+        <div class="simpleCollapseCard">
+          <button type="button" class="simpleCollapseHeader" data-collapse-target="pendingBillsBody" aria-expanded="true">
+            <span><strong>Contas a pagar</strong><small id="pendingCollapseSummary">0 contas · R$ 0,00</small></span>
+            <span class="simpleCollapseArrow">⌄</span>
+          </button>
+          <div id="pendingBillsBody" class="simpleCollapseBody">
+            <div class="card"><div id="billListPending"></div></div>
+          </div>
+        </div>
       </div>
 
       <div id="billListPaidPanel" class="contasTabPanel" data-contas-panel="paid">
-        <div class="card"><div id="billListPaid"></div></div>
+        <div class="simpleCollapseCard">
+          <button type="button" class="simpleCollapseHeader" data-collapse-target="paidBillsBody" aria-expanded="true">
+            <span><strong>Contas pagas</strong><small id="paidCollapseSummary">0 contas · R$ 0,00</small></span>
+            <span class="simpleCollapseArrow">⌄</span>
+          </button>
+          <div id="paidBillsBody" class="simpleCollapseBody">
+            <div class="card"><div id="billListPaid"></div></div>
+          </div>
+        </div>
       </div>
 
       <div id="salaryPanel" class="contasTabPanel" data-contas-panel="salary">
@@ -3203,6 +3245,28 @@ td button{
             <div id="simpleSalaryMonthTotal" class="salaryHeroValue">R$ 0,00</div>
           </div>
           <div class="salaryHeroIcon">🎵</div>
+        </div>
+
+        <div class="card simpleSalaryGoal">
+          <div class="simpleGoalTop">
+            <div>
+              <div class="muted">Meta de salário do mês</div>
+              <div id="simpleGoalHeadline" class="simpleGoalHeadline">Defina sua meta mensal</div>
+            </div>
+            <button id="simpleGoalEditButton" type="button" class="simpleGoalEdit">✎ Editar meta</button>
+          </div>
+          <div class="simpleGoalProgressTrack"><div id="simpleGoalProgressBar" class="simpleGoalProgressBar"></div></div>
+          <div class="simpleGoalStats">
+            <strong id="simpleGoalPercent">0%</strong>
+            <span id="simpleGoalRemaining">Adicione uma meta para acompanhar seu progresso.</span>
+          </div>
+          <div id="simpleGoalEditor" class="simpleGoalEditor hidden">
+            <label>Minha meta mensal</label>
+            <div class="simpleGoalEditorRow">
+              <input id="simpleGoalInput" type="text" inputmode="decimal" placeholder="Ex.: 3.000,00">
+              <button id="simpleGoalSaveButton" type="button" class="primary">Salvar meta</button>
+            </div>
+          </div>
         </div>
 
         <div class="card simpleSalaryForm">
@@ -5924,6 +5988,26 @@ function renderBills(){
     "Você não tem contas a pagar neste mês."
   );
 
+  const simplePendingTotal=pendingBills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+  const simplePaidTotal=paidBills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+
+  if($("billsPendingTabTotal")) $("billsPendingTabTotal").textContent=money(simplePendingTotal);
+  if($("billsPaidTabTotal")) $("billsPaidTabTotal").textContent=money(simplePaidTotal);
+  if($("pendingCollapseSummary")) $("pendingCollapseSummary").textContent=`${pendingBills.length} ${pendingBills.length===1?"conta":"contas"} · ${money(simplePendingTotal)}`;
+  if($("paidCollapseSummary")) $("paidCollapseSummary").textContent=`${paidBills.length} ${paidBills.length===1?"conta":"contas"} · ${money(simplePaidTotal)}`;
+
+  const monthGreeting=$("simpleMonthGreeting");
+  if(monthGreeting){
+    const monthName=new Date().toLocaleDateString("pt-BR",{month:"long"});
+    monthGreeting.textContent=`Aqui está o seu mês de ${monthName}.`;
+  }
+
   renderSimpleSalary();
 
   const tabs = document.querySelectorAll("#bills .contasTab");
@@ -5969,6 +6053,7 @@ function renderSimpleSalary(){
 
   totalEl.textContent = money(total);
   countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
+  renderSimpleSalaryGoal(total);
 
   if(!salaryItems.length){
     historyEl.innerHTML = '<p class="muted">Nenhum recebimento do TikTok lançado neste mês.</p>';
@@ -5987,6 +6072,48 @@ function renderSimpleSalary(){
       </div>
     </div>
   `).join("");
+}
+
+
+function simpleSalaryGoalStorageKey(){
+  const uid=currentUser?.id || "local";
+  return `thaty_salary_goal_${uid}_${currentMonthKey()}`;
+}
+function getSimpleSalaryGoal(){
+  try{return Number(localStorage.getItem(simpleSalaryGoalStorageKey()) || 0)}
+  catch(e){return 0}
+}
+function renderSimpleSalaryGoal(received){
+  const goal=getSimpleSalaryGoal();
+  const headline=$("simpleGoalHeadline"),bar=$("simpleGoalProgressBar"),
+        percentEl=$("simpleGoalPercent"),remainingEl=$("simpleGoalRemaining"),input=$("simpleGoalInput");
+  if(!headline || !bar || !percentEl || !remainingEl) return;
+  if(input && document.activeElement!==input){
+    input.value=goal>0?goal.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
+  }
+  if(goal<=0){
+    headline.textContent="Defina sua meta mensal";bar.style.width="0%";percentEl.textContent="0%";
+    remainingEl.textContent="Adicione uma meta para acompanhar seu progresso.";return;
+  }
+  const raw=(Number(received||0)/goal)*100,shown=Math.max(0,Math.min(100,raw));
+  const remaining=Math.max(0,goal-Number(received||0));
+  headline.textContent=`${money(received)} de ${money(goal)}`;
+  bar.style.width=`${shown}%`;percentEl.textContent=`${Math.round(raw)}% da meta`;
+  remainingEl.textContent=remaining>0?`Faltam ${money(remaining)} para sua meta.`:
+    (Number(received||0)>goal?`Meta alcançada! Você passou ${money(Number(received||0)-goal)}.`:"Meta alcançada! 🎉");
+}
+function toggleSimpleGoalEditor(forceOpen){
+  const editor=$("simpleGoalEditor");if(!editor)return;
+  const open=typeof forceOpen==="boolean"?forceOpen:editor.classList.contains("hidden");
+  editor.classList.toggle("hidden",!open);
+  if(open){const input=$("simpleGoalInput");if(input)setTimeout(()=>input.focus(),0)}
+}
+function saveSimpleSalaryGoal(){
+  const value=numberValue($("simpleGoalInput")?.value || "");
+  if(value<=0)return alert("Digite uma meta mensal maior que zero.");
+  try{localStorage.setItem(simpleSalaryGoalStorageKey(),String(value))}
+  catch(e){console.error(e);return alert("Não foi possível salvar a meta neste dispositivo.")}
+  toggleSimpleGoalEditor(false);renderSimpleSalary();
 }
 
 async function saveSimpleSalary(){
@@ -6029,8 +6156,20 @@ async function saveSimpleSalary(){
 }
 
 document.addEventListener("click", event=>{
-  const button = event.target.closest("#simpleSalarySave");
-  if(button) saveSimpleSalary();
+  const salaryButton=event.target.closest("#simpleSalarySave");
+  if(salaryButton){saveSimpleSalary();return}
+  const goalEdit=event.target.closest("#simpleGoalEditButton");
+  if(goalEdit){toggleSimpleGoalEditor();return}
+  const goalSave=event.target.closest("#simpleGoalSaveButton");
+  if(goalSave){saveSimpleSalaryGoal();return}
+  const collapseButton=event.target.closest(".simpleCollapseHeader[data-collapse-target]");
+  if(collapseButton){
+    const body=document.getElementById(collapseButton.dataset.collapseTarget);
+    if(!body)return;
+    const expanded=collapseButton.getAttribute("aria-expanded")!=="false";
+    collapseButton.setAttribute("aria-expanded",String(!expanded));
+    body.classList.toggle("is-collapsed",expanded);
+  }
 });
 
 /* =========================================================
