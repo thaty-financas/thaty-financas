@@ -2489,6 +2489,50 @@ td button{
 }
 </style>
 
+
+<style id="thaty-bills-goal-bubble">
+.simpleBillsGoalBubble{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  margin:14px 0;
+  padding:17px;
+  border:1px solid rgba(255,122,24,.26);
+  border-radius:19px;
+  background:linear-gradient(145deg,rgba(255,122,24,.09),rgba(15,37,61,.96));
+  box-shadow:var(--shadow);
+}
+.simpleBillsGoalBubble:before{
+  content:"";
+  position:absolute;
+  left:24px;
+  bottom:-8px;
+  width:15px;
+  height:15px;
+  transform:rotate(45deg);
+  border-right:1px solid rgba(255,122,24,.26);
+  border-bottom:1px solid rgba(255,122,24,.26);
+  background:#10263d;
+}
+.simpleBillsGoalIcon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  border-radius:14px;background:rgba(255,122,24,.12);font-size:20px
+}
+.simpleBillsGoalEyebrow{color:#ff9a3d;font-size:11px;font-weight:900;margin-bottom:5px}
+.simpleBillsGoalContent strong{display:block;font-size:17px;line-height:1.25}
+.simpleBillsGoalContent p{margin:5px 0 12px;color:var(--muted);font-size:12px;line-height:1.45}
+.simpleBillsGoalTrack{height:9px;overflow:hidden;border-radius:999px;background:#24364a}
+.simpleBillsGoalBar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#ff7a18,#ff9a3d);transition:width .35s ease}
+.simpleBillsGoalFooter{display:flex;justify-content:space-between;gap:10px;margin-top:7px;color:var(--muted);font-size:10px}
+.simpleBillsGoalFooter span:first-child{color:#ff9a3d;font-weight:900}
+@media(max-width:500px){
+ .simpleBillsGoalBubble{grid-template-columns:1fr;padding:15px}
+ .simpleBillsGoalIcon{width:38px;height:38px}
+ .simpleBillsGoalFooter{flex-direction:column;gap:2px}
+}
+</style>
+
 </head>
 
 <body>
@@ -3285,6 +3329,22 @@ td button{
             <div class="simpleGoalEditorRow">
               <input id="simpleGoalInput" type="text" inputmode="decimal" placeholder="Ex.: 3.000,00">
               <button id="simpleGoalSaveButton" type="button" class="primary">Salvar meta</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="simpleBillsGoalBubble">
+          <div class="simpleBillsGoalIcon">💬</div>
+          <div class="simpleBillsGoalContent">
+            <div class="simpleBillsGoalEyebrow">Meta para pagar o mês 🧾</div>
+            <strong id="simpleBillsGoalTitle">Calculando suas contas...</strong>
+            <p id="simpleBillsGoalText">Vou comparar o que você recebeu com as contas deste mês.</p>
+            <div class="simpleBillsGoalTrack">
+              <div id="simpleBillsGoalBar" class="simpleBillsGoalBar"></div>
+            </div>
+            <div class="simpleBillsGoalFooter">
+              <span id="simpleBillsGoalPercent">0% coberto</span>
+              <span id="simpleBillsGoalRemaining"></span>
             </div>
           </div>
         </div>
@@ -6074,6 +6134,7 @@ function renderSimpleSalary(){
   totalEl.textContent = money(total);
   countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
   renderSimpleSalaryGoal(total);
+  renderSimpleBillsGoal(total);
 
   if(!salaryItems.length){
     historyEl.innerHTML = '<p class="muted">Nenhum recebimento do TikTok lançado neste mês.</p>';
@@ -6094,6 +6155,51 @@ function renderSimpleSalary(){
   `).join("");
 }
 
+
+
+function renderSimpleBillsGoal(received){
+  const title=$("simpleBillsGoalTitle");
+  const textEl=$("simpleBillsGoalText");
+  const bar=$("simpleBillsGoalBar");
+  const percentEl=$("simpleBillsGoalPercent");
+  const remainingEl=$("simpleBillsGoalRemaining");
+  if(!title || !textEl || !bar || !percentEl || !remainingEl) return;
+
+  const billTotal=database.bills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+
+  if(billTotal<=0){
+    title.textContent="Você não tem contas cadastradas neste mês.";
+    textEl.textContent="Quando adicionar suas contas, eu calculo automaticamente quanto do mês seu salário já cobre.";
+    bar.style.width="0%";
+    percentEl.textContent="0% coberto";
+    remainingEl.textContent="";
+    return;
+  }
+
+  const salary=Number(received||0);
+  const rawPercent=(salary/billTotal)*100;
+  const shown=Math.max(0,Math.min(100,rawPercent));
+  const remaining=Math.max(0,billTotal-salary);
+
+  bar.style.width=`${shown}%`;
+  percentEl.textContent=`${Math.round(rawPercent)}% coberto`;
+
+  if(remaining>0){
+    title.textContent=`Você precisa receber ${money(billTotal)} para pagar todas as contas.`;
+    textEl.textContent=`Você já recebeu ${money(salary)} do TikTok neste mês.`;
+    remainingEl.textContent=`Faltam ${money(remaining)}`;
+  }else{
+    title.textContent="🎉 Seu salário deste mês já cobre todas as suas contas!";
+    const extra=Math.max(0,salary-billTotal);
+    textEl.textContent=extra>0
+      ? `Depois de cobrir ${money(billTotal)} em contas, ainda sobram ${money(extra)}.`
+      : `Você alcançou exatamente o valor necessário para cobrir ${money(billTotal)} em contas.`;
+    remainingEl.textContent="Meta das contas alcançada";
+  }
+}
 
 function simpleSalaryGoalStorageKey(){
   const uid=currentUser?.id || "local";
