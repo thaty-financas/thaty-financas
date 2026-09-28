@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<meta name="thaty-app-version" content="11.0.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 
 <meta charset="UTF-8">
 
@@ -2574,6 +2579,16 @@ button[title="Voltar"]{
 }
 </style>
 
+
+<style id="thaty-v11-version-ui">
+.thatyVersionBadge{
+ display:inline-flex;vertical-align:middle;margin-left:5px;padding:2px 6px;
+ border:1px solid rgba(255,255,255,.10);border-radius:999px;
+ background:rgba(255,255,255,.05);color:var(--muted2);
+ font-size:9px;font-weight:800;letter-spacing:.2px;
+}
+</style>
+
 </head>
 
 <body>
@@ -2653,7 +2668,7 @@ button[title="Voltar"]{
     <div class="headerTop">
 
       <div class="brand">
-        <span class="thaty">Thaty</span>
+        <span class="thaty">Thaty <span class="thatyVersionBadge">v11.0.0</span></span>
         <span class="financas"> Finanças</span>
       </div>
 
@@ -8959,6 +8974,52 @@ document.addEventListener("click", async event=>{
     button.disabled = false;
     delete button.dataset.busy;
   }
+});
+
+
+
+/* CONTROLE DE VERSÃO / CACHE — THATY FINANÇAS v11.0.0 */
+const THATY_APP_VERSION="11.0.0";
+const THATY_VERSION_KEY="thaty_financas_app_version";
+
+async function thatyRefreshStaleBrowserCache(){
+  let previousVersion=null;
+  try{ previousVersion=localStorage.getItem(THATY_VERSION_KEY); }catch(_){}
+
+  if(previousVersion===THATY_APP_VERSION) return false;
+
+  try{
+    if("caches" in window){
+      const names=await caches.keys();
+      await Promise.all(names.map(name=>caches.delete(name)));
+    }
+  }catch(error){ console.warn("Cache antigo:",error); }
+
+  try{
+    const registrations=await navigator.serviceWorker?.getRegistrations?.();
+    if(registrations?.length){
+      await Promise.all(registrations.map(r=>r.update().catch(()=>null)));
+    }
+  }catch(error){ console.warn("Service worker:",error); }
+
+  try{ localStorage.setItem(THATY_VERSION_KEY,THATY_APP_VERSION); }catch(_){}
+
+  const reloadKey=`thaty_version_reload_${THATY_APP_VERSION}`;
+  try{
+    if(!sessionStorage.getItem(reloadKey)){
+      sessionStorage.setItem(reloadKey,"1");
+      const url=new URL(window.location.href);
+      url.searchParams.set("appv",THATY_APP_VERSION);
+      window.location.replace(url.toString());
+      return true;
+    }
+  }catch(error){ console.warn("Recarga de versão:",error); }
+
+  return false;
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  thatyRefreshStaleBrowserCache();
 });
 
 
