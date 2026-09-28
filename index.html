@@ -5111,17 +5111,13 @@ async function authAction(){
 
       showLoading("Carregando suas contas...");
 
-      await withTimeout(
-        loadCloudData(true, false),
-        45000
-      );
+      await loadSimplifiedCloudData();
 
       showApplication();
       renderEverything();
       hideLoading();
 
-      /* Atualização complementar sem bloquear a tela. */
-      syncBillsInBackground();
+      /* A versão simplificada já carregou tudo o que esta tela precisa. */
 
     }catch(dataError){
 
@@ -5215,13 +5211,9 @@ function showApplication(){
     .classList
     .add("hidden");
 
-
   $("appScreen")
     .classList
     .remove("hidden");
-
-
-  renderEverything();
 
 }
 
@@ -5260,6 +5252,39 @@ function withTimeout(promise, ms = 15000){
     )
   ]);
 }
+
+
+async function loadSimplifiedCloudData(){
+  if(!currentUser) throw new Error("Sessão não encontrada.");
+
+  const uid=currentUser.id;
+
+  const [transactionsResult,billsResult]=await withTimeout(
+    Promise.all([
+      supabaseClient
+        .from("transactions")
+        .select("*")
+        .eq("user_id",uid)
+        .order("date",{ascending:false}),
+
+      supabaseClient
+        .from("bills")
+        .select("*")
+        .eq("user_id",uid)
+        .order("created_at",{ascending:false})
+    ]),
+    20000
+  );
+
+  if(transactionsResult.error) throw transactionsResult.error;
+  if(billsResult.error) throw billsResult.error;
+
+  database.transactions=transactionsResult.data || [];
+  database.bills=billsResult.data || [];
+
+  return true;
+}
+
 
 async function loadCloudData(
   allowImport,
@@ -8963,16 +8988,13 @@ async function initialize(){
       showLoading("Carregando suas contas...");
 
       try{
-        await withTimeout(
-          loadCloudData(false, false),
-          45000
-        );
+        await loadSimplifiedCloudData();
 
         showApplication();
         renderEverything();
         hideLoading();
 
-        syncBillsInBackground();
+        /* Dados essenciais já carregados. */
 
       }catch(dataError){
         console.error("Erro ao restaurar dados da sessão:", dataError);
@@ -9037,7 +9059,7 @@ async function refreshWhenVisible(){
   lastMobileRefresh = now;
 
   try{
-    await loadCloudData(false, false);
+    await loadSimplifiedCloudData();
     renderEverything();
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
