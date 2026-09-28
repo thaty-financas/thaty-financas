@@ -5103,30 +5103,45 @@ async function authAction(){
 
 
     /*
-      CELULAR:
-      primeiro carrega os dados reais e só depois abre a tela.
-      Assim a interface não aparece zerada enquanto o Supabase responde.
+      IMPORTANTE PARA CELULAR:
+      não deixamos a interface presa esperando o Supabase. O app abre
+      primeiro e a sincronização acontece logo depois. Se a rede móvel
+      estiver lenta, o aplicativo continua acessível e tenta atualizar
+      novamente quando voltar para a tela.
     */
     try{
-
-      showLoading("Carregando suas contas...");
-
-      await loadSimplifiedCloudData();
 
       showApplication();
       renderEverything();
       hideLoading();
 
-      /* A versão simplificada já carregou tudo o que esta tela precisa. */
+      try{
+        showAuthMessage("Sincronizando seus dados...", "success");
+        await withTimeout(loadCloudData(true, false), 10000);
+        renderEverything();
+        showAuthMessage("Dados sincronizados.", "success");
+      }catch(dataError){
+        console.warn("Sincronização inicial atrasada no celular:", dataError);
+        showAuthMessage(
+          "O app abriu. A sincronização está demorando; vamos tentar novamente em segundo plano.",
+          "warning"
+        );
+      }
+
+      /* Sincronização complementar sem bloquear a interface. */
+      syncBillsInBackground();
 
     }catch(dataError){
 
-      console.error("Erro ao carregar os dados:", dataError);
+      console.error(
+        "Erro ao abrir o aplicativo:",
+        dataError
+      );
 
       hideLoading();
       showLogin();
       showAuthMessage(
-        "Não consegui carregar seus dados agora. Verifique a internet e toque em Entrar novamente.",
+        "Não foi possível abrir o aplicativo. Tente novamente.",
         "warning"
       );
 
@@ -5211,9 +5226,13 @@ function showApplication(){
     .classList
     .add("hidden");
 
+
   $("appScreen")
     .classList
     .remove("hidden");
+
+
+  renderEverything();
 
 }
 
@@ -7114,14 +7133,10 @@ function renderProfileAvatar(){
    ========================================================= */
 
 function renderEverything(){
-
-  /* Versão leve: só renderiza a única tela que existe para a usuária. */
   renderBills();
-
   document.querySelectorAll(".page").forEach(page=>{
     page.classList.toggle("hidden", page.id !== "bills");
   });
-
 }
 
 
@@ -7631,27 +7646,12 @@ $("addBillButton").onclick =
 
 $("cancelBillButton").onclick =
   ()=>{
-
     editingBillId = null;
-
     $("billName").value = "";
     $("billAmount").value = "";
     $("billTotalDebt").value = "";
-    $("billType").value = "installment";
-    $("billCurrentInstallment").value = "1";
-    $("billTotalInstallments").value = "1";
-    $("billStartMonth").value = monthInputValue(new Date());
-    $("billDueDay").value = "10";
     $("saveBillButton").textContent = "Salvar";
-
     $("billForm").classList.add("hidden");
-
-    /* Volta para o topo da tela de contas sem salvar nada. */
-    document.getElementById("bills")?.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-
   };
 
 
@@ -8982,33 +8982,24 @@ async function initialize(){
 
     if(r.data?.session){
 
-      /* Sessão válida: no celular abre direto e busca os dados reais. */
-      currentUser = r.data.session.user;
+      /* Não abre o aplicativo automaticamente só porque existe uma sessão salva.
+         O usuário precisa confirmar a biometria/senha e tocar em Entrar. */
+      currentUser = null;
 
-      showLoading("Carregando suas contas...");
+      const savedEmail = r.data.session.user?.email || "";
 
-      try{
-        await loadSimplifiedCloudData();
-
-        showApplication();
-        renderEverything();
-        hideLoading();
-
-        /* Dados essenciais já carregados. */
-
-      }catch(dataError){
-        console.error("Erro ao restaurar dados da sessão:", dataError);
-        hideLoading();
-        showLogin();
-
-        const savedEmail = r.data.session.user?.email || "";
-        if(savedEmail) $("email").value = savedEmail;
-
-        showAuthMessage(
-          "Sua sessão existe, mas os dados não carregaram. Verifique a internet e toque em Entrar.",
-          "warning"
-        );
+      if(savedEmail){
+        $("email").value = savedEmail;
       }
+
+      $("password").value = "";
+
+      showLogin();
+
+      showAuthMessage(
+        "Sua sessão foi encontrada. Confirme sua biometria, se o celular solicitar, e toque em Entrar.",
+        "success"
+      );
 
     }else{
 
@@ -9059,7 +9050,7 @@ async function refreshWhenVisible(){
   lastMobileRefresh = now;
 
   try{
-    await loadSimplifiedCloudData();
+    await loadCloudData(false, false);
     renderEverything();
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
