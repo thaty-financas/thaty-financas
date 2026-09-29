@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta name="thaty-app-version" content="11.0.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
 
 <meta charset="UTF-8">
 
@@ -2580,12 +2575,25 @@ button[title="Voltar"]{
 </style>
 
 
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="thaty-app-version" content="12.0.0">
+
+
 <style id="thaty-v11-version-ui">
 .thatyVersionBadge{
- display:inline-flex;vertical-align:middle;margin-left:5px;padding:2px 6px;
- border:1px solid rgba(255,255,255,.10);border-radius:999px;
- background:rgba(255,255,255,.05);color:var(--muted2);
- font-size:9px;font-weight:800;letter-spacing:.2px;
+  display:inline-flex;
+  vertical-align:middle;
+  margin-left:6px;
+  padding:3px 6px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:999px;
+  color:var(--muted);
+  background:rgba(255,255,255,.04);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.2px;
 }
 </style>
 
@@ -2668,7 +2676,7 @@ button[title="Voltar"]{
     <div class="headerTop">
 
       <div class="brand">
-        <span class="thaty">Thaty <span class="thatyVersionBadge">v11.0.0</span></span>
+        <span class="thaty">Thaty</span>
         <span class="financas"> Finanças</span>
       </div>
 
@@ -5008,204 +5016,57 @@ function initializeSupabase(){
    ========================================================= */
 
 async function authAction(){
-
-  const email =
-    $("email").value.trim();
-
-
-  const password =
-    $("password").value;
-
+  const email = $("email").value.trim();
+  const password = $("password").value;
 
   if(!email || !password){
-
-    showAuthMessage(
-      "Preencha seu e-mail e sua senha."
-    );
-
+    showAuthMessage("Preencha seu e-mail e sua senha.");
     return;
-
   }
 
-
-  $("loginButton").disabled =
-    true;
-
-
-  $("loginButton").textContent =
-    creatingAccount
-      ? "Criando..."
-      : "Entrando...";
-
-
+  $("loginButton").disabled = true;
+  $("loginButton").textContent = creatingAccount ? "Criando..." : "Entrando...";
   showAuthMessage("");
 
-
   try{
+    showLoading(creatingAccount ? "Criando sua conta..." : "Entrando...");
 
-    showLoading(
-      creatingAccount
-        ? "Criando sua conta..."
-        : "Entrando..."
-    );
+    const result = creatingAccount
+      ? await supabaseClient.auth.signUp({email,password,options:{data:{name:"Thaty"}}})
+      : await supabaseClient.auth.signInWithPassword({email,password});
 
+    if(result.error) throw result.error;
 
-    let result;
-
-
-    if(creatingAccount){
-
-      result =
-        await supabaseClient
-          .auth
-          .signUp({
-
-            email,
-
-            password,
-
-            options:{
-              data:{
-                name:"Thaty"
-              }
-            }
-
-          });
-
-    }else{
-
-      result =
-        await supabaseClient
-          .auth
-          .signInWithPassword({
-
-            email,
-
-            password
-
-          });
-
-    }
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    if(
-      creatingAccount &&
-      !result.data.session
-    ){
-
+    if(creatingAccount && !result.data.session){
       hideLoading();
-
-
-      showAuthMessage(
-        "Conta criada! Confirme seu e-mail se o Supabase solicitar.",
-        "success"
-      );
-
-
+      showAuthMessage("Conta criada! Confirme seu e-mail se o Supabase solicitar.","success");
       return;
-
     }
 
+    currentUser = result.data.user || result.data.session?.user || null;
+    if(!currentUser) throw new Error("Não foi possível confirmar sua sessão.");
 
-    currentUser =
-      result.data.user;
+    /* Só abre a tela depois que os dados reais chegaram.
+       Assim nunca mostramos uma tela zerada por falha de sincronização. */
+    showLoading("Carregando suas contas...");
+    await loadSimpleAppData();
 
-
-    /*
-      IMPORTANTE PARA CELULAR:
-      não deixamos a interface presa esperando o Supabase. O app abre
-      primeiro e a sincronização acontece logo depois. Se a rede móvel
-      estiver lenta, o aplicativo continua acessível e tenta atualizar
-      novamente quando voltar para a tela.
-    */
-    try{
-
-      showApplication();
-      renderEverything();
-      hideLoading();
-
-      try{
-        showAuthMessage("Sincronizando seus dados...", "success");
-        await withTimeout(loadSimpleAppData(), 30000);
-        renderEverything();
-        showAuthMessage("Dados sincronizados.", "success");
-      }catch(dataError){
-        console.warn("Sincronização inicial atrasada no celular:", dataError);
-        showAuthMessage(
-          "O app abriu. A sincronização está demorando; vamos tentar novamente em segundo plano.",
-          "warning"
-        );
-      }
-
-      /* Sincronização complementar sem bloquear a interface. */
-      syncBillsInBackground();
-
-    }catch(dataError){
-
-      console.error(
-        "Erro ao abrir o aplicativo:",
-        dataError
-      );
-
-      hideLoading();
-      showLogin();
-      showAuthMessage(
-        "Não foi possível abrir o aplicativo. Tente novamente.",
-        "warning"
-      );
-
-    }
-
-
-  }catch(error){
-
-    console.error(
-      "Erro de autenticação:",
-      error
-    );
-
-
+    showApplication();
+    renderEverything();
     hideLoading();
 
+  }catch(error){
+    console.error("Erro ao entrar/carregar dados:",error);
+    hideLoading();
+    showLogin();
 
-    let msg =
-      error.message ||
-      "Não foi possível entrar.";
-
-
-    if(
-      msg ===
-      "Invalid login credentials"
-    ){
-
-      msg =
-        "E-mail ou senha incorretos.";
-
-    }
-
-
-    showAuthMessage(msg);
-
+    let msg=error?.message || "Não foi possível entrar.";
+    if(msg==="Invalid login credentials") msg="E-mail ou senha incorretos.";
+    showAuthMessage("Não consegui carregar seus dados: "+msg,"warning");
   }finally{
-
-    $("loginButton").disabled =
-      false;
-
-
-    $("loginButton").textContent =
-      creatingAccount
-        ? "Criar conta"
-        : "Entrar";
-
+    $("loginButton").disabled=false;
+    $("loginButton").textContent=creatingAccount ? "Criar conta" : "Entrar";
   }
-
 }
 
 
@@ -5323,34 +5184,42 @@ async function loadSimplifiedCloudData(){
 
 
 async function loadSimpleAppData(){
-  if(!currentUser?.id){
-    const sessionResult = await supabaseClient.auth.getSession();
-    const session = sessionResult?.data?.session;
-    if(!session?.user) throw new Error("Sessão não encontrada.");
-    currentUser = session.user;
-  }
+  const sessionResult = await withTimeout(supabaseClient.auth.getSession(), 12000);
+  if(sessionResult.error) throw sessionResult.error;
 
+  const session = sessionResult.data?.session;
+  if(!session?.user?.id) throw new Error("Sua sessão expirou. Entre novamente.");
+
+  currentUser = session.user;
   const uid = currentUser.id;
 
-  const [transactionsResult, billsResult] = await Promise.all([
+  const transactionsResult = await withTimeout(
     supabaseClient
       .from("transactions")
       .select("*")
       .eq("user_id", uid)
       .order("date", {ascending:false}),
+    20000
+  );
+  if(transactionsResult.error) throw transactionsResult.error;
 
+  const billsResult = await withTimeout(
     supabaseClient
       .from("bills")
       .select("*")
       .eq("user_id", uid)
-      .order("created_at", {ascending:false})
-  ]);
-
-  if(transactionsResult.error) throw transactionsResult.error;
+      .order("created_at", {ascending:false}),
+    20000
+  );
   if(billsResult.error) throw billsResult.error;
 
-  database.transactions = transactionsResult.data || [];
-  database.bills = billsResult.data || [];
+  database.transactions = Array.isArray(transactionsResult.data) ? transactionsResult.data : [];
+  database.bills = Array.isArray(billsResult.data) ? billsResult.data : [];
+
+  console.info("Thaty Finanças: dados carregados", {
+    transactions: database.transactions.length,
+    bills: database.bills.length
+  });
 
   return true;
 }
@@ -8957,70 +8826,6 @@ $("password")
 
 
 
-/* ÚNICO controlador do botão Sair — desktop e mobile. */
-document.addEventListener("click", async event=>{
-  const button = event.target.closest("#logoutButton");
-  if(!button) return;
-
-  event.preventDefault();
-
-  if(button.dataset.busy === "1") return;
-  button.dataset.busy = "1";
-  button.disabled = true;
-
-  try{
-    await logout();
-  }finally{
-    button.disabled = false;
-    delete button.dataset.busy;
-  }
-});
-
-
-
-/* CONTROLE DE VERSÃO / CACHE — THATY FINANÇAS v11.0.0 */
-const THATY_APP_VERSION="11.0.0";
-const THATY_VERSION_KEY="thaty_financas_app_version";
-
-async function thatyRefreshStaleBrowserCache(){
-  let previousVersion=null;
-  try{ previousVersion=localStorage.getItem(THATY_VERSION_KEY); }catch(_){}
-
-  if(previousVersion===THATY_APP_VERSION) return false;
-
-  try{
-    if("caches" in window){
-      const names=await caches.keys();
-      await Promise.all(names.map(name=>caches.delete(name)));
-    }
-  }catch(error){ console.warn("Cache antigo:",error); }
-
-  try{
-    const registrations=await navigator.serviceWorker?.getRegistrations?.();
-    if(registrations?.length){
-      await Promise.all(registrations.map(r=>r.update().catch(()=>null)));
-    }
-  }catch(error){ console.warn("Service worker:",error); }
-
-  try{ localStorage.setItem(THATY_VERSION_KEY,THATY_APP_VERSION); }catch(_){}
-
-  const reloadKey=`thaty_version_reload_${THATY_APP_VERSION}`;
-  try{
-    if(!sessionStorage.getItem(reloadKey)){
-      sessionStorage.setItem(reloadKey,"1");
-      const url=new URL(window.location.href);
-      url.searchParams.set("appv",THATY_APP_VERSION);
-      window.location.replace(url.toString());
-      return true;
-    }
-  }catch(error){ console.warn("Recarga de versão:",error); }
-
-  return false;
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  thatyRefreshStaleBrowserCache();
-});
 
 
 /* =========================================================
@@ -9724,6 +9529,7 @@ if("serviceWorker" in navigator){
     </div>
   </div>
 </div>
+
 
 </body>
 </html>
