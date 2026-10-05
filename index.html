@@ -5119,14 +5119,6 @@ async function authAction(){
       try{
         showAuthMessage("Sincronizando seus dados...", "success");
         await withTimeout(loadSimpleAppData(), 30000);
-
-        /* VIRADA DO MÊS:
-           As contas ficam salvas no banco, mas cada mês precisa do seu
-           lançamento interno para controlar "a pagar" e "paga".
-           Fazemos isso depois de carregar os dados, sem apagar histórico. */
-        await withTimeout(syncAllBillsToTransactions(), 30000);
-        await withTimeout(loadSimpleAppData(), 30000);
-
         renderEverything();
         showAuthMessage("Dados sincronizados.", "success");
       }catch(dataError){
@@ -9069,6 +9061,12 @@ async function refreshWhenVisible(){
   try{
     await loadSimpleAppData();
     renderEverything();
+
+    /* VIRADA AUTOMÁTICA DO MÊS:
+       reaproveita a sincronização que o próprio app já usa após o login.
+       O histórico anterior é preservado. */
+    syncBillsInBackground();
+
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
   }
@@ -9671,23 +9669,6 @@ if("serviceWorker" in navigator){
     </div>
   </div>
 </div>
-
-
-<script>
-/* THATY OUTUBRO — sincronização automática da virada do mês */
-document.addEventListener("visibilitychange", async ()=>{
-  if(document.visibilityState !== "visible") return;
-  if(typeof currentUser === "undefined" || !currentUser) return;
-  try{
-    await loadSimpleAppData();
-    await syncAllBillsToTransactions();
-    await loadSimpleAppData();
-    renderEverything();
-  }catch(e){
-    console.warn("Atualização automática do mês:", e);
-  }
-});
-</script>
 
 </body>
 </html>
