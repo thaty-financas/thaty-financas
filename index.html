@@ -2574,29 +2574,6 @@ button[title="Voltar"]{
 }
 </style>
 
-
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="thaty-app-version" content="11.0.0">
-
-
-<style id="thaty-v11-version-ui">
-.thatyVersionBadge{
-  display:inline-flex;
-  vertical-align:middle;
-  margin-left:6px;
-  padding:3px 6px;
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:999px;
-  color:var(--muted);
-  background:rgba(255,255,255,.04);
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:.2px;
-}
-</style>
-
 </head>
 
 <body>
@@ -9686,55 +9663,6 @@ if("serviceWorker" in navigator){
     </div>
   </div>
 </div>
-
-
-<script id="thaty-version-guard">
-(function(){
-  const APP_VERSION="11.0.0";
-  const VERSION_KEY="thaty_financas_app_version";
-
-  async function cleanObsoleteBrowserCaches(){
-    try{
-      if("caches" in window){
-        const keys=await caches.keys();
-        await Promise.all(keys.map(key=>caches.delete(key)));
-      }
-    }catch(error){
-      console.warn("Não foi possível limpar Cache Storage:",error);
-    }
-
-    try{
-      if("serviceWorker" in navigator){
-        const registrations=await navigator.serviceWorker.getRegistrations();
-        await Promise.all(registrations.map(reg=>reg.unregister()));
-      }
-    }catch(error){
-      console.warn("Não foi possível remover service worker antigo:",error);
-    }
-  }
-
-  window.addEventListener("load",async()=>{
-    try{
-      const previous=localStorage.getItem(VERSION_KEY);
-
-      if(previous!==APP_VERSION){
-        await cleanObsoleteBrowserCaches();
-        localStorage.setItem(VERSION_KEY,APP_VERSION);
-
-        /* Uma única recarga força o navegador normal a buscar o HTML atualizado.
-           O marcador na URL impede loop e não apaga a sessão do Supabase. */
-        const url=new URL(window.location.href);
-        if(url.searchParams.get("_thaty_v")!==APP_VERSION){
-          url.searchParams.set("_thaty_v",APP_VERSION);
-          window.location.replace(url.toString());
-        }
-      }
-    }catch(error){
-      console.warn("Controle de versão:",error);
-    }
-  });
-})();
-</script>
 
 </body>
 </html>
