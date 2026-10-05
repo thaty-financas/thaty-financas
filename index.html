@@ -3799,14 +3799,6 @@ button[title="Voltar"]{
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-/* Fallback de conexão:
-   se o jsDelivr falhar ou for bloqueado, tenta o CDN alternativo
-   antes de iniciar o aplicativo. */
-if(!window.supabase || !window.supabase.createClient){
-  document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\\/script>');
-}
-</script>
 
 
 <script>
@@ -9069,7 +9061,6 @@ async function refreshWhenVisible(){
   try{
     await loadSimpleAppData();
     renderEverything();
-    syncBillsInBackground();
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
   }
