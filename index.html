@@ -3295,7 +3295,7 @@ button[title="Voltar"]{
 
       <div class="contasOverview">
         <div class="contasOverviewTop">
-          <div class="contasOverviewTitle">Pagamento das contas do mês</div>
+          <div class="contasOverviewTitle">Pagamento das contas — <span id="billsCurrentMonthLabel">mês atual</span></div>
           <div class="contasOverviewPercent" id="billsMonthPercent">0%</div>
         </div>
         <div class="contasOverviewTrack">
@@ -6108,6 +6108,12 @@ function renderBills(){
   const percent = totalMonth > 0
     ? Math.min(100, Math.round((paidTotal / totalMonth) * 100))
     : 0;
+
+  if($("billsCurrentMonthLabel")){
+    const now=new Date();
+    const monthName=now.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+    $("billsCurrentMonthLabel").textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
+  }
 
   if($("billsMonthPercent")) $("billsMonthPercent").textContent = percent + "%";
   if($("billsMonthFill")) $("billsMonthFill").style.width = percent + "%";
