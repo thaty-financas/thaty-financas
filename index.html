@@ -1113,6 +1113,13 @@ td button{
     0 0 12px rgba(244,123,32,.25);
 }
 
+.transactionSummary{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
 .reportSummary{
   display:grid;
 
@@ -1712,7 +1719,8 @@ td button{
     gap:13px;
   }
 
-  .reportSummary{
+  .reportSummary,
+  .transactionSummary{
     grid-template-columns:1fr;
   }
 
@@ -1843,7 +1851,6 @@ td button{
   line-height:1.2;
   vertical-align:middle;
 }
-
 
 
 /* =========================================================
@@ -1987,7 +1994,7 @@ td button{
   .installmentDates{gap:9px}
   .installmentDate{padding:10px;border-radius:12px}
 
-  .reportSummary{grid-template-columns:1fr;gap:9px}
+  .reportSummary,.transactionSummary{grid-template-columns:1fr;gap:9px}
   .reportItem{padding:13px;border-radius:14px;gap:8px}
   .reportAmount{font-size:15px}
 
@@ -2047,59 +2054,523 @@ td button{
 </style>
 
 
-<style id="thaty-contas-abas-style">
-/* Organização da área Contas: Pagas x A Pagar */
-.contas-month-progress{
-  margin: 0 0 16px;
-  padding: 16px;
-  border: 1px solid var(--border, rgba(255,255,255,.08));
-  border-radius: 16px;
-  background: var(--card, rgba(255,255,255,.04));
+<style id="thaty-contas-tabs-style">
+  .contasOverview{
+    margin:0 0 16px; padding:16px; border-radius:16px;
+    background:var(--card,#10243a); border:1px solid var(--border,rgba(255,255,255,.08));
+  }
+  .contasOverviewTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .contasOverviewTitle{font-weight:800}
+  .contasOverviewPercent{font-size:20px;font-weight:900}
+  .contasOverviewTrack{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+  .contasOverviewFill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#ff7a18,#ff9f43);transition:width .35s ease}
+  .contasOverviewValues{display:flex;justify-content:space-between;gap:12px;margin-top:9px;font-size:12px;color:var(--muted,#9aa8ba)}
+  .contasTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .contasTab{border:1px solid var(--border,rgba(255,255,255,.10));background:transparent;color:inherit;border-radius:13px;padding:12px 10px;font:inherit;font-weight:800;cursor:pointer;transition:.2s ease}
+  .contasTab.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.35);box-shadow:0 6px 18px rgba(0,0,0,.10)}
+  .contasTabCount{display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:23px;padding:0 6px;margin-left:5px;border-radius:999px;background:rgba(255,255,255,.09);font-size:11px}
+  .contasTabPanel{display:none}
+  .contasTabPanel.active{display:block}
+  @media(max-width:600px){
+    .contasOverview{padding:14px;border-radius:14px}
+    .contasOverviewPercent{font-size:18px}
+    .contasOverviewValues{font-size:11px}
+    .contasTab{min-height:48px;padding:10px 7px}
+  }
+
+
+</style>
+
+<style id="report-breakdown-style">
+.report-breakdown{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 18px;
 }
-.contas-month-progress .cmp-top{
-  display:flex;justify-content:space-between;gap:12px;align-items:flex-end;
-  margin-bottom:10px;
+.report-breakdown-card{
+  padding:14px;
+  border-radius:15px;
+  border:1px solid var(--border,rgba(255,255,255,.08));
+  background:var(--card,rgba(255,255,255,.04));
 }
-.contas-month-progress .cmp-title{font-weight:800;font-size:14px}
-.contas-month-progress .cmp-percent{font-weight:900;font-size:18px}
-.contas-month-progress .cmp-track{
-  height:10px;border-radius:999px;overflow:hidden;
-  background:rgba(127,127,127,.18);
+.report-breakdown-label{font-size:11px;opacity:.68;margin-bottom:5px}
+.report-breakdown-value{font-size:16px;font-weight:900}
+@media(max-width:700px){
+  .report-breakdown{grid-template-columns:1fr 1fr;gap:8px}
+  .report-breakdown-card{padding:12px}
+  .report-breakdown-value{font-size:15px}
 }
-.contas-month-progress .cmp-fill{
-  height:100%;width:0;border-radius:999px;
+</style>
+
+
+<style id="nubank-import-style">
+.nu-import-btn{margin-left:8px}
+.nu-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px}
+.nu-modal.open{display:flex}
+.nu-box{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--card,#171717);color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));border-radius:20px;padding:18px}
+.nu-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+.nu-title{font-size:18px;font-weight:900}
+.nu-close{border:0;background:transparent;color:inherit;font-size:24px;cursor:pointer}
+.nu-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.nu-summary>div{padding:11px;border-radius:12px;background:rgba(127,127,127,.09)}
+.nu-summary small{display:block;opacity:.65;font-size:10px}.nu-summary strong{display:block;margin-top:4px}
+.nu-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+.nu-tab{white-space:nowrap;border:1px solid var(--border,rgba(255,255,255,.12));background:transparent;color:inherit;border-radius:999px;padding:8px 11px;cursor:pointer}
+.nu-tab.active{background:rgba(127,127,127,.16)}
+.nu-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(127,127,127,.12)}
+.nu-row small{display:block;opacity:.62;margin-top:3px}.nu-value{font-weight:900;white-space:nowrap}
+.nu-badge{display:inline-block;font-size:10px;padding:3px 7px;border-radius:999px;background:rgba(127,127,127,.12);margin-top:4px}
+.nu-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;position:sticky;bottom:-18px;padding:12px 0;background:inherit}
+.nu-match-select{max-width:220px;margin-top:6px;font-size:11px}
+@media(max-width:600px){.nu-summary{grid-template-columns:1fr 1fr}.nu-summary>div:last-child{grid-column:1/-1}.nu-box{padding:14px}.nu-row{grid-template-columns:auto 1fr}.nu-value{grid-column:2}.nu-actions{bottom:-14px}}
+</style>
+
+
+<style id="nubank-reconcile-style">
+.nu-bank-balance{margin:12px 0;padding:14px;border-radius:15px;background:rgba(127,127,127,.08);border:1px solid var(--border,rgba(255,255,255,.10))}
+.nu-bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.nu-bank-grid>div{padding:10px;border-radius:11px;background:rgba(127,127,127,.07)}
+.nu-bank-grid small{display:block;font-size:10px;opacity:.65}.nu-bank-grid strong{display:block;margin-top:4px;font-size:14px}
+.nu-reconcile-status{font-size:12px;font-weight:800;margin-top:10px}
+.nu-danger-zone{margin-top:16px;padding-top:14px;border-top:1px solid rgba(127,127,127,.15)}
+.nu-danger-btn{width:100%}
+@media(max-width:600px){.nu-bank-grid{grid-template-columns:1fr}.nu-bank-grid>div{padding:9px}}
+</style>
+
+
+<style id="thaty-mobile-final-fix">
+.transactionsHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+.transactionsHeader h2{margin:0}
+.transactionsHeaderActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.transactionsHeaderActions button{
+  width:auto;
+  margin:0 !important;
+  white-space:nowrap;
+}
+.transactionAddButton{order:3}
+
+@media(max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  #appScreen,main,.page{width:100%;max-width:100%;min-width:0}
+  main{box-sizing:border-box}
+
+  .transactionsHeader{
+    display:block;
+    width:100%;
+    margin-bottom:14px;
+  }
+  .transactionsHeader h2{
+    display:block;
+    width:100%;
+    margin:0 0 16px;
+  }
+  .transactionsHeaderActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    width:100%;
+  }
+  .transactionsHeaderActions button{
+    width:100% !important;
+    min-width:0;
+    min-height:46px;
+    margin:0 !important;
+    padding:10px 9px;
+    white-space:normal;
+    line-height:1.2;
+  }
+  .transactionAddButton{
+    order:-1;
+    grid-column:1/-1;
+  }
+
+  #transactionSummary.transactionSummary{
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+  }
+
+  #reports .report-breakdown{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  #reports .reportSummary{
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  #reports .reportStat,
+  #reports .report-breakdown-card{
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+
+  .nu-box{
+    width:min(100%,720px);
+    max-height:calc(100dvh - 20px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+  .nu-actions{
+    position:sticky;
+    bottom:0;
+    z-index:3;
+  }
+}
+@media(max-width:430px){
+  .transactionsHeaderActions{
+    grid-template-columns:1fr;
+  }
+  .transactionAddButton{grid-column:auto}
+  #transactionSummary.transactionSummary{
+    grid-template-columns:1fr;
+  }
+  #reports .report-breakdown{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
+
+<style id="thaty-simple-app">
+/* THATY FINANÇAS — versão simplificada: uma única tela */
+#appScreen > header{
+  position:fixed;
+  left:0; right:0; top:0; bottom:auto;
+  width:100%;
+  min-height:68px;
+  padding:12px 22px;
+  display:flex;
+  align-items:center;
+  border-right:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(6,18,32,.97);
+  backdrop-filter:blur(18px);
+  z-index:100;
+}
+#appScreen > header .headerTop{
+  width:100%;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+#appScreen > header nav,
+#mobileMenuButton,
+#mobileMenuOverlay,
+#mobileMenuPanel{
+  display:none !important;
+}
+#appScreen > header #logoutButton{
+  display:inline-flex !important;
+  width:auto;
+  margin:0;
+  min-height:42px;
+}
+#appScreen main{
+  width:100%;
+  max-width:980px;
+  margin:0 auto;
+  padding:98px 22px 50px;
+}
+#appScreen main > .page:not(#bills){
+  display:none !important;
+}
+#bills{
+  display:block !important;
+}
+#bills > .row:first-child{
+  margin-bottom:16px;
+}
+#bills > .row:first-child h2{
+  margin-bottom:0;
+}
+.contasTabs.simpleMainTabs{
+  grid-template-columns:repeat(3,1fr);
+  position:sticky;
+  top:76px;
+  z-index:20;
+  padding:8px;
+  margin:0 0 14px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(7,20,38,.94);
+  backdrop-filter:blur(14px);
+}
+.simpleMainTabs .contasTab{
+  min-height:48px;
+}
+.salaryHero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  background:linear-gradient(145deg,#291e32,#161b2d);
+  box-shadow:var(--shadow);
+}
+.salaryHeroValue{
+  margin-top:7px;
+  color:var(--green);
+  font-size:30px;
+  font-weight:950;
+  letter-spacing:-1px;
+}
+.salaryHeroIcon{
+  width:52px;
+  height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:16px;
+  background:rgba(255,255,255,.07);
+  font-size:25px;
+}
+.simpleSalaryForm .primary{
+  max-width:260px;
+}
+.simpleSalaryHistoryHeader h3{
+  margin:0;
+}
+.simpleSalaryItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.simpleSalaryItem:last-child{border-bottom:0}
+.simpleSalaryItemValue{
+  color:var(--green);
+  font-weight:900;
+  white-space:nowrap;
+}
+.simpleSalaryItemActions{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.simpleSalaryDelete{
+  min-height:36px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  color:var(--muted2);
+}
+@media(max-width:700px){
+  #appScreen > header{
+    min-height:64px;
+    padding:10px 12px;
+  }
+  #appScreen > header .brand{font-size:20px}
+  #appScreen > header #logoutButton{
+    min-height:40px;
+    padding:9px 12px;
+  }
+  #appScreen main{
+    padding:82px 10px 30px;
+  }
+  #bills > .row:first-child{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  #bills > .row:first-child h2{
+    font-size:24px;
+    flex:1;
+  }
+  #addBillButton{
+    width:auto !important;
+    min-height:42px;
+    margin:0 !important;
+    padding:9px 11px !important;
+    white-space:nowrap;
+    font-size:12px;
+  }
+  .contasOverview{
+    margin-bottom:10px;
+  }
+  .contasTabs.simpleMainTabs{
+    top:68px;
+    gap:5px;
+    padding:6px;
+    border-radius:14px;
+  }
+  .simpleMainTabs .contasTab{
+    min-height:45px;
+    padding:8px 5px;
+    font-size:11px;
+  }
+  .simpleMainTabs .contasTabCount{
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    margin-left:2px;
+    font-size:9px;
+  }
+  .salaryHero{
+    padding:16px;
+    border-radius:17px;
+  }
+  .salaryHeroValue{font-size:27px}
+  .simpleSalaryForm .primary{
+    width:100%;
+    max-width:none;
+  }
+  .simpleSalaryItem{
+    align-items:flex-start;
+  }
+  .simpleSalaryItemActions{
+    flex-direction:column;
+    align-items:flex-end;
+  }
+}
+</style>
+
+
+<style id="thaty-simple-v2">
+.simpleWelcome{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.simpleWelcome h2{margin:0 0 4px}.simpleWelcome p{margin:0;color:var(--muted)}
+.simpleTabTotal{display:block;margin-top:3px;color:var(--muted2);font-size:10px;font-weight:800}
+.simpleCollapseCard{margin-bottom:12px}
+.simpleCollapseHeader{width:100%;min-height:62px;margin:0 0 8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid var(--border);border-radius:15px;background:rgba(255,255,255,.035);color:var(--text)}
+.simpleCollapseHeader span:first-child{display:flex;flex-direction:column;gap:4px}.simpleCollapseHeader small{color:var(--muted);font-size:11px}
+.simpleCollapseArrow{color:var(--accent);font-size:22px;transition:transform .18s ease}
+.simpleCollapseHeader[aria-expanded="false"] .simpleCollapseArrow{transform:rotate(-90deg)}
+.simpleCollapseBody{overflow:hidden}.simpleCollapseBody.is-collapsed{display:none}
+.simpleGoalTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.simpleGoalHeadline{margin-top:5px;font-size:18px;font-weight:900}
+.simpleGoalEdit{width:auto;min-height:38px;margin:0;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.05);color:var(--muted2);white-space:nowrap}
+.simpleGoalProgressTrack{height:13px;margin:16px 0 9px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07)}
+.simpleGoalProgressBar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .3s ease}
+.simpleGoalStats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}.simpleGoalStats strong{color:var(--green);font-size:14px}
+.simpleGoalEditor{margin-top:15px;padding-top:14px;border-top:1px solid var(--border)}
+.simpleGoalEditorRow{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end}.simpleGoalEditorRow .primary{width:auto;margin:0}
+@media(max-width:700px){
+  .simpleWelcome{align-items:flex-end;gap:10px}.simpleWelcome h2{font-size:22px}.simpleWelcome p{font-size:11px}
+  .simpleGoalTop{align-items:center}.simpleGoalHeadline{font-size:16px}.simpleGoalStats{flex-direction:column;gap:3px}
+  .simpleGoalEditorRow{grid-template-columns:1fr}.simpleGoalEditorRow .primary{width:100%}
+}
+</style>
+
+
+<style id="thaty-salary-orange-progress-fix">
+.simpleGoalProgressTrack{
+  position:relative;
+  height:13px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#24364a;
+}
+.simpleGoalProgressBar{
+  display:block !important;
+  height:100% !important;
+  min-height:13px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ff7a18,#ff9a3d) !important;
+  box-shadow:0 0 12px rgba(255,122,24,.24);
   transition:width .35s ease;
 }
-.contas-month-progress .cmp-values{
-  display:flex;justify-content:space-between;gap:12px;
-  margin-top:8px;font-size:12px;opacity:.82;
+</style>
+
+
+<style id="thaty-bills-goal-bubble">
+.simpleBillsGoalBubble{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  margin:14px 0;
+  padding:17px;
+  border:1px solid rgba(255,122,24,.26);
+  border-radius:19px;
+  background:linear-gradient(145deg,rgba(255,122,24,.09),rgba(15,37,61,.96));
+  box-shadow:var(--shadow);
 }
-.contas-tabs{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  margin:0 0 14px;
+.simpleBillsGoalBubble:before{
+  content:"";
+  position:absolute;
+  left:24px;
+  bottom:-8px;
+  width:15px;
+  height:15px;
+  transform:rotate(45deg);
+  border-right:1px solid rgba(255,122,24,.26);
+  border-bottom:1px solid rgba(255,122,24,.26);
+  background:#10263d;
 }
-.contas-tab{
-  appearance:none;border:1px solid var(--border, rgba(255,255,255,.10));
-  background:transparent;color:inherit;border-radius:12px;
-  padding:11px 10px;font:inherit;font-weight:800;cursor:pointer;
-  transition:.2s ease;
+.simpleBillsGoalIcon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  border-radius:14px;background:rgba(255,122,24,.12);font-size:20px
 }
-.contas-tab.active{
-  background:rgba(127,127,127,.14);
-  border-color:currentColor;
+.simpleBillsGoalEyebrow{color:#ff9a3d;font-size:11px;font-weight:900;margin-bottom:5px}
+.simpleBillsGoalContent strong{display:block;font-size:17px;line-height:1.25}
+.simpleBillsGoalContent p{margin:5px 0 12px;color:var(--muted);font-size:12px;line-height:1.45}
+.simpleBillsGoalTrack{height:9px;overflow:hidden;border-radius:999px;background:#24364a}
+.simpleBillsGoalBar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#ff7a18,#ff9a3d);transition:width .35s ease}
+.simpleBillsGoalFooter{display:flex;justify-content:space-between;gap:10px;margin-top:7px;color:var(--muted);font-size:10px}
+.simpleBillsGoalFooter span:first-child{color:#ff9a3d;font-weight:900}
+@media(max-width:500px){
+ .simpleBillsGoalBubble{grid-template-columns:1fr;padding:15px}
+ .simpleBillsGoalIcon{width:38px;height:38px}
+ .simpleBillsGoalFooter{flex-direction:column;gap:2px}
 }
-.contas-tab .tab-count{
-  display:inline-flex;min-width:22px;height:22px;padding:0 6px;
-  align-items:center;justify-content:center;border-radius:999px;
-  margin-left:5px;font-size:11px;background:rgba(127,127,127,.16);
+</style>
+
+
+<style id="thaty-remove-obsolete-back-arrow">
+#sidebarToggle,
+.sidebarToggle,
+.mobileBackButton,
+.backButton,
+button[aria-label="Voltar"],
+button[title="Voltar"]{
+  display:none !important;
 }
-.contas-tab-panel{display:none}
-.contas-tab-panel.active{display:block}
-@media(max-width:600px){
-  .contas-month-progress{padding:14px;border-radius:14px}
-  .contas-month-progress .cmp-values{font-size:11px}
-  .contas-tabs{position:sticky;top:8px;z-index:5;background:var(--bg, inherit);padding:4px 0}
-  .contas-tab{min-height:46px}
+</style>
+
+
+
+
+
+<style id="thaty-v10-unified-mobile">
+@media(max-width:700px){
+  #appScreen > header{
+    z-index:1000 !important;
+    pointer-events:auto !important;
+  }
+  #logoutButton{
+    display:inline-flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:1001 !important;
+    pointer-events:auto !important;
+    touch-action:manipulation;
+  }
+  #mobileMenuOverlay,
+  #mobileMenuPanel,
+  #mobileMenuButton,
+  #navigation{
+    display:none !important;
+    pointer-events:none !important;
+  }
 }
 </style>
 
@@ -2368,7 +2839,7 @@ td button{
          INÍCIO
          =================================================== -->
 
-    <section id="home" class="page">
+    <section id="home" class="page hidden">
 <div class="homeHeader">
 <h2 id="homeGreeting">Olá, Thaty! 👋</h2>
 <div class="homeHeaderActions">
@@ -2382,37 +2853,7 @@ td button{
 
 </div>
 <div class="card"><div class="row"><h3>Situação do mês</h3><span id="homeStatusBadge" class="badge due">Em andamento</span></div>
-<div class="grid" style="grid-template-columns:repeat(3,1fr)"><div><div class="muted">Contas</div>
-<div id="thaty-contas-abas-block" class="thaty-contas-organizer">
-  <div class="contas-month-progress">
-    <div class="cmp-top">
-      <div class="cmp-title">Pagamento das contas do mês</div>
-      <div class="cmp-percent" id="contasPagoPercent">0%</div>
-    </div>
-    <div class="cmp-track"><div class="cmp-fill" id="contasPagoFill"></div></div>
-    <div class="cmp-values">
-      <span id="contasPagoValor">Pago: R$ 0,00</span>
-      <span id="contasFaltaValor">Falta: R$ 0,00</span>
-    </div>
-  </div>
-
-  <div class="contas-tabs" role="tablist" aria-label="Contas">
-    <button type="button" class="contas-tab active" data-contas-tab="pagas">
-      Contas pagas <span class="tab-count" id="contasPagasCount">0</span>
-    </button>
-    <button type="button" class="contas-tab" data-contas-tab="pagar">
-      Contas a pagar <span class="tab-count" id="contasPagarCount">0</span>
-    </button>
-  </div>
-
-  <div class="contas-tab-panel active" data-contas-panel="pagas" id="contasPagasPanel">
-    <div id="contasPagasLista"></div>
-  </div>
-  <div class="contas-tab-panel" data-contas-panel="pagar" id="contasPagarPanel">
-    <div id="contasPagarLista"></div>
-  </div>
-</div>
-<div id="homeBillsCount" class="value">0</div></div><div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div><div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
+<div class="grid" style="grid-template-columns:repeat(3,1fr)"><div><div class="muted">Contas</div><div id="homeBillsCount" class="value">0</div></div><div><div class="muted">Vencem hoje</div><div id="homeDueToday" class="value">0</div></div><div><div class="muted">Atrasadas</div><div id="homeLateCount" class="value">0</div></div></div>
 <div class="monthProgress"><div id="monthProgressBar" class="monthProgressBar"></div></div>
 <p id="homeStatusMessage" class="muted">Cadastre suas contas para acompanhar o mês.</p></div>
 <div class="card"><h3>Como usar o Thaty Finanças</h3><div id="homeSummary"><p>💳 Cadastre contas fixas e parceladas.</p><p>✅ Marque contas como pagas.</p><p>🎯 Atualize seus objetivos.</p><p>📊 Consulte os relatórios.</p></div></div>
@@ -2428,20 +2869,48 @@ td button{
       class="page hidden"
     >
 
-      <div class="row">
+      <div class="transactionsHeader">
+        <h2>Movimentações</h2>
 
-        <h2>
-          Movimentações
-        </h2>
+        <div class="transactionsHeaderActions">
+          <button
+            id="addTransactionButton"
+            class="primary transactionAddButton"
+            type="button"
+          >
+            + Adicionar
+          </button>
 
-        <button
-          id="addTransactionButton"
-          class="primary"
-          type="button"
-          style="width:auto;margin:0"
-        >
-          + Adicionar
-        </button>
+          <button
+            type="button"
+            class="btn secondary nu-import-btn"
+            onclick="openNubankImporter()"
+          >
+            📥 Importar Nubank (OFX)
+          </button>
+
+          <button
+            type="button"
+            class="btn secondary nu-import-btn transactionClearButton"
+            onclick="clearManualMovementHistory()"
+          >
+            🗑️ Limpar movimentações
+          </button>
+        </div>
+      </div>
+
+
+      <div id="transactionSummary" class="transactionSummary">
+
+        <div class="reportStat reportIncome">
+          <span>Total de entradas</span>
+          <strong id="transactionIncomeTotal">R$ 0,00</strong>
+        </div>
+
+        <div class="reportStat reportExpense">
+          <span>Total de saídas</span>
+          <strong id="transactionExpenseTotal">R$ 0,00</strong>
+        </div>
 
       </div>
 
@@ -2572,14 +3041,14 @@ td button{
 
     <section
       id="bills"
-      class="page hidden"
+      class="page"
     >
 
-      <div class="row">
-
-        <h2>
-          Contas
-        </h2>
+      <div class="simpleWelcome">
+        <div>
+          <h2>Olá, Tatyane! 👋</h2>
+          <p id="simpleMonthGreeting">Aqui está o seu mês.</p>
+        </div>
 
         <button
           id="addBillButton"
@@ -2587,7 +3056,7 @@ td button{
           type="button"
           style="width:auto;margin:0"
         >
-          + Adicionar
+          + Nova conta
         </button>
 
       </div>
@@ -2720,13 +3189,20 @@ td button{
           <div>
 
             <label>
-              Vencimento
+              Dia do vencimento
             </label>
 
             <input
-              value="Dia 10"
-              disabled
+              id="billDueDay"
+              type="number"
+              min="1"
+              max="31"
+              step="1"
+              value="10"
+              inputmode="numeric"
+              placeholder="Ex.: 15"
             >
+            <div class="muted" style="margin-top:5px">Escolha de 1 a 31.</div>
 
           </div>
 
@@ -2817,10 +3293,127 @@ td button{
       </div>
 
 
-      <div class="card">
+      <div class="contasOverview">
+        <div class="contasOverviewTop">
+          <div class="contasOverviewTitle">Pagamento das contas do mês</div>
+          <div class="contasOverviewPercent" id="billsMonthPercent">0%</div>
+        </div>
+        <div class="contasOverviewTrack">
+          <div class="contasOverviewFill" id="billsMonthFill"></div>
+        </div>
+        <div class="contasOverviewValues">
+          <span id="billsMonthPaidValue">Pago: R$ 0,00</span>
+          <span id="billsMonthRemainingValue">Falta: R$ 0,00</span>
+        </div>
+      </div>
 
-        <div id="billList"></div>
+      <div class="contasTabs simpleMainTabs" role="tablist" aria-label="Meu mês">
+        <button type="button" class="contasTab active" data-contas-tab="pending" role="tab" aria-selected="true">
+          ⏳ A pagar <span class="contasTabCount" id="billsPendingCount">0</span><span class="simpleTabTotal" id="billsPendingTabTotal">R$ 0,00</span>
+        </button>
+        <button type="button" class="contasTab" data-contas-tab="paid" role="tab" aria-selected="false">
+          ✓ Pagas <span class="contasTabCount" id="billsPaidCount">0</span><span class="simpleTabTotal" id="billsPaidTabTotal">R$ 0,00</span>
+        </button>
+        <button type="button" class="contasTab" data-contas-tab="salary" role="tab" aria-selected="false">
+          🎵 Salário
+        </button>
+      </div>
 
+      <div id="billListPendingPanel" class="contasTabPanel active" data-contas-panel="pending">
+        <div class="simpleCollapseCard">
+          <button type="button" class="simpleCollapseHeader" data-collapse-target="pendingBillsBody" aria-expanded="true">
+            <span><strong>Contas a pagar</strong><small id="pendingCollapseSummary">0 contas · R$ 0,00</small></span>
+            <span class="simpleCollapseArrow">⌄</span>
+          </button>
+          <div id="pendingBillsBody" class="simpleCollapseBody">
+            <div class="card"><div id="billListPending"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="billListPaidPanel" class="contasTabPanel" data-contas-panel="paid">
+        <div class="simpleCollapseCard">
+          <button type="button" class="simpleCollapseHeader" data-collapse-target="paidBillsBody" aria-expanded="true">
+            <span><strong>Contas pagas</strong><small id="paidCollapseSummary">0 contas · R$ 0,00</small></span>
+            <span class="simpleCollapseArrow">⌄</span>
+          </button>
+          <div id="paidBillsBody" class="simpleCollapseBody">
+            <div class="card"><div id="billListPaid"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="salaryPanel" class="contasTabPanel" data-contas-panel="salary">
+        <div class="salaryHero">
+          <div>
+            <div class="muted">Recebido do TikTok neste mês</div>
+            <div id="simpleSalaryMonthTotal" class="salaryHeroValue">R$ 0,00</div>
+          </div>
+          <div class="salaryHeroIcon">🎵</div>
+        </div>
+
+        <div class="card simpleSalaryGoal">
+          <div class="simpleGoalTop">
+            <div>
+              <div class="muted">Meta de salário do mês</div>
+              <div id="simpleGoalHeadline" class="simpleGoalHeadline">Defina sua meta mensal</div>
+            </div>
+            <button id="simpleGoalEditButton" type="button" class="simpleGoalEdit">✎ Editar meta</button>
+          </div>
+          <div class="simpleGoalProgressTrack"><div id="simpleGoalProgressBar" class="simpleGoalProgressBar"></div></div>
+          <div class="simpleGoalStats">
+            <strong id="simpleGoalPercent">0%</strong>
+            <span id="simpleGoalRemaining">Adicione uma meta para acompanhar seu progresso.</span>
+          </div>
+          <div id="simpleGoalEditor" class="simpleGoalEditor hidden">
+            <label>Minha meta mensal</label>
+            <div class="simpleGoalEditorRow">
+              <input id="simpleGoalInput" type="text" inputmode="decimal" placeholder="Ex.: 3.000,00">
+              <button id="simpleGoalSaveButton" type="button" class="primary">Salvar meta</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="simpleBillsGoalBubble">
+          <div class="simpleBillsGoalIcon">💬</div>
+          <div class="simpleBillsGoalContent">
+            <div class="simpleBillsGoalEyebrow">Meta para pagar o mês 🧾</div>
+            <strong id="simpleBillsGoalTitle">Calculando suas contas...</strong>
+            <p id="simpleBillsGoalText">Vou comparar o que você recebeu com as contas deste mês.</p>
+            <div class="simpleBillsGoalTrack">
+              <div id="simpleBillsGoalBar" class="simpleBillsGoalBar"></div>
+            </div>
+            <div class="simpleBillsGoalFooter">
+              <span id="simpleBillsGoalPercent">0% coberto</span>
+              <span id="simpleBillsGoalRemaining"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card simpleSalaryForm">
+          <h3>Lançar recebimento do TikTok</h3>
+          <div class="formGrid">
+            <div>
+              <label>Valor recebido</label>
+              <input id="simpleSalaryAmount" type="text" inputmode="decimal" placeholder="0,00">
+            </div>
+            <div>
+              <label>Data</label>
+              <input id="simpleSalaryDate" type="date">
+            </div>
+          </div>
+          <button id="simpleSalarySave" class="primary" type="button">
+            + Adicionar salário
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="row simpleSalaryHistoryHeader">
+            <h3>Recebimentos</h3>
+            <span id="simpleSalaryCount" class="badge paid">0 lançamentos</span>
+          </div>
+          <div id="simpleSalaryHistory"></div>
+        </div>
       </div>
 
     </section><!-- ===================================================
@@ -3000,6 +3593,29 @@ td button{
       <h2>
         Relatórios
       </h2>
+<div id="reportMonthLabel" style="font-weight:900;font-size:14px;margin:14px 0 4px">Resumo do mês atual</div><div id="reportBreakdown" class="report-breakdown">
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">📥 Entradas do mês</div>
+    <div class="report-breakdown-value" id="reportManualIncome">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">🛍️ Gastos manuais</div>
+    <div class="report-breakdown-value" id="reportManualExpense">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">🧾 Contas pagas</div>
+    <div class="report-breakdown-value" id="reportBillsPaid">R$ 0,00</div>
+  </div>
+  <div class="report-breakdown-card">
+    <div class="report-breakdown-label">💸 Total que saiu</div>
+    <div class="report-breakdown-value" id="reportTotalOut">R$ 0,00</div>
+  </div>
+</div>
+<div>
+          </div>
+        </div>
+        </div>
+      </div>
 
 
       <div class="reportSummary">
@@ -3223,6 +3839,33 @@ let valuesHidden =
 /* =========================================================
    BANCO LOCAL
    ========================================================= */
+
+
+/* =========================================================
+   VIRADA AUTOMÁTICA DO MÊS
+   Saldo continua; indicadores mensais usam somente o mês atual.
+   ========================================================= */
+function thatyCurrentMonthKey(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function thatyTransactionMonthKey(t){
+  return String(t?.date || t?.created_at || "").slice(0,7);
+}
+function thatyCurrentMonthTransactions(list){
+  const mk=thatyCurrentMonthKey();
+  return (Array.isArray(list)?list:[]).filter(t=>thatyTransactionMonthKey(t)===mk);
+}
+function thatyCurrentMonthManualTransactions(){
+  return thatyCurrentMonthTransactions(
+    typeof manualTransactions==="function" ? manualTransactions() : database.transactions
+  );
+}
+function thatyCurrentMonthBillMovements(){
+  return thatyCurrentMonthTransactions(
+    database.transactions.filter(t=>typeof isAutomaticBillMovement==="function" && isAutomaticBillMovement(t))
+  );
+}
 
 let database = {
 
@@ -3996,6 +4639,17 @@ function isPendingBillMovement(transaction){
   return notes.startsWith("bill:") && !notes.endsWith(":paid");
 }
 
+/* Movimentações exibidas ao usuário: somente lançamentos manuais.
+   As movimentações automáticas de Contas continuam internas para
+   preservar saldo, pagamentos e parcelamentos sem alterar o banco. */
+function isAutomaticBillMovement(transaction){
+  return String(transaction?.notes || "").startsWith("bill:");
+}
+
+function manualTransactions(){
+  return database.transactions.filter(t => !isAutomaticBillMovement(t));
+}
+
 
 /* =========================================================
    MOSTRAR / ESCONDER CAMPOS DE PARCELAMENTO
@@ -4193,7 +4847,11 @@ function applyPrivacyMode(){
 
     "dashboardBalance",
 
-    "homeTikTokIncome"
+    "homeTikTokIncome",
+
+    "transactionIncomeTotal",
+
+    "transactionExpenseTotal"
 
   ];
 
@@ -4446,43 +5104,45 @@ async function authAction(){
 
 
     /*
-      No celular, não mostramos a tela principal antes dos dados.
-      Primeiro sincronizamos com o Supabase; depois abrimos o app.
-      Isso evita a impressão de que a conta está zerada.
+      IMPORTANTE PARA CELULAR:
+      não deixamos a interface presa esperando o Supabase. O app abre
+      primeiro e a sincronização acontece logo depois. Se a rede móvel
+      estiver lenta, o aplicativo continua acessível e tenta atualizar
+      novamente quando voltar para a tela.
     */
     try{
 
-      showLoading(
-        "Carregando seus dados..."
-      );
-
-
-      await loadCloudData(true, false);
-
-
       showApplication();
       renderEverything();
-
-
       hideLoading();
 
-      /* Não bloqueia o celular com a sincronização das contas. */
+      try{
+        showAuthMessage("Sincronizando seus dados...", "success");
+        await withTimeout(loadSimpleAppData(), 30000);
+        renderEverything();
+        showAuthMessage("Dados sincronizados.", "success");
+      }catch(dataError){
+        console.warn("Sincronização inicial atrasada no celular:", dataError);
+        showAuthMessage(
+          "O app abriu. A sincronização está demorando; vamos tentar novamente em segundo plano.",
+          "warning"
+        );
+      }
+
+      /* Sincronização complementar sem bloquear a interface. */
       syncBillsInBackground();
 
     }catch(dataError){
 
       console.error(
-        "Erro ao carregar dados:",
+        "Erro ao abrir o aplicativo:",
         dataError
       );
 
-
       hideLoading();
-
-
       showLogin();
       showAuthMessage(
-        "Login realizado, mas a conexão com seus dados demorou. Toque em Entrar novamente para tentar sincronizar.",
+        "Não foi possível abrir o aplicativo. Tente novamente.",
         "warning"
       );
 
@@ -4613,6 +5273,74 @@ function withTimeout(promise, ms = 15000){
   ]);
 }
 
+
+async function loadSimplifiedCloudData(){
+  if(!currentUser) throw new Error("Sessão não encontrada.");
+
+  const uid=currentUser.id;
+
+  const [transactionsResult,billsResult]=await withTimeout(
+    Promise.all([
+      supabaseClient
+        .from("transactions")
+        .select("*")
+        .eq("user_id",uid)
+        .order("date",{ascending:false}),
+
+      supabaseClient
+        .from("bills")
+        .select("*")
+        .eq("user_id",uid)
+        .order("created_at",{ascending:false})
+    ]),
+    20000
+  );
+
+  if(transactionsResult.error) throw transactionsResult.error;
+  if(billsResult.error) throw billsResult.error;
+
+  database.transactions=transactionsResult.data || [];
+  database.bills=billsResult.data || [];
+
+  return true;
+}
+
+
+
+async function loadSimpleAppData(){
+  if(!currentUser?.id){
+    const sessionResult = await supabaseClient.auth.getSession();
+    const session = sessionResult?.data?.session;
+    if(!session?.user) throw new Error("Sessão não encontrada.");
+    currentUser = session.user;
+  }
+
+  const uid = currentUser.id;
+
+  const [transactionsResult, billsResult] = await Promise.all([
+    supabaseClient
+      .from("transactions")
+      .select("*")
+      .eq("user_id", uid)
+      .order("date", {ascending:false}),
+
+    supabaseClient
+      .from("bills")
+      .select("*")
+      .eq("user_id", uid)
+      .order("created_at", {ascending:false})
+  ]);
+
+  if(transactionsResult.error) throw transactionsResult.error;
+  if(billsResult.error) throw billsResult.error;
+
+  database.transactions = transactionsResult.data || [];
+  database.bills = billsResult.data || [];
+
+  return true;
+}
+
+
 async function loadCloudData(
   allowImport,
   syncBills = false
@@ -4734,6 +5462,20 @@ async function loadCloudData(
     Number(
       results[3].data?.balance || 0
     );
+
+  /* Saldo bancário atual = snapshot independente do histórico.
+     A base antiga ficou negativa quando o histórico foi limpo.
+     Neste ponto de conciliação, o saldo real informado é R$ 1,70. */
+  if(Math.abs(Number(database.balance||0)-Number(THATY_CURRENT_REAL_BALANCE))>0.005){
+    database.balance=Number(THATY_CURRENT_REAL_BALANCE);
+    supabaseClient.from("account_settings").upsert({
+      user_id:currentUser.id,
+      balance:Number(THATY_CURRENT_REAL_BALANCE),
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id"}).then(({error})=>{
+      if(error) console.error("Falha ao salvar o saldo bancário atual:",error);
+    });
+  }
 
 
   /*
@@ -5069,10 +5811,13 @@ function getBillStatus(
 ){
   if(currentBillIsPaid(bill)) return {text:"Paga", className:"paid"};
   const now = new Date();
-  const due = new Date(now.getFullYear(), now.getMonth(), 10, 23,59,59);
+  const dueDay = Math.min(31, Math.max(1, Number(bill?.due_day || bill?.dueDay || 10)));
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const effectiveDay = Math.min(dueDay, lastDay);
+  const due = new Date(now.getFullYear(), now.getMonth(), effectiveDay, 23, 59, 59);
   return now > due
-    ? {text:"Atrasada", className:"late"}
-    : {text:"Vencimento dia 10", className:"due"};
+    ? {text:`Atrasada · dia ${dueDay}`, className:"late"}
+    : {text:`Vencimento dia ${dueDay}`, className:"due"};
 }
 
 /* =========================================================
@@ -5158,7 +5903,7 @@ window.toggleInstallmentSchedule = toggleInstallmentSchedule;
    HOME
    ========================================================= */
 
-function renderHome(){renderUserGreeting();renderHomeProfile();const income=database.transactions.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount||0),0);const expense=database.transactions.filter(t=>t.type==="expense" && !isPendingBillMovement(t)).reduce((s,t)=>s+Number(t.amount||0),0);const balance=database.balance+income-expense;const tiktokIncome=database.transactions.filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;$("homeDueToday").textContent=(new Date().getDate()===10?open.length:0);$("homeLateCount").textContent=(new Date().getDate()>10?open.length:0);$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
+function renderHome(){renderUserGreeting();renderHomeProfile();const balance=Number(database.balance||0);const tiktokIncome=thatyCurrentMonthTransactions(database.transactions).filter(isSalaryTransaction).reduce((s,t)=>s+Number(t.amount||0),0);const open=database.bills.filter(b=>!currentBillIsPaid(b));const totalMonth=open.reduce((s,b)=>s+Number(b.amount||0),0);const paid=database.bills.length-open.length;const progress=database.bills.length?Math.round(paid/database.bills.length*100):0;$("dashboardBalance").dataset.realValue=money(balance);$("homeTikTokIncome").dataset.realValue=money(tiktokIncome);$("homeBillsCount").textContent=database.bills.length;const todayDay = new Date().getDate(); const dueToday = open.filter(b=>Number(b.due_day || b.dueDay || 10) === todayDay).length; const late = open.filter(b=>todayDay > Math.min(31, Number(b.due_day || b.dueDay || 10))).length; $("homeDueToday").textContent=dueToday; $("homeLateCount").textContent=late;$("monthProgressBar").style.width=progress+"%";$("homeStatusMessage").textContent=open.length?`Você já pagou ${progress}% das contas. Faltam ${open.length} conta(s) (${money(totalMonth)}).`:"Parabéns! Todas as contas deste mês estão quitadas.";applyPrivacyMode();}
 
 
 /* =========================================================
@@ -5167,7 +5912,30 @@ function renderHome(){renderUserGreeting();renderHomeProfile();const income=data
 
 function renderTransactions(){
 
-  if(!database.transactions.length){
+  const transactionIncome = manualTransactions()
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const transactionExpense = manualTransactions()
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const incomeTotalEl = $("transactionIncomeTotal");
+  const expenseTotalEl = $("transactionExpenseTotal");
+
+  if(incomeTotalEl){
+    incomeTotalEl.dataset.realValue = money(transactionIncome);
+    incomeTotalEl.textContent = valuesHidden ? "R$ ••••••" : money(transactionIncome);
+  }
+
+  if(expenseTotalEl){
+    expenseTotalEl.dataset.realValue = money(transactionExpense);
+    expenseTotalEl.textContent = valuesHidden ? "R$ ••••••" : money(transactionExpense);
+  }
+
+  const visibleTransactions = manualTransactions();
+
+  if(!visibleTransactions.length){
 
     $("transactionList").innerHTML =
       '<p class="muted">Nenhuma movimentação cadastrada.</p>';
@@ -5201,7 +5969,7 @@ function renderTransactions(){
 
         <tbody>
 
-          ${database.transactions.map(x=>`
+          ${visibleTransactions.map(x=>`
 
             <tr>
 
@@ -5302,180 +6070,342 @@ function renderTransactions(){
 
 function renderBills(){
 
-  if(!database.bills.length){
+  const paidBills = [];
+  const pendingBills = [];
 
-    $("billList").innerHTML =
-      '<p class="muted">Nenhuma conta cadastrada.</p>';
+  /*
+     A tela usa as mesmas contas já cadastradas no banco.
+     Para parcelas, considera somente a parcela do mês atual.
+     Assim o histórico não se mistura com contas futuras/passadas.
+  */
+  database.bills.forEach(b=>{
+    const data = getInstallmentData(b);
 
-    return;
+    if(data.type === "installment"){
+      const current = currentMonthKey();
+      const start = parseMonthInput(data.start);
+      const endDate = getInstallmentEndDate(data);
+      const end = endDate ? monthInputValue(endDate) : "";
 
-  }
+      if(start && end && (current < monthInputValue(start) || current > end)){
+        return;
+      }
+    }
 
+    if(currentBillIsPaid(b)) paidBills.push(b);
+    else pendingBills.push(b);
+  });
 
-  $("billList").innerHTML =
-    database.bills.map(b=>{
+  const totalMonth = [...paidBills, ...pendingBills]
+    .reduce((s,b)=>s+Number(b.amount || 0),0);
 
-      const st =
-        getBillStatus(b);
+  const paidTotal = paidBills
+    .reduce((s,b)=>s+Number(b.amount || 0),0);
 
+  const remainingTotal = pendingBills
+    .reduce((s,b)=>s+Number(b.amount || 0),0);
+
+  const percent = totalMonth > 0
+    ? Math.min(100, Math.round((paidTotal / totalMonth) * 100))
+    : 0;
+
+  if($("billsMonthPercent")) $("billsMonthPercent").textContent = percent + "%";
+  if($("billsMonthFill")) $("billsMonthFill").style.width = percent + "%";
+  if($("billsMonthPaidValue")) $("billsMonthPaidValue").textContent = "Pago: " + money(paidTotal);
+  if($("billsMonthRemainingValue")) $("billsMonthRemainingValue").textContent = "Falta: " + money(remainingTotal);
+  if($("billsPaidCount")) $("billsPaidCount").textContent = paidBills.length;
+  if($("billsPendingCount")) $("billsPendingCount").textContent = pendingBills.length;
+
+  function renderBillCards(list, emptyText){
+    if(!list.length){
+      return '<p class="muted">' + emptyText + '</p>';
+    }
+
+    return list.map(b=>{
+      const st = getBillStatus(b);
       const currentPaid = currentBillIsPaid(b);
-
-
-      const data =
-        getInstallmentData(b);
-
+      const data = getInstallmentData(b);
 
       return `
-
         <div class="debtItem">
-
-
           <div class="row">
-
             <div>
-
-              <strong class="debtItemTitle">
-
-                ${escapeHtml(
-                  b.name
-                )}
-
-              </strong>
-
-
+              <strong class="debtItemTitle">${escapeHtml(b.name)}</strong>
               <div class="debtItemInfo">
-
-                ${
-                  data.type ===
-                  "installment"
-
-                    ? "💳 Conta parcelada"
-
-                    : "🔄 Conta mensal"
-                }
-
-                · Vencimento dia 10
-
+                ${data.type === "installment" ? "💳 Conta parcelada" : "🔄 Conta mensal"}
+                · Vencimento dia ${Number(b.due_day || 10)}
               </div>
-
             </div>
-
-
-            <span
-              class="badge ${st.className}"
-            >
-
-              ${st.text}
-
-            </span>
-
+            <span class="badge ${st.className}">${st.text}</span>
           </div>
-
 
           <div class="debtItemValues">
-
-
             <div>
-
-              <span class="debtValueLabel">
-                Parcela
-              </span>
-
-              <span class="debtValueNumber">
-                ${money(
-                  b.amount
-                )}
-              </span>
-
+              <span class="debtValueLabel">Parcela</span>
+              <span class="debtValueNumber">${money(b.amount)}</span>
             </div>
-
-
             <div>
-
-              <span class="debtValueLabel">
-                Valor total
-              </span>
-
-              <span class="debtValueNumber">
-                ${money(
-                  b.total_debt
-                )}
-              </span>
-
+              <span class="debtValueLabel">Valor total</span>
+              <span class="debtValueNumber">${money(b.total_debt)}</span>
             </div>
-
-
           </div>
-
 
           ${installmentHTML(b)}
 
-
           <div class="actions">
-
-
-            <button
-              type="button"
-              class="editButton"
-              onclick="editBill('${b.id}')"
-            >
-              ✏️ Editar
-            </button>
-
-
-            ${
-              !currentPaid
-
-                ? `
-
-                  <button
-                    type="button"
-                    onclick="markBillPaid('${b.id}')"
-                  >
-
-                    ✓ Marcar parcela paga
-
-                  </button>
-
-                `
-
-                : ""
-            }
-
-            ${
-              data.type === "installment" && !isBillQuitada(b)
-                ? `
-                  <button
-                    type="button"
-                    class="quitButton"
-                    onclick="quitDebt('${b.id}')"
-                  >
-                    💰 Quitar parcelas
-                  </button>
-                `
-                : ""
-            }
-
-
-            <button
-              type="button"
-              onclick="deleteBill('${b.id}')"
-            >
-              Excluir
-            </button>
-
-
+            <button type="button" class="editButton" onclick="editBill('${b.id}')">✏️ Editar</button>
+            ${!currentPaid ? `
+              <button type="button" onclick="markBillPaid('${b.id}')">✓ Marcar parcela paga</button>
+            ` : ""}
+            ${data.type === "installment" && !isBillQuitada(b) ? `
+              <button type="button" class="quitButton" onclick="quitDebt('${b.id}')">💰 Quitar parcelas</button>
+            ` : ""}
+            <button type="button" onclick="deleteBill('${b.id}')">Excluir</button>
           </div>
-
-
         </div>
-
       `;
-
     }).join("");
+  }
+
+  $("billListPaid").innerHTML = renderBillCards(
+    paidBills,
+    "Nenhuma conta foi paga neste mês."
+  );
+
+  $("billListPending").innerHTML = renderBillCards(
+    pendingBills,
+    "Você não tem contas a pagar neste mês."
+  );
+
+  const simplePendingTotal=pendingBills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+  const simplePaidTotal=paidBills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+
+  if($("billsPendingTabTotal")) $("billsPendingTabTotal").textContent=money(simplePendingTotal);
+  if($("billsPaidTabTotal")) $("billsPaidTabTotal").textContent=money(simplePaidTotal);
+  if($("pendingCollapseSummary")) $("pendingCollapseSummary").textContent=`${pendingBills.length} ${pendingBills.length===1?"conta":"contas"} · ${money(simplePendingTotal)}`;
+  if($("paidCollapseSummary")) $("paidCollapseSummary").textContent=`${paidBills.length} ${paidBills.length===1?"conta":"contas"} · ${money(simplePaidTotal)}`;
+
+  const monthGreeting=$("simpleMonthGreeting");
+  if(monthGreeting){
+    const monthName=new Date().toLocaleDateString("pt-BR",{month:"long"});
+    monthGreeting.textContent=`Aqui está o seu mês de ${monthName}.`;
+  }
+
+  renderSimpleSalary();
+
+  const tabs = document.querySelectorAll("#bills .contasTab");
+  tabs.forEach(tab=>{
+    tab.onclick = ()=>{
+      const target = tab.dataset.contasTab;
+      tabs.forEach(t=>{
+        const active = t === tab;
+        t.classList.toggle("active", active);
+        t.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      document.querySelectorAll("#bills .contasTabPanel").forEach(panel=>{
+        panel.classList.toggle("active", panel.dataset.contasPanel === target);
+      });
+    };
+  });
 
 }
 
+
+/* =========================================================
+   TELA SIMPLIFICADA — SALÁRIO TIKTOK
+   ========================================================= */
+
+function renderSimpleSalary(){
+  const totalEl = $("simpleSalaryMonthTotal");
+  const historyEl = $("simpleSalaryHistory");
+  const countEl = $("simpleSalaryCount");
+  const dateEl = $("simpleSalaryDate");
+
+  if(!totalEl || !historyEl || !countEl) return;
+
+  if(dateEl && !dateEl.value){
+    dateEl.value = new Date().toISOString().slice(0,10);
+  }
+
+  const salaryItems = database.transactions
+    .filter(isSalaryTransaction)
+    .filter(t=>monthKeyFromDate(t.date) === currentMonthKey())
+    .sort((a,b)=>String(b.date || "").localeCompare(String(a.date || "")));
+
+  const total = salaryItems.reduce((sum,t)=>sum + Number(t.amount || 0),0);
+
+  totalEl.textContent = money(total);
+  countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
+  renderSimpleSalaryGoal(total);
+  renderSimpleBillsGoal(total);
+
+  if(!salaryItems.length){
+    historyEl.innerHTML = '<p class="muted">Nenhum recebimento do TikTok lançado neste mês.</p>';
+    return;
+  }
+
+  historyEl.innerHTML = salaryItems.map(t=>`
+    <div class="simpleSalaryItem">
+      <div>
+        <div class="reportDescription">${escapeHtml(t.description || "TikTok")}</div>
+        <div class="reportMeta">${formatDate(t.date)}</div>
+      </div>
+      <div class="simpleSalaryItemActions">
+        <span class="simpleSalaryItemValue">${money(t.amount)}</span>
+        <button class="simpleSalaryDelete" type="button" onclick="deleteTransaction('${t.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+
+
+function renderSimpleBillsGoal(received){
+  const title=$("simpleBillsGoalTitle");
+  const textEl=$("simpleBillsGoalText");
+  const bar=$("simpleBillsGoalBar");
+  const percentEl=$("simpleBillsGoalPercent");
+  const remainingEl=$("simpleBillsGoalRemaining");
+  if(!title || !textEl || !bar || !percentEl || !remainingEl) return;
+
+  const billTotal=database.bills.reduce((sum,b)=>{
+    const period=currentBillPeriod(b);
+    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+  },0);
+
+  if(billTotal<=0){
+    title.textContent="Você não tem contas cadastradas neste mês.";
+    textEl.textContent="Quando adicionar suas contas, eu calculo automaticamente quanto do mês seu salário já cobre.";
+    bar.style.width="0%";
+    percentEl.textContent="0% coberto";
+    remainingEl.textContent="";
+    return;
+  }
+
+  const salary=Number(received||0);
+  const rawPercent=(salary/billTotal)*100;
+  const shown=Math.max(0,Math.min(100,rawPercent));
+  const remaining=Math.max(0,billTotal-salary);
+
+  bar.style.width=`${shown}%`;
+  percentEl.textContent=`${Math.round(rawPercent)}% coberto`;
+
+  if(remaining>0){
+    title.textContent=`Você precisa receber ${money(billTotal)} para pagar todas as contas.`;
+    textEl.textContent=`Você já recebeu ${money(salary)} do TikTok neste mês.`;
+    remainingEl.textContent=`Faltam ${money(remaining)}`;
+  }else{
+    title.textContent="🎉 Seu salário deste mês já cobre todas as suas contas!";
+    const extra=Math.max(0,salary-billTotal);
+    textEl.textContent=extra>0
+      ? `Depois de cobrir ${money(billTotal)} em contas, ainda sobram ${money(extra)}.`
+      : `Você alcançou exatamente o valor necessário para cobrir ${money(billTotal)} em contas.`;
+    remainingEl.textContent="Meta das contas alcançada";
+  }
+}
+
+function simpleSalaryGoalStorageKey(){
+  const uid=currentUser?.id || "local";
+  return `thaty_salary_goal_${uid}_${currentMonthKey()}`;
+}
+function getSimpleSalaryGoal(){
+  try{return Number(localStorage.getItem(simpleSalaryGoalStorageKey()) || 0)}
+  catch(e){return 0}
+}
+function renderSimpleSalaryGoal(received){
+  const goal=getSimpleSalaryGoal();
+  const headline=$("simpleGoalHeadline"),bar=$("simpleGoalProgressBar"),
+        percentEl=$("simpleGoalPercent"),remainingEl=$("simpleGoalRemaining"),input=$("simpleGoalInput");
+  if(!headline || !bar || !percentEl || !remainingEl) return;
+  if(input && document.activeElement!==input){
+    input.value=goal>0?goal.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
+  }
+  if(goal<=0){
+    headline.textContent="Defina sua meta mensal";bar.style.width="0%";percentEl.textContent="0%";
+    remainingEl.textContent="Adicione uma meta para acompanhar seu progresso.";return;
+  }
+  const raw=(Number(received||0)/goal)*100,shown=Math.max(0,Math.min(100,raw));
+  const remaining=Math.max(0,goal-Number(received||0));
+  headline.textContent=`${money(received)} de ${money(goal)}`;
+  bar.style.width=`${shown}%`;percentEl.textContent=`${Math.round(raw)}% da meta`;
+  remainingEl.textContent=remaining>0?`Faltam ${money(remaining)} para sua meta.`:
+    (Number(received||0)>goal?`Meta alcançada! Você passou ${money(Number(received||0)-goal)}.`:"Meta alcançada! 🎉");
+}
+function toggleSimpleGoalEditor(forceOpen){
+  const editor=$("simpleGoalEditor");if(!editor)return;
+  const open=typeof forceOpen==="boolean"?forceOpen:editor.classList.contains("hidden");
+  editor.classList.toggle("hidden",!open);
+  if(open){const input=$("simpleGoalInput");if(input)setTimeout(()=>input.focus(),0)}
+}
+function saveSimpleSalaryGoal(){
+  const value=numberValue($("simpleGoalInput")?.value || "");
+  if(value<=0)return alert("Digite uma meta mensal maior que zero.");
+  try{localStorage.setItem(simpleSalaryGoalStorageKey(),String(value))}
+  catch(e){console.error(e);return alert("Não foi possível salvar a meta neste dispositivo.")}
+  toggleSimpleGoalEditor(false);renderSimpleSalary();
+}
+
+async function saveSimpleSalary(){
+  try{
+    if(!currentUser){
+      return alert("Sua sessão expirou. Entre novamente.");
+    }
+
+    const amount = numberValue($("simpleSalaryAmount")?.value || "");
+    const date = $("simpleSalaryDate")?.value || new Date().toISOString().slice(0,10);
+
+    if(amount <= 0){
+      return alert("Digite o valor recebido do TikTok.");
+    }
+
+    const r = await supabaseClient
+      .from("transactions")
+      .insert({
+        user_id: currentUser.id,
+        type: "income",
+        description: "TikTok",
+        amount,
+        date,
+        category: "Salário",
+        notes: "tiktok-salario-manual"
+      });
+
+    if(r.error) throw r.error;
+
+    $("simpleSalaryAmount").value = "";
+    $("simpleSalaryDate").value = new Date().toISOString().slice(0,10);
+
+    await loadCloudData(false);
+    renderEverything();
+
+  }catch(e){
+    console.error(e);
+    alert(e.message || "Não foi possível salvar o recebimento.");
+  }
+}
+
+document.addEventListener("click", event=>{
+  const salaryButton=event.target.closest("#simpleSalarySave");
+  if(salaryButton){saveSimpleSalary();return}
+  const goalEdit=event.target.closest("#simpleGoalEditButton");
+  if(goalEdit){toggleSimpleGoalEditor();return}
+  const goalSave=event.target.closest("#simpleGoalSaveButton");
+  if(goalSave){saveSimpleSalaryGoal();return}
+  const collapseButton=event.target.closest(".simpleCollapseHeader[data-collapse-target]");
+  if(collapseButton){
+    const body=document.getElementById(collapseButton.dataset.collapseTarget);
+    if(!body)return;
+    const expanded=collapseButton.getAttribute("aria-expanded")!=="false";
+    collapseButton.setAttribute("aria-expanded",String(!expanded));
+    body.classList.toggle("is-collapsed",expanded);
+  }
+});
 
 /* =========================================================
    DÍVIDAS
@@ -5574,7 +6504,7 @@ function renderDebts(){
                     : "🔄 Conta mensal"
                 }
 
-                · Vencimento dia 10
+                · Vencimento dia ${Number(x.due_day || 10)}
 
               </div>
 
@@ -5949,137 +6879,68 @@ function renderTikTokReport(){
 }
 
 function renderReports(){
+  const currentKey=currentMonthKey();
 
-  const transactions =
-    [...database.transactions]
-      .sort(
-        (a,b)=>
-          String(b.date || "")
-            .localeCompare(
-              String(a.date || "")
-            )
-      );
+  // Movimentações do mês atual apenas.
+  const transactions=[...database.transactions]
+    .filter(t=>monthKeyFromDate(t.date)===currentKey)
+    .sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
 
-  const income =
-    transactions
-      .filter(
-        x=>x.type === "income"
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(x.amount || 0),
-        0
-      );
+  // Contas ficam fora dos gastos manuais para não duplicar.
+  const manualTransactions=transactions.filter(t=>!isAutomaticBillMovement(t));
 
-  const expense =
-    transactions
-      .filter(
-        x=>x.type === "expense" && !isPendingBillMovement(x)
-      )
-      .reduce(
-        (s,x)=>
-          s +
-          Number(x.amount || 0),
-        0
-      );
+  const income=manualTransactions
+    .filter(t=>t.type==="income")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
 
-  const currentBalance =
-    database.balance + income - expense;
+  const manualExpense=manualTransactions
+    .filter(t=>t.type==="expense")
+    .reduce((s,t)=>s+Number(t.amount||0),0);
 
-  const totalBills =
-    database.bills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.total_debt ??
-          x.totalDebt ??
-          x.amount ??
-          0
-        ),
-      0
-    );
+  // O saldo atual é o snapshot bancário. Não reconstruir pelo histórico.
+  const currentBalance=Number(database.balance||0);
 
-  const paidBills =
-    database.bills.filter(
-      x=>x.paid
-    );
+  // Valor/status da conta referente ao mês atual.
+  const billRows=database.bills.map(b=>{
+    const period=currentBillPeriod(b);
+    const amount=Number(period?.data?.amount ?? b.amount ?? 0);
+    return {bill:b,amount,paid:currentBillIsPaid(b)};
+  });
 
-  /* Mostra como pendente apenas o que vence no mês atual e ainda não foi pago.
-     Para parcelas, meses futuros/passados não entram neste total. */
-  const currentMonth = currentMonthKey();
-  const pendingBills =
-    database.bills.filter(b=>{
-      const data = getInstallmentData(b);
+  const totalBills=billRows.reduce((s,x)=>s+x.amount,0);
+  const paidBillRows=billRows.filter(x=>x.paid);
+  const pendingBillRows=billRows.filter(x=>!x.paid);
+  const paidBillsTotal=paidBillRows.reduce((s,x)=>s+x.amount,0);
+  const pendingBillsTotal=pendingBillRows.reduce((s,x)=>s+x.amount,0);
 
-      if(data.type === "installment"){
-        const start = parseMonthInput(data.start);
-        const end = getInstallmentEndDate(data);
-        const current = parseMonthInput(currentMonth);
-        if(!start || !end || !current) return false;
-        const startKey = monthInputValue(start);
-        const endKey = monthInputValue(end);
-        if(currentMonth < startKey || currentMonth > endKey) return false;
-      }
+  // Saídas do relatório = gastos manuais + contas pagas.
+  const expense=manualExpense+paidBillsTotal;
 
-      return !currentBillIsPaid(b);
-    });
+  // Mantém os objetos esperados pela parte detalhada do relatório.
+  const paidBills=paidBillRows.map(x=>x.bill);
+  const pendingBills=pendingBillRows.map(x=>x.bill);
 
-  const paidBillsTotal =
-    paidBills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.amount ||
-          0
-        ),
-      0
-    );
-
-  const pendingBillsTotal =
-    pendingBills.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.amount ||
-          0
-        ),
-      0
-    );
-
-  const goalsSaved =
-    database.goals.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.saved || 0
-        ),
-      0
-    );
-
-  const goalsTarget =
-    database.goals.reduce(
-      (s,x)=>
-        s +
-        Number(
-          x.target || 0
-        ),
-      0
-    );
+  const goalsSaved=database.goals.reduce((s,x)=>s+Number(x.saved||0),0);
+  const goalsTarget=database.goals.reduce((s,x)=>s+Number(x.target||0),0);
 
   $("reportBalanceTotal").textContent=money(currentBalance);
+  $("reportIncomeTotal").textContent=money(income);
+  $("reportExpenseTotal").textContent=money(expense);
+  $("reportBillsTotal").textContent=money(totalBills);
+  $("reportPendingBillsTotal").textContent=money(pendingBillsTotal);
 
-  $("reportIncomeTotal").textContent =
-    money(income);
+  // Sincroniza os quatro cards superiores.
+  const monthLabel=document.getElementById("reportMonthLabel");
+  if(monthLabel) monthLabel.textContent=`Resumo de ${formatMonth(parseMonthInput(currentKey))}`;
 
-  $("reportExpenseTotal").textContent =
-    money(expense);
-
-  $("reportBillsTotal").textContent =
-    money(totalBills);
-
-  $("reportPendingBillsTotal").textContent =
-    money(pendingBillsTotal);
+  const setReportValue=(id,value)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=money(value);
+  };
+  setReportValue("reportManualIncome",income);
+  setReportValue("reportManualExpense",manualExpense);
+  setReportValue("reportBillsPaid",paidBillsTotal);
+  setReportValue("reportTotalOut",expense);
 
   $("reportContent").innerHTML = `
 
@@ -6308,19 +7169,10 @@ function renderProfileAvatar(){
    ========================================================= */
 
 function renderEverything(){
-
-  renderHome();
-
-  renderTransactions();
-
   renderBills();
-
-  renderGoals();
-
-  renderReports();
-
-  renderSettings();
-
+  document.querySelectorAll(".page").forEach(page=>{
+    page.classList.toggle("hidden", page.id !== "bills");
+  });
 }
 
 
@@ -6798,6 +7650,9 @@ $("addBillButton").onclick =
         new Date()
       );
 
+    $("billDueDay").value =
+      "10";
+
 
     $("saveBillButton")
       .textContent =
@@ -6827,35 +7682,12 @@ $("addBillButton").onclick =
 
 $("cancelBillButton").onclick =
   ()=>{
-
     editingBillId = null;
-
-
-    $("billName").value =
-      "";
-
-
-    $("billAmount").value =
-      "";
-
-
-    $("billTotalDebt").value =
-      "";
-
-
-    $("billInfo").value =
-      "";
-
-
-    $("saveBillButton")
-      .textContent =
-      "Salvar";
-
-
-    $("billForm")
-      .classList
-      .add("hidden");
-
+    $("billName").value = "";
+    $("billAmount").value = "";
+    $("billTotalDebt").value = "";
+    $("saveBillButton").textContent = "Salvar";
+    $("billForm").classList.add("hidden");
   };
 
 
@@ -6901,6 +7733,9 @@ window.editBill =
 
 
     $("billTotalDebt").value = formatInputMoney(bill.total_debt);
+
+    $("billDueDay").value =
+      Math.min(31, Math.max(1, Number(bill.due_day || 10)));
 
 
     if(
@@ -7076,7 +7911,7 @@ function syncBillsInBackground(){
   syncAllBillsToTransactions()
     .then(async()=>{
       try{
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         renderEverything();
       }catch(e){
         console.error("Erro ao atualizar dados após sincronização:", e);
@@ -7102,6 +7937,7 @@ $("saveBillButton").onclick =
       const amount = numberValue($("billAmount").value);
       let totalDebt = numberValue($("billTotalDebt").value);
       const type = $("billType").value;
+      const dueDay = Math.min(31, Math.max(1, Number($("billDueDay").value) || 10));
 
       if(!name){
         return alert("Digite o nome da conta.");
@@ -7164,7 +8000,7 @@ $("saveBillButton").onclick =
             amount,
             total_debt: totalDebt,
             info,
-            due_day:10
+            due_day:dueDay
           })
           .eq("id", editingBillId)
           .eq("user_id", currentUser.id);
@@ -7178,7 +8014,7 @@ $("saveBillButton").onclick =
           amount,
           total_debt: totalDebt,
           info,
-          due_day:10
+          due_day:dueDay
         };
 
         /* Editar uma conta também atualiza sua saída em Movimentações. */
@@ -7191,7 +8027,7 @@ $("saveBillButton").onclick =
         $("billAmount").value = "";
         $("billTotalDebt").value = "";
 
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         renderEverything();
 
         alert("Conta atualizada com sucesso! 🧡");
@@ -7210,7 +8046,7 @@ $("saveBillButton").onclick =
           amount,
           total_debt: totalDebt,
           info,
-          due_day:10,
+          due_day:dueDay,
           paid:false
         })
         .select("id")
@@ -7225,7 +8061,7 @@ $("saveBillButton").onclick =
         amount,
         total_debt:totalDebt,
         info,
-        due_day:10,
+        due_day:dueDay,
         paid:false
       };
 
@@ -7239,12 +8075,12 @@ $("saveBillButton").onclick =
       $("billAmount").value = "";
       $("billTotalDebt").value = "";
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
 
       syncBillTransaction(newBill)
         .then(async()=>{
-          await loadCloudData(false, false);
+          await loadSimpleAppData();
           renderEverything();
         })
         .catch(e=>{
@@ -7276,7 +8112,7 @@ window.markBillPaid =
 
       if(!movement){
         await syncBillTransaction(bill);
-        await loadCloudData(false, false);
+        await loadSimpleAppData();
         movement=billMovementForMonth(bill,period.monthKey,period.installment);
       }
       if(!movement) return alert("Não foi possível localizar a movimentação desta conta.");
@@ -7289,7 +8125,7 @@ window.markBillPaid =
       const br=await supabaseClient.from("bills").update({paid:isLast || period.data.type==="monthly"}).eq("id",id).eq("user_id",currentUser.id);
       if(br.error) throw br.error;
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
       syncBillsInBackground();
 
@@ -7368,7 +8204,7 @@ window.quitDebt =
 
       if(r.error) throw r.error;
 
-      await loadCloudData(false, false);
+      await loadSimpleAppData();
       renderEverything();
       alert("Dívida quitada com sucesso! 🎉 As parcelas futuras foram encerradas.");
     }catch(e){
@@ -8030,61 +8866,30 @@ window.addMoneyToGoal =
    ========================================================= */
 
 async function logout(){
-
-  closeMobileMenu();
-
-  const logoutButtons = [
-    $("profileLogoutButton"),
-    $("mobileLogoutButton"),
-    $("logoutButton")
-  ].filter(Boolean);
-
-  logoutButtons.forEach(button=>{
-    button.disabled = true;
-  });
-
   try{
+    showLoading("Saindo...");
 
-    if(supabaseClient){
+    const result = await withTimeout(
+      supabaseClient.auth.signOut(),
+      15000
+    );
 
-      /* Logout local: não depende da internet para encerrar a sessão no aparelho. */
-      const result = await supabaseClient.auth.signOut({ scope:"local" });
+    if(result?.error) throw result.error;
 
-      if(result?.error){
-        console.error("Erro ao sair localmente:", result.error);
-      }
+  }catch(error){
+    console.error("Erro ao sair:", error);
+  }finally{
+    currentUser = null;
+    database.transactions = [];
+    database.bills = [];
 
-    }
+    hideLoading();
+    showLogin();
 
-  }catch(e){
+    if($("password")) $("password").value = "";
 
-    console.error("Erro ao sair:", e);
-
+    showAuthMessage("Você saiu da sua conta.", "success");
   }
-
-  currentUser = null;
-
-  database = {
-    transactions:[],
-    bills:[],
-    goals:[],
-    balance:0
-  };
-
-  editingBillId = null;
-  $("password").value = "";
-
-  showLogin();
-
-  showAuthMessage(
-    "Você saiu da conta. Para entrar novamente, confirme sua biometria, se o celular solicitar, e toque em Entrar.",
-    "success"
-  );
-
-  logoutButtons.forEach(button=>{
-    button.disabled = false;
-  });
-
 }
 
 
@@ -8135,6 +8940,28 @@ $("password")
   );
 
 
+
+
+/* ÚNICO controlador do botão Sair — desktop e mobile. */
+document.addEventListener("click", async event=>{
+  const button = event.target.closest("#logoutButton");
+  if(!button) return;
+
+  event.preventDefault();
+
+  if(button.dataset.busy === "1") return;
+  button.dataset.busy = "1";
+  button.disabled = true;
+
+  try{
+    await logout();
+  }finally{
+    button.disabled = false;
+    delete button.dataset.busy;
+  }
+});
+
+
 /* =========================================================
    INICIALIZAÇÃO
    ========================================================= */
@@ -8147,9 +8974,12 @@ async function initialize(){
 
 
     const r =
-      await supabaseClient
-        .auth
-        .getSession();
+      await withTimeout(
+        supabaseClient
+          .auth
+          .getSession(),
+        8000
+      );
 
 
     if(r.error){
@@ -8229,7 +9059,7 @@ async function refreshWhenVisible(){
   lastMobileRefresh = now;
 
   try{
-    await loadCloudData(false, false);
+    await loadSimpleAppData();
     renderEverything();
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
@@ -8251,13 +9081,480 @@ window.addEventListener("pageshow", ()=>{
    INICIAR
    ========================================================= */
 
+
+
+/* =========================================================
+   CONCILIAÇÃO NUBANK + LIMPEZA SEGURA DE MOVIMENTAÇÕES
+   ========================================================= */
+let nubankOfxLedgerBalance = null;
+let nubankOfxStartDate = null;
+let nubankOfxEndDate = null;
+const THATY_CURRENT_REAL_BALANCE = 1.70;
+
+
+function nuParseOfxPeriod(raw){
+  const pick=(tag)=>{
+    const m=String(raw||"").match(new RegExp("<"+tag+">\\s*(\\d{8})","i"));
+    if(!m) return null;
+    return `${m[1].slice(0,4)}-${m[1].slice(4,6)}-${m[1].slice(6,8)}`;
+  };
+  return {start:pick("DTSTART"), end:pick("DTEND")};
+}
+
+function nuParseLedgerBalance(raw){
+  const m = String(raw||"").match(/<LEDGERBAL>[\s\S]*?<BALAMT>([-+]?\d+(?:[.,]\d+)?)/i);
+  if(!m) return null;
+  const n = Number(m[1].replace(",","."));
+  return Number.isFinite(n) ? n : null;
+}
+
+function nuCurrentAppBalance(){
+  return Number(database.balance||THATY_CURRENT_REAL_BALANCE||0);
+}
+
+function updateNubankReconciliation(){
+  const ofxEl=document.getElementById("nuOfxBalance");
+  const projectedEl=document.getElementById("nuProjectedBalance");
+  const diffEl=document.getElementById("nuBalanceDiff");
+  const statusEl=document.getElementById("nuReconcileStatus");
+  if(!ofxEl||!projectedEl||!diffEl||!statusEl) return;
+
+  if(nubankOfxLedgerBalance===null){
+    ofxEl.textContent="Não informado";
+    projectedEl.textContent=money(THATY_CURRENT_REAL_BALANCE);
+    diffEl.textContent="—";
+    statusEl.textContent="ℹ️ O OFX não informou um saldo final utilizável. Seu saldo atual de R$ 1,70 será preservado.";
+    return;
+  }
+
+  const periodLabel = nubankOfxEndDate
+    ? nubankOfxEndDate.split("-").reverse().join("/")
+    : "fim do período";
+
+  /*
+    O saldo do OFX é histórico: vale para o fechamento do extrato.
+    Não deve substituir o saldo atual do app.
+    A diferença exibida abaixo é entre o saldo histórico do OFX e
+    o saldo atual real informado pela usuária, apenas para referência.
+  */
+  const currentReal = THATY_CURRENT_REAL_BALANCE;
+  const historicalChange = currentReal - nubankOfxLedgerBalance;
+
+  ofxEl.textContent=money(nubankOfxLedgerBalance);
+  projectedEl.textContent=money(currentReal);
+  diffEl.textContent=money(historicalChange);
+
+  if(nubankOfxEndDate){
+    statusEl.textContent=
+      `🏦 O OFX fecha em ${periodLabel} com ${money(nubankOfxLedgerBalance)}. `+
+      `Seu saldo atual de ${money(currentReal)} será preservado. `+
+      `A variação após o fechamento é ${historicalChange>=0?"+ ":"- "}${money(Math.abs(historicalChange))}.`;
+  }else{
+    statusEl.textContent=
+      `🏦 Saldo do OFX: ${money(nubankOfxLedgerBalance)}. `+
+      `Saldo atual preservado: ${money(currentReal)}. Nenhum ajuste automático será feito.`;
+  }
+}
+
+async function clearManualMovementHistory(){
+  if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
+
+  const manual=database.transactions.filter(t=>!isAutomaticBillMovement(t));
+  if(!manual.length) return alert("Não existem movimentações para limpar.");
+
+  const ok=confirm(
+    `Você está prestes a apagar ${manual.length} movimentação(ões).\n\n`+
+    `CONTAS, parcelas, poupança, objetivos, perfil e configurações NÃO serão apagados.\n\nContinuar?`
+  );
+  if(!ok) return;
+
+  const typed=prompt('Para confirmar, digite LIMPAR:');
+  if(String(typed||"").trim().toUpperCase()!=="LIMPAR") return alert("Limpeza cancelada.");
+
+  try{
+    let removed=0, failed=0;
+    const ids=manual.map(t=>t.id).filter(Boolean);
+
+    /* Uma exclusão por ID evita URL/requisição grande demais no backend. */
+    for(const id of ids){
+      const {error}=await supabaseClient.from("transactions")
+        .delete()
+        .eq("id",id)
+        .eq("user_id",currentUser.id);
+      if(error){
+        console.error("Falha ao apagar movimentação",id,error);
+        failed++;
+      }else{
+        removed++;
+      }
+    }
+
+    await loadSimpleAppData();
+    renderEverything();
+    if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+
+    if(failed){
+      alert(`Foram apagadas ${removed} movimentação(ões), mas ${failed} falharam. Tente limpar novamente para remover o restante.`);
+    }else{
+      alert(`Pronto. ${removed} movimentação(ões) foram apagadas. 🧡\n\nSuas Contas e os demais dados foram preservados.`);
+    }
+  }catch(e){
+    console.error(e);
+    alert(e.message||"Não foi possível limpar as movimentações.");
+  }
+}
+
+/* Liga uma saída importada a uma conta sem criar uma segunda saída.
+   O OFX continua sendo a movimentação bancária; a conta serve para controle. */
+async function reconcileImportedItemWithBill(item,billId){
+  const bill=database.bills.find(b=>String(b.id)===String(billId));
+  if(!bill) return false;
+
+  const period = currentBillPeriod(bill);
+  const monthKey = item.date ? item.date.slice(0,7) : period.monthKey;
+  let info = typeof infoWithPaidMonth==="function"
+    ? infoWithPaidMonth(bill.info, monthKey)
+    : String(bill.info||"");
+
+  const marker=`|OFX:${item.fitid}`;
+  if(!info.includes(marker)) info+=marker;
+
+  const {error}=await supabaseClient.from("bills").update({
+    info,
+    paid: period.data.type==="monthly" ? true : bill.paid
+  }).eq("id",bill.id).eq("user_id",currentUser.id);
+  if(error) throw error;
+  return true;
+}
+
+
+/* =========================================================
+   IMPORTADOR NUBANK OFX
+   ========================================================= */
+let nubankImportItems = [];
+let nubankImportFilter = "all";
+
+function openNubankImporter(){
+  document.getElementById("nubankImportModal")?.classList.add("open");
+}
+function closeNubankImporter(){
+  document.getElementById("nubankImportModal")?.classList.remove("open");
+}
+function nuText(block, tag){
+  const m=block.match(new RegExp("<"+tag+">([^\\r\\n<]+)","i"));
+  return m ? m[1].trim() : "";
+}
+function nuDate(raw){
+  const s=String(raw||"");
+  const m=s.match(/^(\d{4})(\d{2})(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : "";
+}
+function nuImportedFitids(){
+  const ids=new Set();
+  database.transactions.forEach(t=>{
+    const m=String(t.notes||"").match(/nubank-fitid:([^|]+)/);
+    if(m) ids.add(m[1]);
+  });
+  return ids;
+}
+function nuBillCandidates(item){
+  if(item.amount >= 0) return [];
+  const value=Math.abs(item.amount);
+  const itemDate=new Date(item.date+"T12:00:00");
+  const itemMonth=String(item.date||"").slice(0,7);
+
+  return database.bills.filter(b=>{
+    try{
+      /* Não sugere como conta algo que já está pago no período atual. */
+      if(typeof currentBillIsPaid==="function" && currentBillIsPaid(b)) return false;
+
+      if(Math.abs(Number(b.amount||0)-value) > 0.01) return false;
+
+      /* Usa o vencimento que realmente existe no cadastro da conta.
+         Não depende mais da função inexistente billDueDateForMonth. */
+      let dueRaw = b.due_date || b.dueDate || b.due || b.date || "";
+      let dueDate = null;
+
+      if(dueRaw){
+        const s=String(dueRaw);
+        if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+          /* Para contas recorrentes, compara usando o mesmo dia no mês do extrato. */
+          const day=s.slice(8,10);
+          dueDate=new Date(`${itemMonth}-${day}T12:00:00`);
+        }else if(/^\d{1,2}$/.test(s)){
+          const day=String(Number(s)).padStart(2,"0");
+          dueDate=new Date(`${itemMonth}-${day}T12:00:00`);
+        }
+      }
+
+      /* Se não houver vencimento legível, ainda permite sugerir pelo valor,
+         mas deixa a decisão final para a tela de revisão. */
+      if(!dueDate || Number.isNaN(dueDate.getTime())) return true;
+
+      return Math.abs((dueDate-itemDate)/86400000) <= 7;
+    }catch(e){
+      console.warn("Não foi possível comparar conta com OFX:",e);
+      return false;
+    }
+  });
+}
+function nuClassify(item, imported){
+  if(imported.has(item.fitid)) return "duplicate";
+  const matches=nuBillCandidates(item);
+  item.billMatches=matches;
+  if(matches.length) return "bill";
+  return "new";
+}
+async function readNubankOFX(file){
+  const content=document.getElementById("nuImportContent");
+  const rows=document.getElementById("nuRows");
+
+  try{
+    if(!file) return;
+
+    if(content) content.style.display="";
+    if(rows) rows.innerHTML=`<div style="padding:22px;text-align:center"><strong>⏳ Lendo extrato...</strong><br><small style="opacity:.65">Aguarde alguns segundos.</small></div>`;
+
+    let raw=await file.text();
+    if(!raw || !/<OFX/i.test(raw)) throw new Error("O arquivo selecionado não parece ser um OFX válido.");
+
+    /* OFX bancário pode vir em SGML (sem tags de fechamento em STMTTRN).
+       Em vez de depender de </STMTTRN>, quebramos pelo início de cada transação. */
+    const upper=raw.toUpperCase();
+    const starts=[];
+    let pos=0;
+    while((pos=upper.indexOf("<STMTTRN>",pos))!==-1){
+      starts.push(pos);
+      pos+=10;
+    }
+
+    if(!starts.length) throw new Error("Não encontrei movimentações <STMTTRN> neste extrato.");
+
+    const blocks=[];
+    for(let i=0;i<starts.length;i++){
+      const from=starts[i];
+      const to=i+1<starts.length ? starts[i+1] : raw.length;
+      let block=raw.slice(from,to);
+      const close=block.toUpperCase().indexOf("</STMTTRN>");
+      if(close>=0) block=block.slice(0,close+11);
+      blocks.push(block);
+    }
+
+    nubankOfxLedgerBalance=nuParseLedgerBalance(raw);
+    const ofxPeriod=nuParseOfxPeriod(raw);
+    nubankOfxStartDate=ofxPeriod.start;
+    nubankOfxEndDate=ofxPeriod.end;
+    const imported=nuImportedFitids();
+
+    nubankImportItems=blocks.map((b,i)=>{
+      const amountRaw=nuText(b,"TRNAMT");
+      const amount=Number(String(amountRaw).replace(",",".")||0);
+      const memo=nuText(b,"MEMO") || nuText(b,"NAME") || "Movimentação Nubank";
+      const date=nuDate(nuText(b,"DTPOSTED"));
+      const fitid=nuText(b,"FITID") || `fallback-${date}-${amount}-${i}`;
+
+      if(!date || !Number.isFinite(amount)) return null;
+
+      const item={
+        fitid,date,amount,memo,index:i,
+        selected:true,billId:""
+      };
+      item.status=nuClassify(item,imported);
+
+      if(item.status==="duplicate") item.selected=false;
+      if(item.status==="bill") item.selected=false;
+      return item;
+    }).filter(Boolean);
+
+    if(!nubankImportItems.length)
+      throw new Error("O OFX foi aberto, mas nenhuma movimentação válida pôde ser lida.");
+
+    renderNubankImport();
+    updateNubankReconciliation();
+
+  }catch(e){
+    console.error("Erro ao ler OFX Nubank:",e);
+    nubankImportItems=[];
+    if(content) content.style.display="";
+    if(rows) rows.innerHTML=`
+      <div style="padding:18px;border-radius:12px;background:rgba(255,80,80,.08)">
+        <strong>⚠️ Não consegui ler o extrato.</strong>
+        <div style="margin-top:6px;font-size:12px;opacity:.8">${escNu(e.message||"Erro desconhecido ao abrir o OFX.")}</div>
+      </div>`;
+  }
+}
+function setNuFilter(filter,btn){
+  nubankImportFilter=filter;
+  document.querySelectorAll(".nu-tab").forEach(x=>x.classList.remove("active"));
+  btn?.classList.add("active");
+  renderNubankImport();
+}
+function escNu(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function renderNubankImport(){
+  const rows=document.getElementById("nuRows"); if(!rows) return;
+  const count=s=>nubankImportItems.filter(x=>x.status===s).length;
+  document.getElementById("nuNewCount").textContent=count("new");
+  document.getElementById("nuBillCount").textContent=count("bill");
+  document.getElementById("nuDupCount").textContent=count("duplicate");
+  const visible=nubankImportItems.filter(x=>nubankImportFilter==="all"||x.status===nubankImportFilter);
+  rows.innerHTML=visible.map(item=>{
+    const idx=nubankImportItems.indexOf(item);
+    const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
+    const badge=item.status==="duplicate"?"Já importada":item.status==="bill"?"Possível conta":isTikTok?"TikTok • Salário":"Nova movimentação";
+    const matchSelect=item.status==="bill" ? `<select class="nu-match-select" onchange="nuChooseBill(${idx},this.value)">
+      <option value="">Não importar por enquanto</option>
+      ${item.billMatches.map(b=>`<option value="${escNu(b.id)}">${escNu(b.name||b.description||"Conta")} • ${money(Number(b.amount||0))}</option>`).join("")}
+      <option value="movement">Tratar como movimentação</option>
+    </select>`:"";
+    return `<div class="nu-row">
+      <input type="checkbox" ${item.selected?"checked":""} ${item.status==="duplicate"?"disabled":""} onchange="nubankImportItems[${idx}].selected=this.checked;updateNubankReconciliation()">
+      <div><strong>${escNu(item.memo)}</strong><small>${escNu(item.date.split("-").reverse().join("/"))}</small><span class="nu-badge">${badge}</span>${matchSelect}</div>
+      <div class="nu-value">${item.amount>=0?"+ ":"- "}${money(Math.abs(item.amount))}</div>
+    </div>`;
+  }).join("") || `<div style="padding:20px;text-align:center;opacity:.6">Nenhuma movimentação nesta categoria.</div>`;
+}
+function nuChooseBill(idx,value){
+  const item=nubankImportItems[idx];
+  item.billId=value && value!=="movement" ? value : "";
+  item.selected=value==="movement";
+  updateNubankReconciliation();
+}
+let nubankImportRunning=false;
+
+async function importSelectedNubank(){
+  if(nubankImportRunning) return;
+  if(!currentUser) return alert("Sua sessão expirou. Entre novamente.");
+
+  const btn=document.querySelector('#nubankImportModal button[onclick="importSelectedNubank()"]')
+    || [...document.querySelectorAll("button")].find(b=>/Importar selecionadas/i.test(b.textContent||""));
+
+  const movements=nubankImportItems.filter(x=>x.selected && x.status!=="duplicate" && !x.billId);
+  const billLinks=nubankImportItems.filter(x=>x.status==="bill" && x.billId);
+
+  if(!movements.length && !billLinks.length)
+    return alert("Selecione movimentações ou vincule pagamentos às contas antes de importar.");
+
+  nubankImportRunning=true;
+  const oldText=btn ? btn.textContent : "";
+  if(btn){
+    btn.disabled=true;
+    btn.textContent="⏳ Importando...";
+    btn.style.opacity=".65";
+    btn.style.pointerEvents="none";
+  }
+
+  try{
+    let importedCount=0, linkedCount=0, skippedCount=0;
+
+    /* Concilia contas sem criar uma segunda movimentação. */
+    for(const item of billLinks){
+      await reconcileImportedItemWithBill(item,item.billId);
+      linkedCount++;
+    }
+
+    for(const item of movements){
+      /* Reconsulta o banco imediatamente antes de inserir.
+         Isso protege inclusive contra uma tentativa anterior parcialmente concluída. */
+      const fitMarker=`nubank-fitid:${item.fitid}`;
+      const {data:existing,error:checkError}=await supabaseClient
+        .from("transactions")
+        .select("id,notes")
+        .eq("user_id",currentUser.id)
+        .ilike("notes",`%${fitMarker}%`)
+        .limit(1);
+
+      if(checkError) throw checkError;
+      if(existing && existing.length){
+        skippedCount++;
+        continue;
+      }
+
+      const isTikTok=item.amount>0 && /DLOCAL/i.test(item.memo);
+      const payload={
+        user_id:currentUser.id,
+        type:item.amount>=0?"income":"expense",
+        amount:Math.abs(item.amount),
+        description:item.memo,
+        category:isTikTok?"Salário":"Outros",
+        date:item.date,
+        notes:`${fitMarker}|nubank-ofx${isTikTok?"|tiktok":""}`
+      };
+
+      const {error}=await supabaseClient.from("transactions").insert(payload);
+      if(error) throw error;
+      importedCount++;
+    }
+
+    await loadSimpleAppData();
+    renderEverything();
+    if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+    closeNubankImporter();
+
+    let msg=`${importedCount} movimentação(ões) importada(s).`;
+    if(skippedCount) msg+=`\n${skippedCount} já existia(m) e foi(ram) ignorada(s).`;
+    if(linkedCount) msg+=`\n${linkedCount} pagamento(s) conciliado(s) com Contas sem duplicar a saída.`;
+    msg+=`\n\n🏦 O saldo atual de ${money(THATY_CURRENT_REAL_BALANCE)} foi preservado.`;
+    if(nubankOfxLedgerBalance!==null && nubankOfxEndDate){
+      msg+=`\nO saldo de ${money(nubankOfxLedgerBalance)} pertence ao fechamento do OFX em ${nubankOfxEndDate.split("-").reverse().join("/")}.`;
+    }
+    alert(msg);
+  }catch(e){
+    console.error(e);
+    alert(e.message||"Não foi possível concluir a importação.");
+  }finally{
+    nubankImportRunning=false;
+    if(btn){
+      btn.disabled=false;
+      btn.textContent=oldText||"Importar selecionadas";
+      btn.style.opacity="";
+      btn.style.pointerEvents="";
+    }
+  }
+}
+
+
+function updateCurrentMonthLabels(){
+  const names=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const d=new Date();
+  const el=document.getElementById("reportMonthLabel");
+  if(el) el.textContent=`Resumo de ${names[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>{
+  updateCurrentMonthLabels();
+  if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+},1000));
+window.addEventListener("pageshow",()=>setTimeout(()=>{
+  updateCurrentMonthLabels();
+  if(typeof updateReportBreakdown==="function") updateReportBreakdown();
+},400));
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const ofxInput=document.getElementById("nubankOfxFile");
+  if(ofxInput && !ofxInput.dataset.listenerReady){
+    ofxInput.dataset.listenerReady="1";
+    ofxInput.addEventListener("change",function(){
+      const file=this.files && this.files[0];
+      if(file) readNubankOFX(file);
+    });
+  }
+});
+
+
+/* Funções do importador expostas à interface HTML. */
+window.openNubankImporter = openNubankImporter;
+window.closeNubankImporter = closeNubankImporter;
+window.setNuFilter = setNuFilter;
+window.nuChooseBill = nuChooseBill;
+window.importSelectedNubank = importSelectedNubank;
+window.clearManualMovementHistory = clearManualMovementHistory;
+
+
 initialize();
 
 
-})();
-
-</script>
-
+})()</script>
 
 <!-- =====================================================
      SERVICE WORKER
@@ -8278,7 +9575,7 @@ if("serviceWorker" in navigator){
         registrado novamente normalmente.
       */
       const swRefreshKey =
-        "thaty_financas_sw_refresh_2026_09_14_2";
+        "thaty_financas_sw_refresh_2026_09_14_3";
 
       try{
         if(!localStorage.getItem(swRefreshKey)){
@@ -8323,111 +9620,49 @@ if("serviceWorker" in navigator){
 
 }
 
+
+
 </script>
 
 
-<script id="thaty-contas-abas-script">
-(function(){
-  function contasMoney(v){
-    if(typeof window.money === "function") return window.money(Number(v||0));
-    return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(v||0));
-  }
-  function contasIsPaid(b){
-    return !!(b && (b.paid === true || b.status === "paid" || b.is_paid === true));
-  }
-  function contasDateKey(b){
-    return String(b?.due_date || b?.date || b?.created_at || "").slice(0,10);
-  }
-  function contasCurrentMonthBills(){
-    const bills = Array.isArray(window.database?.bills) ? window.database.bills : [];
-    const now = new Date();
-    const ym = now.toISOString().slice(0,7);
-    // Keep bills for the current month. If a bill has no date, keep it so
-    // it remains visible instead of disappearing.
-    return bills.filter(b=>{
-      const d = contasDateKey(b);
-      return !d || d.slice(0,7) === ym;
-    });
-  }
-  function esc(v){
-    return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  }
-  function renderContasOrganizador(){
-    const root = document.getElementById("thaty-contas-abas-block");
-    if(!root) return;
-    const bills = contasCurrentMonthBills();
 
-    const paid = bills.filter(contasIsPaid);
-    const unpaid = bills.filter(b=>!contasIsPaid(b));
-    const total = bills.reduce((s,b)=>s+Number(b.amount||0),0);
-    const paidValue = paid.reduce((s,b)=>s+Number(b.amount||0),0);
-    const remaining = Math.max(0,total-paidValue);
-    const pct = total > 0 ? Math.min(100,(paidValue/total)*100) : 0;
 
-    const pctEl=document.getElementById("contasPagoPercent");
-    const fill=document.getElementById("contasPagoFill");
-    const pv=document.getElementById("contasPagoValor");
-    const rv=document.getElementById("contasFaltaValor");
-    if(pctEl) pctEl.textContent = `${Math.round(pct)}%`;
-    if(fill) fill.style.width = `${pct}%`;
-    if(pv) pv.textContent = `Pago: ${contasMoney(paidValue)}`;
-    if(rv) rv.textContent = `Falta: ${contasMoney(remaining)}`;
-
-    const pc=document.getElementById("contasPagasCount");
-    const uc=document.getElementById("contasPagarCount");
-    if(pc) pc.textContent=paid.length;
-    if(uc) uc.textContent=unpaid.length;
-
-    function list(items, empty){
-      if(!items.length) return `<div style="padding:16px;text-align:center;opacity:.65">${empty}</div>`;
-      return items.map(b=>{
-        const name=b.name || b.description || b.title || "Conta";
-        const amount=Number(b.amount||0);
-        const date=contasDateKey(b);
-        return `<div class="bill-card" style="margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
-            <div style="min-width:0">
-              <div style="font-weight:800">${esc(name)}</div>
-              ${date ? `<div style="font-size:11px;opacity:.65;margin-top:3px">${esc(date.split("-").reverse().join("/"))}</div>` : ""}
-            </div>
-            <div style="font-weight:900;white-space:nowrap">${contasMoney(amount)}</div>
-          </div>
-        </div>`;
-      }).join("");
-    }
-    const paidList=document.getElementById("contasPagasLista");
-    const unpaidList=document.getElementById("contasPagarLista");
-    if(paidList) paidList.innerHTML=list(paid,"Nenhuma conta paga neste mês.");
-    if(unpaidList) unpaidList.innerHTML=list(unpaid,"Você não tem contas a pagar neste mês.");
-
-    root.querySelectorAll(".contas-tab").forEach(btn=>{
-      btn.onclick=()=>{
-        const target=btn.dataset.contasTab;
-        root.querySelectorAll(".contas-tab").forEach(x=>x.classList.toggle("active",x===btn));
-        root.querySelectorAll(".contas-tab-panel").forEach(p=>p.classList.toggle("active",p.dataset.contasPanel===target));
-      };
-    });
-  }
-
-  window.renderContasOrganizador = renderContasOrganizador;
-
-  // Re-render after the app's normal rendering/loading settles.
-  document.addEventListener("DOMContentLoaded",()=>{
-    setTimeout(renderContasOrganizador,250);
-    setTimeout(renderContasOrganizador,1000);
-  });
-  const oldRender = window.renderEverything;
-  if(typeof oldRender==="function" && !oldRender.__contasWrapped){
-    window.renderEverything = function(){
-      const r=oldRender.apply(this,arguments);
-      setTimeout(renderContasOrganizador,0);
-      return r;
-    };
-    window.renderEverything.__contasWrapped=true;
-  }
-  window.addEventListener("pageshow",()=>setTimeout(renderContasOrganizador,100));
-})();
-</script>
+<div id="nubankImportModal" class="nu-modal">
+  <div class="nu-box">
+    <div class="nu-head">
+      <div><div class="nu-title">📥 Importar extrato Nubank</div><div style="font-size:11px;opacity:.65">OFX • revise antes de salvar</div></div>
+      <button class="nu-close" onclick="closeNubankImporter()">×</button>
+    </div>
+    <input id="nubankOfxFile" type="file" accept=".ofx,application/x-ofx">
+    <div id="nuImportContent" style="display:none">
+      <div class="nu-bank-balance">
+        <strong>🏦 Conciliação Nubank</strong>
+        <div class="nu-bank-grid">
+          <div><small>Saldo no fechamento do OFX</small><strong id="nuOfxBalance">—</strong></div>
+          <div><small>Saldo atual preservado</small><strong id="nuProjectedBalance">—</strong></div>
+          <div><small>Variação após o OFX</small><strong id="nuBalanceDiff">—</strong></div>
+        </div>
+        <div class="nu-reconcile-status" id="nuReconcileStatus">Carregando conciliação...</div>
+      </div>
+      <div class="nu-summary">
+        <div><small>Novas</small><strong id="nuNewCount">0</strong></div>
+        <div><small>Possíveis contas</small><strong id="nuBillCount">0</strong></div>
+        <div><small>Já importadas</small><strong id="nuDupCount">0</strong></div>
+      </div>
+      <div class="nu-tabs">
+        <button class="nu-tab active" onclick="setNuFilter('all',this)">Todas</button>
+        <button class="nu-tab" onclick="setNuFilter('new',this)">Novas</button>
+        <button class="nu-tab" onclick="setNuFilter('bill',this)">Possíveis contas</button>
+        <button class="nu-tab" onclick="setNuFilter('duplicate',this)">Já importadas</button>
+      </div>
+      <div id="nuRows"></div>
+      <div class="nu-actions">
+        <button class="btn secondary" onclick="closeNubankImporter()">Cancelar</button>
+        <button class="btn primary" onclick="importSelectedNubank()">Importar selecionadas</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
