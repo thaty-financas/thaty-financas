@@ -3821,7 +3821,7 @@ button[title="Voltar"]{
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="console.warn('CDN principal do Supabase falhou; o app tentará uma conexão alternativa.')"></script>
 
 
 <script>
@@ -4988,26 +4988,85 @@ function renderUserGreeting(){
    INICIALIZAR SUPABASE
    ========================================================= */
 
-function initializeSupabase(){
+let supabaseFallbackPromise = null;
+
+function loadSupabaseFallback(){
+  if(window.supabase && window.supabase.createClient){
+    return Promise.resolve();
+  }
+
+  if(supabaseFallbackPromise){
+    return supabaseFallbackPromise;
+  }
+
+  supabaseFallbackPromise = new Promise((resolve,reject)=>{
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/@supabase/supabase-js@2";
+    script.async = true;
+
+    const timer = setTimeout(()=>{
+      script.remove();
+      reject(new Error("A biblioteca de conexão demorou demais para carregar."));
+    },10000);
+
+    script.onload = ()=>{
+      clearTimeout(timer);
+      if(window.supabase && window.supabase.createClient){
+        resolve();
+      }else{
+        reject(new Error("A biblioteca de conexão foi carregada, mas não iniciou corretamente."));
+      }
+    };
+
+    script.onerror = ()=>{
+      clearTimeout(timer);
+      reject(new Error("Não foi possível carregar a biblioteca de conexão."));
+    };
+
+    document.head.appendChild(script);
+  }).catch(error=>{
+    supabaseFallbackPromise = null;
+    throw error;
+  });
+
+  return supabaseFallbackPromise;
+}
+
+async function initializeSupabase(){
+
+  if(supabaseClient && supabaseClient.auth){
+    return supabaseClient;
+  }
 
   if(
     !window.supabase ||
     !window.supabase.createClient
   ){
-
-    throw new Error(
-      "Não foi possível carregar o sistema de conexão."
-    );
-
+    await loadSupabaseFallback();
   }
 
-
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+  if(
+    !window.supabase ||
+    !window.supabase.createClient
+  ){
+    throw new Error(
+      "Não foi possível carregar o sistema de conexão. Verifique sua internet e tente novamente."
     );
+  }
 
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    {
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    }
+  );
+
+  return supabaseClient;
 }
 
 
@@ -5017,203 +5076,119 @@ function initializeSupabase(){
 
 async function authAction(){
 
-  const email =
-    $("email").value.trim();
-
-
-  const password =
-    $("password").value;
-
+  const email = $("email").value.trim();
+  const password = $("password").value;
 
   if(!email || !password){
-
-    showAuthMessage(
-      "Preencha seu e-mail e sua senha."
-    );
-
+    showAuthMessage("Preencha seu e-mail e sua senha.");
     return;
-
   }
 
+  const loginButton = $("loginButton");
 
-  $("loginButton").disabled =
-    true;
-
-
-  $("loginButton").textContent =
-    creatingAccount
-      ? "Criando..."
-      : "Entrando...";
-
+  if(loginButton){
+    loginButton.disabled = true;
+    loginButton.textContent = creatingAccount ? "Criando..." : "Entrando...";
+  }
 
   showAuthMessage("");
 
-
   try{
 
-    showLoading(
-      creatingAccount
-        ? "Criando sua conta..."
-        : "Entrando..."
-    );
+    showLoading(creatingAccount ? "Criando sua conta..." : "Entrando...");
 
+    /* Garante que o cliente do Supabase exista mesmo se o CDN principal falhar. */
+    await initializeSupabase();
 
     let result;
 
-
     if(creatingAccount){
-
-      result =
-        await supabaseClient
-          .auth
-          .signUp({
-
-            email,
-
-            password,
-
-            options:{
-              data:{
-                name:"Thaty"
-              }
-            }
-
-          });
-
+      result = await withTimeout(
+        supabaseClient.auth.signUp({
+          email,
+          password,
+          options:{
+            data:{name:"Thaty"}
+          }
+        }),
+        20000
+      );
     }else{
-
-      result =
-        await supabaseClient
-          .auth
-          .signInWithPassword({
-
-            email,
-
-            password
-
-          });
-
+      result = await withTimeout(
+        supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        }),
+        20000
+      );
     }
 
-
-    if(result.error){
-
+    if(result?.error){
       throw result.error;
-
     }
 
-
-    if(
-      creatingAccount &&
-      !result.data.session
-    ){
-
+    if(creatingAccount && !result?.data?.session){
       hideLoading();
-
-
       showAuthMessage(
         "Conta criada! Confirme seu e-mail se o Supabase solicitar.",
         "success"
       );
-
-
       return;
-
     }
 
+    if(!result?.data?.user){
+      throw new Error("O servidor confirmou o login, mas não retornou o usuário. Tente novamente.");
+    }
 
-    currentUser =
-      result.data.user;
+    currentUser = result.data.user;
 
+    /* Abre a interface imediatamente; a sincronização vem depois. */
+    showApplication();
+    hideLoading();
 
-    /*
-      IMPORTANTE PARA CELULAR:
-      não deixamos a interface presa esperando o Supabase. O app abre
-      primeiro e a sincronização acontece logo depois. Se a rede móvel
-      estiver lenta, o aplicativo continua acessível e tenta atualizar
-      novamente quando voltar para a tela.
-    */
     try{
-
-      showApplication();
+      await withTimeout(loadSimpleAppData(),30000);
       renderEverything();
-      hideLoading();
-
-      try{
-        showAuthMessage("Sincronizando seus dados...", "success");
-        await withTimeout(loadSimpleAppData(), 30000);
-        renderEverything();
-        showAuthMessage("Dados sincronizados.", "success");
-      }catch(dataError){
-        console.warn("Sincronização inicial atrasada no celular:", dataError);
-        showAuthMessage(
-          "O app abriu. A sincronização está demorando; vamos tentar novamente em segundo plano.",
-          "warning"
-        );
-      }
-
-      /* Sincronização complementar sem bloquear a interface. */
-      syncBillsInBackground();
-
     }catch(dataError){
-
-      console.error(
-        "Erro ao abrir o aplicativo:",
-        dataError
-      );
-
-      hideLoading();
-      showLogin();
-      showAuthMessage(
-        "Não foi possível abrir o aplicativo. Tente novamente.",
-        "warning"
-      );
-
+      console.warn("Sincronização inicial atrasada:",dataError);
+      /* O login já deu certo. Não voltamos para a tela de login por falha de sincronização. */
     }
 
+    syncBillsInBackground();
 
   }catch(error){
 
-    console.error(
-      "Erro de autenticação:",
-      error
-    );
-
-
+    console.error("Erro de autenticação:",error);
     hideLoading();
 
+    let msg = error?.message || "Não foi possível entrar.";
 
-    let msg =
-      error.message ||
-      "Não foi possível entrar.";
-
-
-    if(
-      msg ===
-      "Invalid login credentials"
+    if(msg === "Invalid login credentials"){
+      msg = "E-mail ou senha incorretos.";
+    }else if(msg.includes("demorou demais")){
+      msg = "A conexão demorou demais. Confira sua internet e toque em Entrar novamente.";
+      /* Permite recriar a conexão na próxima tentativa. */
+      supabaseClient = null;
+      supabaseFallbackPromise = null;
+    }else if(
+      msg.includes("Failed to fetch") ||
+      msg.includes("NetworkError") ||
+      msg.includes("fetch")
     ){
-
-      msg =
-        "E-mail ou senha incorretos.";
-
+      msg = "Não consegui conectar ao servidor. Verifique sua internet e tente novamente.";
+      supabaseClient = null;
     }
-
 
     showAuthMessage(msg);
 
   }finally{
 
-    $("loginButton").disabled =
-      false;
-
-
-    $("loginButton").textContent =
-      creatingAccount
-        ? "Criar conta"
-        : "Entrar";
+    if(loginButton){
+      loginButton.disabled = false;
+      loginButton.textContent = creatingAccount ? "Criar conta" : "Entrar";
+    }
 
   }
-
 }
 
 
@@ -8964,27 +8939,6 @@ $("password")
 
 
 
-
-/* ÚNICO controlador do botão Sair — desktop e mobile. */
-document.addEventListener("click", async event=>{
-  const button = event.target.closest("#logoutButton");
-  if(!button) return;
-
-  event.preventDefault();
-
-  if(button.dataset.busy === "1") return;
-  button.dataset.busy = "1";
-  button.disabled = true;
-
-  try{
-    await logout();
-  }finally{
-    button.disabled = false;
-    delete button.dataset.busy;
-  }
-});
-
-
 /* =========================================================
    INICIALIZAÇÃO
    ========================================================= */
@@ -8993,7 +8947,7 @@ async function initialize(){
 
   try{
 
-    initializeSupabase();
+    await initializeSupabase();
 
 
     const r =
@@ -9598,7 +9552,7 @@ if("serviceWorker" in navigator){
         registrado novamente normalmente.
       */
       const swRefreshKey =
-        "thaty_financas_sw_refresh_2026_09_14_3";
+        "thaty_financas_sw_refresh_2026_10_06_login_1";
 
       try{
         if(!localStorage.getItem(swRefreshKey)){
@@ -9690,7 +9644,7 @@ if("serviceWorker" in navigator){
 
 <script id="thaty-version-guard">
 (function(){
-  const APP_VERSION="11.0.0";
+  const APP_VERSION="11.0.1-login-fix";
   const VERSION_KEY="thaty_financas_app_version";
 
   async function cleanObsoleteBrowserCaches(){
