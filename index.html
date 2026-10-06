@@ -6274,25 +6274,39 @@ function renderSimpleBillsGoal(received){
   const remainingEl=$("simpleBillsGoalRemaining");
   if(!title || !textEl || !bar || !percentEl || !remainingEl) return;
 
-  /* Meta das contas: replica exatamente a mesma seleção e o mesmo valor
-     usados pela aba "A pagar" do mês atual. */
-  const billTotal=database.bills.reduce((sum,b)=>{
-    const data=getInstallmentData(b);
+  /* Usa o MESMO total que a própria tela "A pagar" acabou de calcular.
+     Isso impede qualquer divergência entre o card superior e esta meta. */
+  let billTotal=0;
+  const remainingLabel=$("billsMonthRemainingValue");
 
-    if(data.type === "installment"){
-      const current=currentMonthKey();
-      const start=parseMonthInput(data.start);
-      const endDate=getInstallmentEndDate(data);
-      const end=endDate ? monthInputValue(endDate) : "";
+  if(remainingLabel){
+    const raw=String(remainingLabel.textContent || "")
+      .replace(/[^0-9,.-]/g,"")
+      .replace(/\./g,"")
+      .replace(",",".");
+    billTotal=Number(raw || 0);
+  }
 
-      if(start && end && (current < monthInputValue(start) || current > end)){
-        return sum;
+  /* Fallback caso o resumo ainda não tenha sido renderizado. */
+  if(!Number.isFinite(billTotal) || billTotal<=0){
+    billTotal=database.bills.reduce((sum,b)=>{
+      const data=getInstallmentData(b);
+
+      if(data.type === "installment"){
+        const current=currentMonthKey();
+        const start=parseMonthInput(data.start);
+        const endDate=getInstallmentEndDate(data);
+        const end=endDate ? monthInputValue(endDate) : "";
+
+        if(start && end && (current < monthInputValue(start) || current > end)){
+          return sum;
+        }
       }
-    }
 
-    if(currentBillIsPaid(b)) return sum;
-    return sum+Number(b.amount || 0);
-  },0);
+      if(currentBillIsPaid(b)) return sum;
+      return sum+Number(b.amount || 0);
+    },0);
+  }
 
   if(billTotal<=0){
     title.textContent="Você não tem contas cadastradas neste mês.";
