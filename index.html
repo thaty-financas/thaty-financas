@@ -9061,6 +9061,12 @@ async function refreshWhenVisible(){
   try{
     await loadSimpleAppData();
     renderEverything();
+
+    /* VIRADA AUTOMÁTICA DO MÊS:
+       reaproveita a sincronização que o próprio app já usa após o login.
+       O histórico anterior é preservado. */
+    syncBillsInBackground();
+
   }catch(error){
     console.warn("Não foi possível atualizar os dados ao voltar ao app:", error);
   }
