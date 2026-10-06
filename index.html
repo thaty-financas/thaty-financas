@@ -6274,13 +6274,24 @@ function renderSimpleBillsGoal(received){
   const remainingEl=$("simpleBillsGoalRemaining");
   if(!title || !textEl || !bar || !percentEl || !remainingEl) return;
 
-  /* Meta das contas: usa somente o que ainda está A PAGAR no mês atual.
-     Assim este valor fica igual ao total exibido na aba "A pagar" e não
-     reaproveita contas já pagas nem valores de meses anteriores. */
+  /* Meta das contas: replica exatamente a mesma seleção e o mesmo valor
+     usados pela aba "A pagar" do mês atual. */
   const billTotal=database.bills.reduce((sum,b)=>{
+    const data=getInstallmentData(b);
+
+    if(data.type === "installment"){
+      const current=currentMonthKey();
+      const start=parseMonthInput(data.start);
+      const endDate=getInstallmentEndDate(data);
+      const end=endDate ? monthInputValue(endDate) : "";
+
+      if(start && end && (current < monthInputValue(start) || current > end)){
+        return sum;
+      }
+    }
+
     if(currentBillIsPaid(b)) return sum;
-    const period=currentBillPeriod(b);
-    return sum+Number(period?.data?.amount ?? b.amount ?? 0);
+    return sum+Number(b.amount || 0);
   },0);
 
   if(billTotal<=0){
