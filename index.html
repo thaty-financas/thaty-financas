@@ -6274,7 +6274,11 @@ function renderSimpleBillsGoal(received){
   const remainingEl=$("simpleBillsGoalRemaining");
   if(!title || !textEl || !bar || !percentEl || !remainingEl) return;
 
+  /* Meta das contas: usa somente o que ainda está A PAGAR no mês atual.
+     Assim este valor fica igual ao total exibido na aba "A pagar" e não
+     reaproveita contas já pagas nem valores de meses anteriores. */
   const billTotal=database.bills.reduce((sum,b)=>{
+    if(currentBillIsPaid(b)) return sum;
     const period=currentBillPeriod(b);
     return sum+Number(period?.data?.amount ?? b.amount ?? 0);
   },0);
