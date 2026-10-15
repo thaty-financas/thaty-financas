@@ -6223,6 +6223,7 @@ function renderBills(){
       document.querySelectorAll("#bills .contasTabPanel").forEach(panel=>{
         panel.classList.toggle("active", panel.dataset.contasPanel === target);
       });
+      if(target==="salary") refreshSalaryFromCloud();
     };
   });
 
@@ -6232,6 +6233,25 @@ function renderBills(){
 /* =========================================================
    TELA SIMPLIFICADA — SALÁRIO TIKTOK
    ========================================================= */
+
+let salaryRefreshRunning=false;
+async function refreshSalaryFromCloud(){
+  if(salaryRefreshRunning || !currentUser?.id || !supabaseClient) return;
+  salaryRefreshRunning=true;
+  try{
+    const result=await supabaseClient.from("transactions")
+      .select("*")
+      .eq("user_id",currentUser.id)
+      .order("date",{ascending:false});
+    if(result.error) throw result.error;
+    database.transactions=result.data || [];
+    renderSimpleSalary();
+  }catch(error){
+    console.error("Falha ao atualizar recebimentos:",error);
+  }finally{
+    salaryRefreshRunning=false;
+  }
+}
 
 function renderSimpleSalary(){
   const totalEl = $("simpleSalaryMonthTotal");
@@ -6456,8 +6476,7 @@ async function saveSimpleSalary(){
     $("simpleSalaryAmount").value = "";
     $("simpleSalaryDate").value = new Date().toISOString().slice(0,10);
 
-    await loadCloudData(false);
-    renderEverything();
+    await refreshSalaryFromCloud();
 
   }catch(e){
     console.error(e);
