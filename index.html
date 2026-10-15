@@ -6274,6 +6274,9 @@ function renderSimpleSalary(){
 
   totalEl.textContent = money(total);
   countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
+
+  /* O progresso não depende da renderização da lista de recebimentos. */
+  renderSimpleSalaryGoal(total);
   /* Atualiza a lista antes das metas: um erro em um card de meta
      não pode impedir a exibição dos recebimentos e seus botões. */
   if(!salaryItems.length){
@@ -6387,8 +6390,12 @@ function simpleSalaryGoalStorageKey(){
   return `thaty_salary_goal_${uid}_${currentMonthKey()}`;
 }
 function getSimpleSalaryGoal(){
-  try{return Number(localStorage.getItem(simpleSalaryGoalStorageKey()) || 0)}
-  catch(e){return 0}
+  /* A meta original não deve sumir após limpar o cache do navegador.
+     O usuário ainda pode alterá-la normalmente em Editar meta. */
+  try{
+    const saved=localStorage.getItem(simpleSalaryGoalStorageKey());
+    return saved===null ? 6000 : Number(saved || 0);
+  }catch(e){return 6000}
 }
 function renderSimpleSalaryGoal(received){
   const goal=getSimpleSalaryGoal();
