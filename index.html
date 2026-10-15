@@ -6248,11 +6248,14 @@ function renderSimpleSalary(){
 
   totalEl.textContent = money(total);
   countEl.textContent = `${salaryItems.length} ${salaryItems.length === 1 ? "lançamento" : "lançamentos"}`;
-  renderSimpleSalaryGoal(total);
-  renderSimpleBillsGoal(total);
-
+  /* Atualiza a lista antes das metas: um erro em um card de meta
+     não pode impedir a exibição dos recebimentos e seus botões. */
   if(!salaryItems.length){
     historyEl.innerHTML = '<p class="muted">Nenhum recebimento do TikTok lançado neste mês.</p>';
+    try{
+      renderSimpleSalaryGoal(total);
+      renderSimpleBillsGoal(total);
+    }catch(error){console.error("Erro ao atualizar metas de salário:",error);}
     return;
   }
 
@@ -6269,6 +6272,13 @@ function renderSimpleSalary(){
       </div>
     </div>
   `).join("");
+
+  try{
+    renderSimpleSalaryGoal(total);
+    renderSimpleBillsGoal(total);
+  }catch(error){
+    console.error("Erro ao atualizar metas de salário:",error);
+  }
 }
 
 
