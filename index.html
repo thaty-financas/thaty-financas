@@ -4585,7 +4585,7 @@ function monthKeyFromDate(date){
   /* Datas YYYY-MM-DD do Supabase são datas locais de calendário.
      Evita que new Date("2026-10-01") vire setembro em fusos negativos. */
   if(typeof date === "string"){
-    const match=date.match(/^(\\d{4})-(\\d{2})-(\\d{2})/);
+    const match=date.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})/);
     if(match) return match[1]+"-"+match[2];
   }
   const d=date instanceof Date ? date : new Date(date);
