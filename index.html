@@ -6264,6 +6264,7 @@ function renderSimpleSalary(){
       </div>
       <div class="simpleSalaryItemActions">
         <span class="simpleSalaryItemValue">${money(t.amount)}</span>
+        <button type="button" onclick="editSimpleSalary('${t.id}')">✏️ Editar</button>
         <button class="simpleSalaryDelete" type="button" onclick="deleteTransaction('${t.id}')">Excluir</button>
       </div>
     </div>
@@ -6385,6 +6386,29 @@ function saveSimpleSalaryGoal(){
   catch(e){console.error(e);return alert("Não foi possível salvar a meta neste dispositivo.")}
   toggleSimpleGoalEditor(false);renderSimpleSalary();
 }
+
+window.editSimpleSalary = async function(id){
+  const item=database.transactions.find(t=>String(t.id)===String(id) && isSalaryTransaction(t));
+  if(!item || !currentUser?.id) return alert("Lançamento não encontrado.");
+
+  const answer=prompt("Corrigir valor do salário (R$):",Number(item.amount||0).toFixed(2).replace(".",","));
+  if(answer===null) return;
+  const amount=numberValue(answer);
+  if(!Number.isFinite(amount) || amount<=0) return alert("Digite um valor maior que zero.");
+
+  try{
+    const r=await supabaseClient.from("transactions")
+      .update({amount})
+      .eq("id",item.id)
+      .eq("user_id",currentUser.id);
+    if(r.error) throw r.error;
+    await loadCloudData(false);
+    renderEverything();
+  }catch(error){
+    console.error("Erro ao editar salário:",error);
+    alert(error.message || "Não foi possível atualizar o valor.");
+  }
+};
 
 async function saveSimpleSalary(){
   try{
