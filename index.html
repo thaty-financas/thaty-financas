@@ -6289,7 +6289,7 @@ function renderSimpleSalary(){
     <div class="simpleSalaryItem">
       <div>
         <div class="reportDescription">${escapeHtml(t.description || "TikTok")}</div>
-        <div class="reportMeta">${formatDate(t.date)}</div>
+        <div class="reportMeta">${escapeHtml(String(t.date || "").slice(0,10).split("-").reverse().join("/"))}</div>
       </div>
       <div class="simpleSalaryItemActions">
         <span class="simpleSalaryItemValue">${money(t.amount)}</span>
