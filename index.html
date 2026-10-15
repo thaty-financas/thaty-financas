@@ -9061,76 +9061,42 @@ document.addEventListener("click", async event=>{
    ========================================================= */
 
 async function initialize(){
-
   try{
-
     initializeSupabase();
-
-
-    const r =
-      await withTimeout(
-        supabaseClient
-          .auth
-          .getSession(),
-        8000
-      );
-
-
-    if(r.error){
-
-      throw r.error;
-
-    }
-
-
-    if(r.data?.session){
-
-      /* Não abre o aplicativo automaticamente só porque existe uma sessão salva.
-         O usuário precisa confirmar a biometria/senha e tocar em Entrar. */
-      currentUser = null;
-
-      const savedEmail = r.data.session.user?.email || "";
-
-      if(savedEmail){
-        $("email").value = savedEmail;
-      }
-
-      $("password").value = "";
-
-      showLogin();
-
-      showAuthMessage(
-        "Sua sessão foi encontrada. Confirme sua biometria, se o celular solicitar, e toque em Entrar.",
-        "success"
-      );
-
-    }else{
-
-      showLogin();
-
-    }
-
-
-  }catch(e){
-
-    console.error(
-      "Erro ao iniciar:",
-      e
-    );
-
-
+  }catch(error){
+    console.error("Erro ao iniciar conexão:",error);
     hideLoading();
-
-
     showLogin();
-
-
-    showAuthMessage(
-      "O sistema de login não conseguiu iniciar. Atualize a página e tente novamente."
-    );
-
+    showAuthMessage("Não foi possível carregar a conexão. Atualize a página.");
+    return;
   }
 
+  try{
+    const result=await withTimeout(supabaseClient.auth.getSession(),8000);
+    if(result.error) throw result.error;
+    const session=result.data?.session;
+    if(!session?.user){
+      hideLoading();
+      showLogin();
+      return;
+    }
+
+    currentUser=session.user;
+    showApplication();
+    hideLoading();
+    try{
+      await withTimeout(loadSimpleAppData(),20000);
+      renderEverything();
+    }catch(error){
+      console.warn("Sessão restaurada; sincronização pendente:",error);
+      showAuthMessage("Sessão restaurada. Não foi possível atualizar os dados agora.","warning");
+    }
+  }catch(error){
+    console.warn("Falha ao recuperar sessão salva:",error);
+    hideLoading();
+    showLogin();
+    showAuthMessage("Não foi possível recuperar a sessão. Entre novamente.","warning");
+  }
 }
 
 
